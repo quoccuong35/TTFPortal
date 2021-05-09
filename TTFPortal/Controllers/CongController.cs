@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Transactions;
 using System.Web;
 using System.Web.Libs;
 using System.Web.Mvc;
@@ -404,6 +405,7 @@ namespace TTFPortal.Controllers
         {
             return View();
         }
+        [RoleAuthorize(Roles = "0=0,51=2")]
         public async Task<JsonResult> GetImportDLVTCaDem(HttpPostedFileBase UploadedFile) {
             JsonStatus rs = new JsonStatus();
             rs.code = 0;
@@ -434,8 +436,7 @@ namespace TTFPortal.Controllers
                         string OutDate = "";
                         string InTime = "";
                         string OutTime = "";
-                        string[] formats = { "d/MMM/yy","dd/MMM/yy","MMM/dd/yy","yy/MMM/dd","d/MMM/yyyy","dd/MMM/yyyy","dd/MM/yyyy", "d/MM/yyyy",
-                            "dd/MM/yy", "dd/M/yy", "d/M/yy", "d/MM/yy" };
+                        string[] formats = System.Configuration.ConfigurationManager.AppSettings["DayFormat"].ToString().Split(',');
                        
                         if (dt != null && dt.Rows.Count > 0)
                         {
@@ -520,6 +521,62 @@ namespace TTFPortal.Controllers
             rs.data = model;
             return Json(rs, JsonRequestBehavior.AllowGet);
         }
-
+        [RoleAuthorize(Roles = "0=0,51=2")]
+        public async Task<JsonResult> LuuDLVTCaDem(List<DLVT_CaDem> list)
+        {
+            JsonStatus rs = new JsonStatus();
+            rs.code = 0;
+            using (var db = new SaveDB())
+            {
+                db.GhiChu = "Import dữ liệu ca đêm";
+                DateTime ngay = new DateTime();
+                TTF_DLVT_CaDem objTTF_DLVT_CaDem = null;
+                string UID = "";
+                string d = "";
+                try
+                {
+                    foreach (var item in list)
+                    {
+                        UID = item.UID;
+                        d = item.InDate;
+                        ngay = DateTime.ParseExact(item.InDate, "dd/MM/yyyy", new CultureInfo("en-US"));
+                        var CheckExist = db.TTF_DLVT_CaDem.Where(o => o.UID == item.UID && o.InDate == ngay).FirstOrDefault();
+                        if (CheckExist == null)
+                        {
+                            objTTF_DLVT_CaDem = new TTF_DLVT_CaDem();
+                            objTTF_DLVT_CaDem.UID = item.UID;
+                            objTTF_DLVT_CaDem.InDate = DateTime.ParseExact(item.InDate, "dd/MM/yyyy", new CultureInfo("en-US"));
+                            objTTF_DLVT_CaDem.OutDate = DateTime.ParseExact(item.OutDate, "dd/MM/yyyy", new CultureInfo("en-US"));
+                            objTTF_DLVT_CaDem.InTime = item.InTime != null && item.InTime.Trim() != "" ? TimeSpan.Parse(item.InTime).ToString() : null;
+                            objTTF_DLVT_CaDem.OutTime = item.OutTime != null && item.OutDate.Trim() != "" ? TimeSpan.Parse(item.OutTime).ToString() : null;
+                            db.TTF_DLVT_CaDem.Add(objTTF_DLVT_CaDem);
+                           
+                        }
+                        else
+                        {
+                            CheckExist.OutDate = DateTime.ParseExact(item.OutDate, "dd/MM/yyyy", new CultureInfo("en-US"));
+                            CheckExist.InTime = item.InTime != null && item.InTime.Trim() != "" ? TimeSpan.Parse(item.InTime).ToString() : null;
+                            CheckExist.OutTime = item.OutTime != null && item.OutDate.Trim() != "" ? TimeSpan.Parse(item.OutTime).ToString() : null;
+                        }
+                    }
+                    using (var tran = new TransactionScope())
+                    {
+                        int kq = db.SaveChanges();
+                        if (kq > 0)
+                        {
+                            tran.Complete();
+                            rs.code = 1;
+                            rs.text = "Thành công " + kq;
+                        }
+                    }
+                    ViewBag.Message = "Thành công";
+                }
+                catch (Exception ex)
+                {
+                    rs.text = "Thất bại dòng: " + UID + "," + d + "\r\n" + ex.Message;
+                }
+            }
+            return Json(rs, JsonRequestBehavior.AllowGet);
+        }
     }
 }
