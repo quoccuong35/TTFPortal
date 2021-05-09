@@ -1,0 +1,386 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = Resources.Menu.NhanSuThongTin;
+}
+@section ScriptsFile{
+    <style>
+        .color_status {
+            cursor: default;
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            border: 1px solid #c3c3c3;
+            border-radius: 50%;
+            margin-top: 7px;
+        }
+
+        .dx-datagrid .dx-header-filter {
+            position: relative;
+            color: blue;
+            font: 14px/1 DXIcons;
+        }
+
+        .dx-datagrid .dx-header-filter-empty {
+            color: rgba(149,149,149,.5);
+        }
+    </style>
+}
+@section Link{
+    <div class="d-flex align-items-center flex-wrap mr-1">
+
+        <div class="d-flex align-items-baseline flex-wrap mr-5">
+
+            @*<h5 class="text-dark font-weight-bold my-1 mr-5">
+                    Chi tiết yêu cầu #1
+
+                </h5>*@
+            <ul class="breadcrumb breadcrumb-transparent breadcrumb-dot font-weight-bold p-0 my-2 ">
+                <li class="breadcrumb-item text-muted">
+                    <a href="" class="text-muted">@Resources.Menu.NhanSu</a>
+                </li>
+                <li class="breadcrumb-item text-muted">
+                    <a href="" class="text-muted">@Resources.Menu.NhanSuThongTin</a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+}
+@section Header{
+    <div class="d-flex align-items-center flex-wrap mr-1">
+    </div>
+    <div class="d-flex">
+        <div id="Mobile">
+            @if (User.IsInRole("11=2") || User.IsInRole("0=0"))
+            {
+                <a class="btn btn-primary font-weight-bolder mr-2" title="@Resources.App.ThemMoi" href="@Url.Action("Create","NhanSu")" >
+                    <i class="icon-md fas fa-plus"></i>
+                    @Resources.App.ThemMoi
+                </a>
+            }
+            @if (User.IsInRole("11=2") || User.IsInRole("0=0"))
+            {
+                <button type="button" class="btn btn-info font-weight-bolder mr-2" id="btn-chonfile"  data-toggle="modal" data-target="#ImportModal" >
+                    <i class="icon-md fas fa-long-arrow-alt-up"></i> @Resources.App.DocFileXecel
+                </button>
+            }
+            @if (User.IsInRole("11=2") || User.IsInRole("0=0") || ViewBag.MaPhongBan == "HCNS")
+            {
+                <button type="button" class="btn btn-success font-weight-bolder mr-2" onclick="XuatFileExcel()">
+                    <i class="icon-md fas fa-file-export"></i> @Resources.App.XuatFileExcel
+                </button>
+            }
+             <a href="@Url.Action("ExportFileImportNhanSu","NhanSu")" class="btn btn-info font-weight-bolder mr-2" ><i class="icon-lg far fa-file-excel"></i> @Resources.App.ExcelFileMau</a>
+            <button type="button" class="btn btn-light-primary font-weight-bolder mr-2" data-toggle="modal" data-target="#ModalFilter" >
+                <i class="icon-md fas fa-filter"></i> @Resources.App.BoLoc
+            </button>
+            <button type="button" class="btn btn-warning" onclick="TimKiem()">
+                <i class="icon-md fas fa-search"></i>
+                @Resources.App.TimKiem
+            </button>
+        </div>
+    </div>
+}
+<div class="row">
+    <div class="col-lg-12" id="mobliesize">
+        <div id="list_danh_sach"></div>
+    </div>
+</div>
+<div class="modal fade" id="ModalFilter" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="form-group row">
+                    <div class="col-lg-4">
+                        <label class="form-label">
+                            Phòng/Phân Xưởng
+                        </label>
+                        <div id="select-phongban">
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-label">
+                            Chức vụ
+                        </label>
+                        <div id="select-chucvu">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-4">
+                        <label class="form-label">
+                            Tình trạng
+                        </label>
+                        <div id="select-tinhtrang">
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-label">Họ tên/Mã nhân viên</label>
+                        <input type="text" id="txt-hoten" class="form-control" placeholder="Họ tên/Mã nhân viên">
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="checkbox" style="padding-top:15%">
+                            <input type="checkbox"  name="del" id="chk-del">
+                            <span></span>Del
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light-primary font-weight-bold" data-dismiss="modal">Thoát</button>
+                <button type="button"  class="btn btn-warning" onclick="TimFilter()" data-dismiss="modal" ><i class="icon-md fas fa-search"></i> Tìm kiếm</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="ImportModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title font-weight-bold" id="exampleModalLabel">Nhập dữ liệu từ tập tin excel</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i aria-hidden="true" class="ki ki-close"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="#" class="form-validate is-alter" novalidate="novalidate">
+                    <div class="form-group">
+                        <a style="color:red" href="@Url.Action("ExportFileImportNhanSu","NhanSu")">Tải file excel mẫu </a>
+                        <hr />
+                        <label class="form-label" for="full-name">Tập tin *</label>
+                        <div class="form-control-wrap">
+                            <input type="file" name="UploadedFile" id="UploadedFile" accept=".xlsx" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-info font-weight-bolder mr-5" id="btn-chonfile" onclick="LuuImportExcel()">
+                            <i class="icon-1x text-dark-40 ki ki-long-arrow-up"></i> Lưu thông tin
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section CustomScripts{
+    <script type="text/javascript">
+        var MaPhongBan = "", MaChucVu = "", Del = "", MaNV = "", TinhTrang = "";
+        $(function () {
+            var wh = $(window).height();
+            $('#list_danh_sach').height(wh - 200);
+            setPhongBan('select-phongban',@Html.Raw(TTFPortal.Class.DanhMuc.DMPhongBan()), false, 'Phòng/Phân xưởng');
+            setChucVu('select-chucvu',@Html.Raw(TTFPortal.Class.DanhMuc.DMChuVu()), false, 'Chức vụ');
+            setTinhTrang('select-tinhtrang',@Html.Raw(TTFPortal.Class.DanhMuc.DMTinhTrang()), false, 'Tình trạng');
+
+            LoadData();
+        });
+        function LoadData() {
+            try {
+                KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang tải dữ liệu...' });
+                $.ajax({
+                    url: "@Url.Action("GetDanhSachNhanSu", "NhanSu")",
+                    method: "GET",
+                    timeout: 600000,
+                    contentType: 'application/json; charset=utf-8',
+                    data: { MaPhongBan: MaPhongBan, MaChucVu: MaChucVu, HoVaTen: MaNV, MaTinhTrang:TinhTrang,Del:Del}
+                }).done(function (rs) {
+                    KTApp.unblockPage();
+                    LoadGrid(rs);
+
+                }).fail(function (jqXHR, textStatus) {
+                        KTApp.unblockPage();
+                        if (textStatus == 'timeout') {
+                            alert('jQuery Promise: Failed from timeout');
+                            //do something. Try again perhaps?
+                        }
+                        else {
+                            alert(textStatus);
+                        }
+
+                    });
+                  @*$.get("@Url.Action("GetCanHo", "CanHo")").done(function (rs) {
+
+                  });*@
+            } catch (e) {
+                KTApp.unblockPage();
+            }
+        }
+        function LoadGrid(data) {
+            var wh = $(window).height();
+            $("#list_danh_sach").dxDataGrid({
+                dataSource: data,
+                showRowLines: true,
+                rowAlternationEnabled: true,
+                showBorders: true,
+                hoverStateEnabled: true,
+                allowColumnReordering: true,
+                allowColumnResizing: true,
+                columnAutoWidth: true,
+                sorting: {
+                    mode: "multiple"
+                },
+              //  columnHidingEnabled: true, // ẩn hiện nội dung khi màn hình quá nhỏ column
+                //columnChooser: {
+                //    enabled: true,
+                //    mode: "selectd" // or "ragAndDrop"
+                //},
+                keyExpr: "NhanSu",
+                //rowAlternationEnabled: false, // bỏ định dạng màu dòng chan le
+                filterRow: {
+                    visible: true,
+                },
+                paging: {
+                    pageSize: 20
+                },
+                pager: {
+                    showPageSizeSelector: true,
+                    allowedPageSizes: [10, 15, 20, 50, 100],
+                    showInfo: true
+                },
+                headerFilter: {
+                    visible: true
+                },
+                remoteOperations: true,
+                grouping: {
+                    autoExpandAll: true,
+                },
+                columns: [
+                    //{
+                    //    dataField: "NhanSu",
+                    //    caption: "#",
+                    //    fixed: true,
+                    //    width:40
+                    //    //allowFiltering: false
+                    //},
+                    {
+                        dataField: "MaNV",
+                        caption: "Mã NV",
+                        width: 100,
+                        fixed: true,
+                        //allowFiltering: false
+                    },
+
+                    {
+                        dataField: "HoVaTen",
+                        caption: "Họ Và Tên ",
+                        fixed: true,
+                        width:150
+                    },
+                    {
+                        dataField: "TenPhong_PhanXuong",
+                        caption: "Phòng / Phân xưởng",
+                        width: 150,
+                        fixed: true,
+                        groupIndex: 0
+                    },
+                    {
+                        dataField: "TenChucVu",
+                        caption: "Tên Chức Vụ",
+                        width: 150,
+                        fixed: true,
+
+                    },
+                    {
+                        dataField: "MailCongTy",
+                        caption: "Mail Công Ty",
+                        width: 200
+                    },
+
+                    {
+                        dataField: "TenGioiTinh",
+                        caption: "Giới Tính",
+                        //fixed: true,
+                        width: 80
+                    },
+                    {
+                        dataField: "NgaySinh",
+                        caption: "Ngày Sinh",
+                        width: 100,
+                    },
+                    {
+                        dataField: "SoCMND",
+                        caption: "Số CMND",
+                        width: 120,
+
+                    },
+                    {
+                        dataField: "NoiSinh",
+                        caption: "Nơi Sinh",
+                        width: 250
+                    },
+                    {
+                        dataField: "DienThoai",
+                        caption: "Điện Thoại",
+                        width: 120
+                    },
+                    {
+                        dataField: "TenCoSo",
+                        caption: "Cơ Sở Làm Việc",
+                        width: 150
+                    },
+                    {
+                        dataField: "MaChamCong",
+                        caption: "Mã NV",
+                        width: 80,
+
+                        //allowFiltering: false
+                    },
+                    {
+                        dataField: "ChuyenNganh",
+                        caption: "Chuyên Ngành",
+                        //fixed: true,
+                        width: 150
+                    }
+                ],
+                onRowDblClick: function (e) {
+                     window.open(
+                        '@Url.Action("Edit","NhanSu")?id=' + e.key,
+                        '_blank' // <- This is what makes it open in a new window.
+                    );
+                },
+            });
+
+        }
+        function XuatFileExcel() {
+            self.location = "/NhanSu/XuatExelDanhDSNhanSu?machucvu=" + MaChucVu + "&maphongban=" + MaPhongBan + "&nhansu=" + MaNV + "&MaTinhTrang=" + TinhTrang + "&Del=" + Del;
+        }
+        function TimKiem() {
+            MaPhongBan = "", MaChucVu = "", Del = "", MaNV = "", TinhTrang = "";
+            LoadData();
+        }
+        function TimFilter() {
+            MaPhongBan = $("#select-phongban").dxSelectBox("instance").option('value');
+            MaChucVu = $("#select-chucvu").dxSelectBox("instance").option('value');
+            TinhTrang = $("#select-tinhtrang").dxSelectBox("instance").option('value');
+            MaNV = $('#txt-hoten').val();
+            Del = $("#chk-del").prop("checked") == true ? "1" : "0";
+            LoadData();
+            //$("#ModalFilter").hide();
+        }
+        function LuuImportExcel() {
+            var formData = new FormData();
+            var files = $("#UploadedFile").get(0).files;
+            formData.append('importFile', files[0]);
+            formData.append('__RequestVerificationToken', $('input[name="__RequestVerificationToken"]').val());
+            KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang import dữ liệu...' });
+            $.ajax({
+                url: '/NhanSu/ImportFileExcel',
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (rs) {
+                    KTApp.unblockPage();
+                    //Sho(rs.text)
+                    ShowToast.success(rs.text, 3000);
+                },
+                error: function (err) {
+                    toastr.error("Lỗi hệ thống liên hệ nhà quản trị để được hỗ trợ" + err);
+                    KTApp.unblockPage();
+                }
+            });
+        }
+        
+    </script>
+}

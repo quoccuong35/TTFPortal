@@ -1,0 +1,61 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = Resources.Menu.NhanSuCapNhatHinhAnh;
+}
+
+@section Link{
+    <div class="d-flex align-items-center flex-wrap mr-1">
+        <div class="d-flex align-items-baseline flex-wrap mr-5">
+            <ul class="breadcrumb breadcrumb-transparent breadcrumb-dot font-weight-bold p-0 my-2 ">
+                <li class="breadcrumb-item text-muted">
+                    <a href="" class="text-muted">@Resources.Menu.NhanSu</a>
+                </li>
+                <li class="breadcrumb-item text-muted">
+                    <a href="" class="text-muted">@Resources.Menu.NhanSuCapNhatHinhAnh</a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+}
+<div class="container">
+    <!--begin::Card-->
+    <div class="card card-custom">
+        <!--begin::Card header-->
+        <div class="card-header">
+            <div class="card-title">
+                <h3 class="card-label">Cập nhật hình đại diện cho nhân sự</h3>
+            </div>
+            <!--end::Toolbar-->
+        </div>
+        <!--end::Card header-->
+        <!--begin::Card body-->
+        <div class="card-body">
+            @using (Html.BeginForm("CapNhatHinhNen", "NhanSu", FormMethod.Post, new { enctype = "multipart/form-data", id = "frFileUploadForm" }))
+            {
+                <div class="form-group row">
+                    <div class="col-lg-5">
+                        <input class="form-control" type="file" id="UploadedFile" name="myFiles" accept="image/*" style="padding: 0px;border: 1px solid #D5D5D5;color: #858585;" multiple />
+                    </div>
+                    <div class="col-lg-5">
+                        <button type="button" class="btn btn-info font-weight-bolder mr-5" id="btn-chonfile" onclick="LuuFile()">
+                            <i class="icon-1x text-dark-40 ki ki-long-arrow-up"></i> Lưu file
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+        <!--begin::Card body-->
+    </div>
+    <!--end::Card-->
+</div>
+@section CustomScripts{
+    <script type="text/javascript">
+        function LuuFile() {
+            KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang cập nhật...' });
+            document.forms["frFileUploadForm"].submit();
+            KTApp.unblockPage();
+        }
+    </script>
+}

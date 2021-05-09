@@ -1,0 +1,272 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = Resources.Menu.NhanSuInTheTen;
+}
+@section Link{
+    <div class="d-flex align-items-center flex-wrap mr-1">
+
+        <div class="d-flex align-items-baseline flex-wrap mr-5">
+
+            @*<h5 class="text-dark font-weight-bold my-1 mr-5">
+                    Chi tiết yêu cầu #1
+
+                </h5>*@
+            <ul class="breadcrumb breadcrumb-transparent breadcrumb-dot font-weight-bold p-0 my-2 ">
+                <li class="breadcrumb-item text-muted">
+                    <a href="" class="text-muted">@Resources.Menu.NhanSu</a>
+                </li>
+                <li class="breadcrumb-item text-muted">
+                    <a href="" class="text-muted">@Resources.Menu.NhanSuInTheTen</a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+}
+@section Header{
+    <div class="d-flex align-items-center flex-wrap mr-1">
+    </div>
+    <div class="d-flex">
+        <button type="button" class="btn btn-info mr-2" onclick="InMatTruoc()">
+            <i class="icon-md fas fa-print blue"></i> In mặt trước
+        </button>
+        <button type="button" class="btn btn-light-primary font-weight-bolder mr-2" onclick="InMatSau()">
+            <i class="icon-md fas fa-print primary"></i> In mặt sau
+        </button>
+        <button type="button" class="btn btn-warning mr-2" data-toggle="modal" data-target="#ModalFilter">
+            <i class="icon-md fas fa-filter"></i> @Resources.App.BoLoc
+        </button>
+    </div>
+
+}
+<div class="row">
+    <div class="col-lg-12" id="mobliesize">
+        <div id="gridview"></div>
+    </div>
+</div>
+<div class="modal fade" id="ModalFilter" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="form-group row">
+                    <div class="col-lg-4">
+                        <label class="form-label">
+                            Phòng/Phân Xưởng
+                        </label>
+                        <div id="select-phongban">
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-label">
+                            Chức vụ
+                        </label>
+                        <div id="select-chucvu">
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-label">Họ tên/Mã nhân viên</label>
+                        <input type="text" id="txt-hoten" class="form-control" placeholder="Họ tên/Mã nhân viên">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-4">
+                        <label class="form-label">Từ ngày</label>
+                        <div id="date-tungay">
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-label">Đến ngày</label>
+                        <div id="date-denngay">
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-label">Loại thẻ</label>
+                        <select class="form-control" name="language" id="select-loaithe">
+                            <option value="1">Nhân viên</option>
+                            <option value="2">Công nhân</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light-primary font-weight-bold" data-dismiss="modal">Thoát</button>
+                <button type="button" class="btn btn-warning" onclick="Loading()" data-dismiss="modal"><i class="icon-md fas fa-search"></i> Tìm kiếm</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section CustomScripts{
+    <script type="text/javascript">
+        var date = new Date();
+         $(function () {
+            $('#gridview').height($(window).height() - 200);
+            setPhongBan('select-phongban',@Html.Raw(TTFPortal.Class.DanhMuc.DMPhongBan()), false, 'Phòng/Phân xưởng');
+            setChucVu('select-chucvu',@Html.Raw(TTFPortal.Class.DanhMuc.DMChuVu()), false, 'Chức vụ');
+            $("#date-tungay").dxDateBox({
+                 value: date,
+                 width: '100%',
+                 type: "date",
+                displayFormat: 'dd/MM/yyyy',
+                showClearButton: true,
+                 onValueChanged: function (data) {
+                     tungay = Globalize.format(data.value, "yyyy-MM-dd");
+                 },
+             }).dxDateBox("instance");
+             $("#date-denngay").dxDateBox({
+                 value: date,
+                 width: '100%',
+                 type: "date",
+                 displayFormat: 'dd/MM/yyyy',
+                 showClearButton: true,
+                 onValueChanged: function (data) {
+                     tungay = Globalize.format(data.value, "yyyy-MM-dd");
+                 },
+             }).dxDateBox("instance");
+        Loading();
+    });
+    function Loading() {
+        var data = {};
+        data.MaPhongBan = $("#select-phongban").dxSelectBox("instance").option('value');
+        data.HoVaTen = $("#txt-hoten").val();
+        data.MaChucVu = $("#select-chucvu").dxSelectBox("instance").option('value');
+        data.TuNgay = Globalize.format($("#date-tungay").dxDateBox("instance").option('value'), 'yyyy-MM-dd');
+        data.DenNgay = Globalize.format($("#date-denngay").dxDateBox("instance").option('value'), 'yyyy-MM-dd')
+
+         $.get("@Url.Action("getDSInTheTen", "NhanSu")",data)
+             .done(function (result) {
+                 $("#gridview").dxDataGrid({
+                     dataSource: result,
+                     selection: {
+                         mode: "multiple"
+                     },
+                     remoteOperations: {
+                         paging: true,
+                         filtering: true
+                     },
+                    
+                     filterRow: {
+                         visible: true,
+                         applyFilter: "auto"
+                     },
+                     paging: {
+                         pageSize: 10
+                     },
+                     showRowLines: true,
+                     rowAlternationEnabled: true,
+                     showBorders: true,
+                     hoverStateEnabled: true,
+                     allowColumnReordering: true,
+                     allowColumnResizing: true,
+                     columnAutoWidth: true,
+                     pager: {
+                         showPageSizeSelector: true,
+                         allowedPageSizes: [10, 15, 20, 50, 100],
+                         showInfo: true
+                     },
+                     columnFixing: {
+                         enabled: false
+                     },
+
+                     columns: [{
+                         dataField: "MaNV",
+                         caption: "Mã nhân viên",
+                         width: 100,
+                         allowEditing: false, fixed: true
+                     }, {
+                         dataField: "HoVaTen",
+                         caption: "Họ và tên",
+                         width: 150,
+                         allowEditing: false, fixed: true
+                     },
+                     {
+                         dataField: "NgayVaoCongTy",
+                         caption: "Ngày vào công ty",
+                         width: 150, allowEditing: false
+
+                     },
+                     {
+                         dataField: "TenPhong_PhanXuong",
+                         caption: "Tên phòng/Phân xưởng",
+                         width: 120, allowEditing: false, fixed: true
+                         //fixed: true
+                     },
+                     {
+                         dataField: "TenChucVu",
+                         caption: "Tên chức vụ",
+                         width: 200, allowEditing: false, fixed: true
+                     },
+                     {
+                         dataField: "Images",
+                         caption: "Hình",
+                         width: 200, allowEditing: false, fixed: true
+                     }
+                     ],
+                 });
+                    })
+                    .fail(function (jqxhr, textStatus, error) {
+                        deferred.reject("Data Loading Error");
+            });
+    }
+    function InMatTruoc() {
+            var items = $('#gridview').dxDataGrid('instance');
+            var selectedRowsData = items.getSelectedRowsData();
+        var LoaiThe = $("#select-loaithe").val();
+        if (LoaiThe == null) {
+            alert("Chưa chọn loại thẻ in");
+            return;
+        }
+            if (selectedRowsData.length > 0) {
+                data = {};
+                data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+                data.list = selectedRowsData;
+                $.post("@Url.Action("AddSession","NhanSu")", data).done(function (rs) {
+                    if (rs == "1") {
+                        window.open(
+                            "/NhanSu/InTheTenMatTruoc?LoaiThe=" + LoaiThe,
+                            '_blank' // <- This is what makes it open in a new window.
+                        );
+                    }
+                    else {
+                        alert("Lỗi liên hệ P.HTTT để được hỗ trợ");
+                        return;
+                    }
+                });
+            }
+            else {
+                alert("Bạn chưa chọn nhân sự không thể in");
+                return;
+            }
+    }
+    function InMatSau() {
+            var items = $('#gridview').dxDataGrid('instance');
+            var selectedRowsData = items.getSelectedRowsData();
+            if (selectedRowsData.length > 0) {
+                data = {};
+                data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+                data.list = selectedRowsData;
+                var LoaiThe = $("#select-loaithe").val();
+                if (LoaiThe == null) {
+                    alert("Chưa chọn loại thẻ in");
+                    return;
+                }
+                $.post("@Url.Action("AddSession","NhanSu")", data).done(function (rs) {
+                    if (rs == "1") {
+                       
+                        window.open(
+                            "/NhanSu/InTheTenMatSau?LoaiThe=" + LoaiThe,
+                            '_blank' // <- This is what makes it open in a new window.
+                        );
+                    }
+                    else {
+                        alert("Lỗi liên hệ P.HTTT để được hỗ trợ");
+                        return;
+                    }
+                });
+            }
+            else {
+                alert("Bạn chưa chọn nhân sự không thể in");
+                return;
+            }
+        }
+    </script>
+}
