@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="ecf3d669e460492c9d3b60cada5aca8e" Name="Diagram1">
+        <EntityTypeShape EntityType="TTF_FACEIDModel.HT_BAOCAO" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.HT_HETHONG" Width="1.5" PointX="2.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.HT_NGONNGU" Width="1.5" PointX="4.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.HT_NGUOIDUNG" Width="1.5" PointX="4.75" PointY="3.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.HT_NHOMNGUOIDUNG" Width="1.5" PointX="6.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.HT_NHOMQUYEN" Width="1.5" PointX="6.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.HT_QUYENSUDUNG" Width="1.5" PointX="6.75" PointY="7.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.HT_SQL_CAU_LENH" Width="1.5" PointX="8.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.HT_TRANGTHAI" Width="1.5" PointX="0.75" PointY="8.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.Role" Width="1.5" PointX="8.75" PointY="3.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_BenhVienBHYT" Width="1.5" PointX="8.75" PointY="6.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_BoNhiem" Width="1.5" PointX="2.75" PointY="9.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_BoPhan" Width="1.5" PointX="8.75" PointY="9.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_CaLamViec" Width="1.5" PointX="10.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_CCwithTo" Width="1.5" PointX="10.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_ChiNhanhNganHang" Width="1.5" PointX="10.75" PointY="7.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_ChucVu" Width="1.5" PointX="10.75" PointY="10.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_CongNgay" Width="1.5" PointX="4.75" PointY="11.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_CongNgayHieuChinh" Width="1.5" PointX="12.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_CongTac" Width="1.5" PointX="12.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_CongTacChiTiet" Width="1.5" PointX="6.75" PointY="12.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_CongTacXacNhan" Width="1.5" PointX="12.75" PointY="11.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_CongThangCal" Width="1.5" PointX="8.75" PointY="13.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_CongThangCal_tmp" Width="1.5" PointX="14.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_CongThangHieuChinh" Width="1.5" PointX="0.75" PointY="14.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_CoSoLamViec" Width="1.5" PointX="14.75" PointY="12.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_CostCenter" Width="1.5" PointX="10.75" PointY="15.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_DanToc" Width="1.5" PointX="12.75" PointY="15.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_DLVT_CaDem" Width="1.5" PointX="14.75" PointY="15.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_DuyetTangCaPM" Width="1.5" PointX="16.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_DuyetTangCaPMDacBiet" Width="1.5" PointX="2.75" PointY="16.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_Employees" Width="1.5" PointX="16.75" PointY="3.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_EvenLog" Width="1.5" PointX="4.75" PointY="16.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_FormatContractType" Width="1.5" PointX="16.75" PointY="9.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_Import" Width="1.5" PointX="16.75" PointY="12.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_Khoi" Width="1.5" PointX="16.75" PointY="16.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_KiemTra" Width="1.5" PointX="18.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_KyCongNguoiDung" Width="1.5" PointX="18.75" PointY="3.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_LichSuDuyet" Width="1.5" PointX="18.75" PointY="7.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_LoaiCong" Width="1.5" PointX="10.75" PointY="18.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_LoaiLaoDong" Width="1.5" PointX="18.75" PointY="11.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_LoaiNghiPhep" Width="1.5" PointX="12.75" PointY="18.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_LoaiTangCa" Width="1.5" PointX="18.75" PointY="14.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_LogChangeEmployees" Width="1.5" PointX="18.75" PointY="17.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_Mails" Width="1.5" PointX="0.75" PointY="19.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_MaTrixDuyetCongTac" Width="1.5" PointX="14.75" PointY="19.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_MaTrixDuyetNghiPhep" Width="1.5" PointX="20.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_MaTrixDuyetTangCa" Width="1.5" PointX="20.75" PointY="5.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_MucKienThuc" Width="1.5" PointX="20.75" PointY="9.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_NganHang" Width="1.5" PointX="20.75" PointY="13.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_NgayLe" Width="1.5" PointX="20.75" PointY="16.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_NghiBu" Width="1.5" PointX="16.75" PointY="20.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_NghiBuChiTiet" Width="1.5" PointX="18.75" PointY="20.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_NghiPhep" Width="1.5" PointX="20.75" PointY="19.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_NghiPhepChiTiet" Width="1.5" PointX="10.75" PointY="21.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_NhanSu" Width="1.5" PointX="22.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_NhanSu_CongNgayPhepDacBiet" Width="1.5" PointX="2.75" PointY="22.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_NhanSu_PhepThang" Width="1.5" PointX="4.75" PointY="22.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_NhanSuCaLamViec" Width="1.5" PointX="12.75" PointY="22.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_NhanSuDacBiet" Width="1.5" PointX="22.75" PointY="15.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_NhatkyLoi" Width="1.5" PointX="22.75" PointY="19.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_NhomCauHoi" Width="1.5" PointX="22.75" PointY="22.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_PhamVi" Width="1.5" PointX="24.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_PhongBan_PhanXuong" Width="1.5" PointX="24.75" PointY="3.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_QuocTich" Width="1.5" PointX="24.75" PointY="7.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_QuyTrinh" Width="1.5" PointX="24.75" PointY="10.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_SHIFTS" Width="1.5" PointX="24.75" PointY="13.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_TangCa" Width="1.5" PointX="14.75" PointY="24.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_TangCaChiTiet" Width="1.5" PointX="24.75" PointY="16.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_TangCatemp" Width="1.5" PointX="16.75" PointY="24.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_TangCuong" Width="1.5" PointX="24.75" PointY="19.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_TimekeepingPeriod" Width="1.5" PointX="24.75" PointY="23.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_TinhTrang" Width="1.5" PointX="0.75" PointY="25.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_ToChuyen" Width="1.5" PointX="6.75" PointY="25.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_TonGiao" Width="1.5" PointX="8.75" PointY="25.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_TrangThaiDuyet" Width="1.5" PointX="18.75" PointY="25.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_TrinhDoHocVan" Width="1.5" PointX="20.75" PointY="25.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_XacNhanCong" Width="1.5" PointX="26.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.User_Role" Width="1.5" PointX="2.75" PointY="26.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.HT_NHATKY" Width="1.5" PointX="26.75" PointY="6.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.V_Users" Width="1.5" PointX="26.75" PointY="9.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.v_capquanly" Width="1.5" PointX="11.375" PointY="26.75" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_ChangeLogs" Width="1.5" PointX="27.375" PointY="13.75" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.v_CCwithTo" Width="1.5" PointX="27.375" PointY="17.75" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_BaiThiLuu" Width="1.5" PointX="27.375" PointY="20.75" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_CauHoi" Width="1.5" PointX="23.375" PointY="27.75" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_CauHoi_DapAn" Width="1.5" PointX="27.375" PointY="24.75" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_DeKhaoSat" Width="1.5" PointX="5.375" PointY="28.75" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_DeKhaoSat_CauHoi" Width="1.5" PointX="7.375" PointY="28.75" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_LoaiCauHoi" Width="1.5" PointX="17.375" PointY="28.75" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_NhanSu_DeKhaoSat_TraLoi" Width="1.5" PointX="19.375" PointY="28.75" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>
