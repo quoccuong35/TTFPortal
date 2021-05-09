@@ -578,5 +578,10 @@ namespace TTFPortal.Controllers
             }
             return Json(rs, JsonRequestBehavior.AllowGet);
         }
+        public async Task<JsonResult> GetDataDLVTCaDem()
+        {
+            JsonStatus rs = new JsonStatus();
+            return Json(rs, JsonRequestBehavior.AllowGet);
+        }
     }
 }
