@@ -1,0 +1,38 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Index";
+    string userName = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
+}
+@section Link{
+    <div class="d-flex align-items-center flex-wrap mr-1">
+
+        <div class="d-flex align-items-baseline flex-wrap mr-5">
+
+            <h5 class="text-dark font-weight-bold my-1 mr-5">
+                Chi tiết yêu cầu #1
+
+            </h5>
+            <ul class="breadcrumb breadcrumb-transparent breadcrumb-dot font-weight-bold p-0 my-2 ">
+                <li class="breadcrumb-item text-muted">
+                    <a href="" class="text-muted">Test</a>
+                </li>
+                <li class="breadcrumb-item text-muted">
+                    <a href="" class="text-muted">@userName</a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+}
+
+
+
+@section CustomScripts{
+    <script type="text/javascript">
+
+        @*$(function () {
+            window.location.href = "@Url.Action("About", "Home")";
+        });*@
+
+    </script>
+}

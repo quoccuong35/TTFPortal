@@ -1,0 +1,210 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = Resources.Menu.XacNhanCongDuyet;
+}
+@section Link{
+    <div class="d-flex align-items-center flex-wrap mr-1">
+
+        <div class="d-flex align-items-baseline flex-wrap mr-5">
+
+            @*<h5 class="text-dark font-weight-bold my-1 mr-5">
+                    Chi tiết yêu cầu #1
+
+                </h5>*@
+            <ul class="breadcrumb breadcrumb-transparent breadcrumb-dot font-weight-bold p-0 my-2 ">
+                <li class="breadcrumb-item text-muted">
+                    <a href="" class="text-muted">@Resources.Menu.XacNhanCong</a>
+                </li>
+                <li class="breadcrumb-item text-muted">
+                    <a href="" class="text-muted">@Resources.Menu.XacNhanCongBaoCaoSoLan</a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+}
+@section Header{
+    <div class="d-flex align-items-center flex-wrap mr-1">
+        <div class="form-group row">
+            <div class="col-lg-3">
+                <label class="form-labe">Phòng/Phân Xưởng</label>
+                <div id="select-phongban">
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <label class="form-labe">Từ ngày</label>
+                <div id="date-tungay">
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <label class="form-labe">Đến ngày</label>
+                <div id="date-denngay">
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <label class="form-labe">Số lần</label>
+                <div  id="txt-solan">
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="d-flex">
+        @if (User.IsInRole("44=1") || User.IsInRole("0=0"))
+        {
+            <button type="button" class="btn btn-success font-weight-bolder mr-2" onclick="XuatFileExcel()" title="@Resources.App.XuatFileExcel">
+                <i class="icon-md fas fa-file-export"></i> @Resources.App.XuatFileExcel
+            </button>
+        }
+        <button type="button" class="btn btn-warning" onclick="LoadData()" title="@Resources.App.TimKiem">
+            <i class="icon-md fas fa-search"></i>
+            @Resources.App.TimKiem
+        </button>
+    </div>
+}
+<div class="row">
+    <div class="col-lg-12" id="mobliesize">
+        <div id="danh-sach"></div>
+    </div>
+</div>
+@section CustomScripts{
+    <script type="text/javascript">
+        var maphongban = "", tungay, denngay,solan = 0;
+        var date = new Date();
+        var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+        tungay = Globalize.format(firstDay, "yyyy-MM-dd");
+        denngay = Globalize.format(date, "yyyy-MM-dd");
+        $(function () {
+             var wh = $(window).height();
+            $('#danh-sach').height(wh - 200);
+            $("#date-tungay").dxDateBox({
+                value: firstDay,
+                width: '100%',
+                type: "date",
+                displayFormat: 'dd/MM/yyyy',
+                showClearButton: true,
+                onValueChanged: function (data) {
+                    tungay = Globalize.format(data.value, "yyyy-MM-dd");
+                },
+            }).dxDateBox("instance");
+            $("#date-denngay").dxDateBox({
+                value: date,
+                width: '100%',
+                type: "date",
+                displayFormat: 'dd/MM/yyyy',
+                showClearButton: true,
+                onValueChanged: function (data) {
+                    denngay = Globalize.format(data.value, "yyyy-MM-dd");
+                },
+            }).dxDateBox("instance");
+            setPhongBan('select-phongban',@Html.Raw(TTFPortal.Class.DanhMuc.DMPhongBan()), false, 'Phòng/Phân xưởng');
+            $("#txt-solan").dxNumberBox({
+                showSpinButtons: false,
+                value: 5,
+                //showClearButton: true,
+                format: "###,###.##", min: 0, max: 30
+            });
+            LoadData();
+        });
+         function LoadData() {
+            KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang tải dữ liệu...' });
+            var data = {};
+            data.TuNgay = tungay;
+             data.DenNgay = denngay;
+             maphongban = $("#select-phongban").dxSelectBox("instance").option('value');
+             data.MaPhongBan = maphongban;
+             solan = $("#txt-solan").dxNumberBox("instance").option('value');
+             data.SoLan = solan;
+            data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+
+            $.get("@Url.Action("BaoCaoSoLanXacNhanCongPartial", "XacNhanCong")", data).done(function (rs) {
+                $("#danh-sach").dxDataGrid({
+                    dataSource: rs.data,
+                    //selection: {
+                    //    mode: "multiple"
+                    //},
+                    remoteOperations: {
+                        paging: true,
+                        filtering: true
+                    },
+                  //  keyExpr: "IDXacNhanCong",
+                    filterRow: {
+                        visible: true,
+                        applyFilter: "auto"
+                    },
+                    paging: {
+                        pageSize: 20
+                    },
+                    showRowLines: true,
+                    rowAlternationEnabled: true,
+                    showBorders: true,
+                    hoverStateEnabled: true,
+                    allowColumnReordering: true,
+                    allowColumnResizing: true,
+                    columnAutoWidth: true,
+                    pager: {
+                        showPageSizeSelector: true,
+                        allowedPageSizes: [10, 15, 20, 50, 100],
+                        showInfo: true
+                    },
+                    columnFixing: {
+                        enabled: false
+                    },
+                    export: {
+                        enabled: true,
+                        fileName: "BaoCaoSoLanXacNhanCong",
+                        allowExportSelectedData: true
+                    },
+                    groupPanel: {
+                        visible: true
+                    },
+                    columns: [
+                        {
+                            dataField: "MaNV",
+                            caption: "Mã NV",
+                            width: 150,
+                            allowEditing: false, 
+                            fixed: true
+                        },
+                        {
+                            dataField: "HoVaTen",
+                            caption: "Họ và tên",
+                            width: 250,
+                            allowEditing: false, 
+                            fixed: true
+                            //dataType: "date",
+                            //format: 'dd/MM/yyyy',
+                        },
+                        {
+                            dataField: "TenPhong_PhanXuong",
+                            caption: "Phòng/Phân xưởng",
+
+                            allowEditing: false,
+                            fixed: true
+
+                            //fixed: true
+                        },
+                        {
+                            dataField: "TenChucVu",
+                            caption: "Chức vụ",
+                            width: 200, allowEditing: false,
+                            //fixed: true
+                        },
+                        {
+                            dataField: "SoLan",
+                            caption: "Số lần XNC",
+                            width: 120, allowEditing: false,
+                            //fixed: true
+                        }
+                    ]
+                });
+                KTApp.unblockPage();
+            }).fail(function () { KTApp.unblockPage();});
+        }
+        function XuatFileExcel() {
+            var item = $('#danh-sach').dxDataGrid('instance');
+            $("#danh-sach").dxDataGrid("instance").exportToExcel(false);
+        }
+    </script>
+}

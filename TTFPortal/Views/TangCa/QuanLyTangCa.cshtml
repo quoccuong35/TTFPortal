@@ -1,0 +1,306 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = Resources.Menu.TangCaQuanLy;
+}
+@section ScriptsFile{
+    <style>
+        .color_status {
+            cursor: default;
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            border: 1px solid #c3c3c3;
+            border-radius: 50%;
+            margin-top: 7px;
+        }
+
+        .dx-datagrid .dx-header-filter {
+            position: relative;
+            color: blue;
+            font: 14px/1 DXIcons;
+        }
+
+        .dx-datagrid .dx-header-filter-empty {
+            color: rgba(149,149,149,.5);
+        }
+    </style>
+}
+@section Link{
+    <div class="d-flex align-items-center flex-wrap mr-1">
+
+        <div class="d-flex align-items-baseline flex-wrap mr-5">
+
+            @*<h5 class="text-dark font-weight-bold my-1 mr-5">
+                    Chi tiết yêu cầu #1
+
+                </h5>*@
+            <ul class="breadcrumb breadcrumb-transparent breadcrumb-dot font-weight-bold p-0 my-2 ">
+                <li class="breadcrumb-item text-muted">
+                    <a href="" class="text-muted">@Resources.Menu.TangCa</a>
+                </li>
+                <li class="breadcrumb-item text-muted">
+                    <a href="" class="text-muted">@Resources.Menu.TangCaQuanLy</a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+}
+@section Header{
+    <div class="d-flex align-items-center flex-wrap mr-1">
+        <div class="form-group row">
+            <div class="col-lg-3">
+                <label class="form-label">Từ ngày</label>
+                <div id="date-tungay"></div>
+            </div>
+            <div class="col-lg-3">
+                <label class="form-label">Đến ngày</label>
+                <div id="date-denngay"></div>
+            </div>
+            <div class="col-lg-3">
+                <label class="form-label">
+                    Phòng/Phân Xưởng
+                </label>
+                <div id="select-phongban">
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <label class="form-label">Họ tên/Mã nhân viên</label>
+                <input type="text" id="txt-hoten" class="form-control" placeholder="Họ tên/Mã nhân viên">
+            </div>
+        </div>
+    </div>
+    <div class="d-flex">
+        @if (User.IsInRole("44=1") || User.IsInRole("0=0"))
+        {
+            <button type="button" class="btn btn-success font-weight-bolder mr-2" onclick="XuatFileExcel()" title="@Resources.App.XuatFileExcel">
+                <i class="icon-md fas fa-file-export"></i> @Resources.App.XuatFileExcel
+            </button>
+        }
+
+        @*<button type="button" class="btn btn-light-primary font-weight-bolder mr-2" data-toggle="modal" data-target="#ModalFilter" title="@Resources.App.BoLoc">
+                <i class="icon-md fas fa-filter"></i> @Resources.App.BoLoc
+            </button>*@
+        <button type="button" class="btn btn-warning" onclick="TimKiem()" title=" @Resources.App.TimKiem">
+            <i class="icon-md fas fa-search"></i>
+            @Resources.App.TimKiem
+        </button>
+    </div>
+}
+<div class="row">
+    <div class="col-lg-12" id="mobliesize">
+        <div id="danh-sach"></div>
+    </div>
+</div>
+@section CustomScripts{
+    <script type="text/javascript">
+         var maphongban = "", tungay,denngay,manv = "";
+        var date = new Date();
+        var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+        tungay = Globalize.format(firstDay, "yyyy-MM-dd");
+        $(function () {
+            var wh = $(window).height();
+            $('#danh-sach').height(wh - 200);
+            $("#date-tungay").dxDateBox({
+                value: firstDay,
+                width: '100%',
+                type: "date",
+                displayFormat: 'dd/MM/yyyy',
+                showClearButton: true,
+                onValueChanged: function (data) {
+                    tungay = Globalize.format(data.value, "yyyy-MM-dd");
+                },
+            }).dxDateBox("instance");
+            $("#date-denngay").dxDateBox({
+                value: date,
+                width: '100%',
+                type: "date",
+                displayFormat: 'dd/MM/yyyy',
+                showClearButton: true,
+                onValueChanged: function (data) {
+                    denngay = Globalize.format(data.value, "yyyy-MM-dd");
+                },
+            }).dxDateBox("instance");
+            setPhongBan('select-phongban',@Html.Raw(TTFPortal.Class.DanhMuc.DMPhongBan()), false, 'Phòng/Phân xưởng');
+            LoadData();
+        });
+        function TimFilter() {
+
+            tungay = Globalize.format($("#date-tungay").dxDateBox("instance").option('value'), 'yyyy-MM-dd');
+            denngay = Globalize.format($("#date-denngay").dxDateBox("instance").option('value'), 'yyyy-MM-dd');
+            manv = $("#txt-hoten").val();
+            maphongban = $("#select-phongban").dxSelectBox("instance").option('value');
+            LoadData();
+
+        }
+        function TimKiem() {
+            tungay = Globalize.format($("#date-tungay").dxDateBox("instance").option('value'), 'yyyy-MM-dd');
+            denngay = Globalize.format($("#date-denngay").dxDateBox("instance").option('value'), 'yyyy-MM-dd');
+            manv = $("#txt-hoten").val();
+            maphongban = $("#select-phongban").dxSelectBox("instance").option('value');
+            LoadData();
+        }
+        function LoadData() {
+            KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang tải dữ liệu...' });
+            var data = {};
+            data.tuNgay = tungay;
+            data.denNgay = denngay;
+            data.maNV = manv;
+            data.maPhongBan = maphongban;
+          //  data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+            $.get("@Url.Action("GetQuanLyTangCa", "TangCa")", data).done(function (rs) {
+                $("#danh-sach").dxDataGrid({
+                        dataSource: rs.data,
+                        selection: {
+                            mode: "multiple"
+                        },
+                        remoteOperations: {
+                            paging: true,
+                            filtering: true
+                        },
+                        keyExpr: "IDTangCa",
+                        filterRow: {
+                            visible: true,
+                            applyFilter: "auto"
+                        },
+                        headerFilter: {
+                            visible: true
+                        },
+                        paging: {
+                            pageSize: 20
+                        },
+                        showRowLines: true,
+                        rowAlternationEnabled: true,
+                        showBorders: true,
+                        hoverStateEnabled: true,
+                        allowColumnReordering: true,
+                        allowColumnResizing: true,
+                        columnAutoWidth: true,
+                        pager: {
+                            showPageSizeSelector: true,
+                            allowedPageSizes: [10, 15, 20, 50, 100],
+                            showInfo: true
+                        },
+                        columnFixing: {
+                            enabled: false
+                        },
+
+                        columns: [
+                            {
+                                dataField: "IDTangCa",
+                                caption: "IDTangCa",
+                                allowEditing: false, fixed: true
+                            },
+                            {
+                                dataField: "TenPhong_PhanXuong",
+                                caption: "Phòng / Phân xưởng",
+
+                                allowEditing: false,
+                                //dataType: "date",
+                                //format: 'dd/MM/yyyy',
+                            },
+                            {
+                                dataField: "NgayTangCa",
+                                caption: "Ngày tăng ca",
+                                allowEditing: false,
+
+                                //fixed: true
+                            },
+                            {
+                                dataField: "GioBatDau",
+                                caption: "Giờ bắt đầu",
+                                 allowEditing: false,
+                                //cellTemplate: function (element, info) {
+                                //    if (info.data.GioBatDau != null)
+                                //        element.append("<div>" + info.data.GioBatDau.Hours.toString().padStart(2, "0") + ":" + info.data.GioBatDau.Minutes.toString().padStart(2, "0") + "</div>")
+                                //}
+                            },
+                            {
+                                dataField: "GioKetThuc",
+                                caption: "Giờ kết thúc",
+                                allowEditing: false,
+                                //cellTemplate: function (element, info) {
+                                //    if (info.data.GioKetThuc != null)
+                                //        element.append("<div>" + info.data.GioKetThuc.Hours.toString().padStart(2, "0") + ":" + info.data.GioKetThuc.Minutes.toString().padStart(2, "0") + "</div>")
+                                //}
+                            },
+                            {
+                                dataField: "TenNguoiTao",
+                                caption: "Người tạo",
+                                allowEditing: false,
+                            },
+                            {
+                                dataField: "LyDo",
+                                caption: "Lý do",
+                                allowEditing: false,
+                            },
+                            {
+                                dataField: "TenTrangThaiDuyet",
+                                caption: "Trạng thái duyệt",
+                                allowEditing: false,
+                            },
+                            {
+                                dataField: "HoVaTenNguoiDuyetKeTiep",
+                                caption: "Người duyệt kế tiếp",
+                                allowEditing: false,
+                            },
+                            {
+                                dataField: "DotXuat",
+                                caption: "Đột xuất",
+                                allowEditing: false,
+                            },
+                            {
+                                dataField: "DuAn",
+                                caption: "Dự án",
+                                allowEditing: false,
+                            },
+                            {
+                                dataField: "MaDuAn",
+                                caption: "Mã dự án",
+                                allowEditing: false,
+                            },
+                            {
+                                dataField: "MieuTaKiemTra",
+                                caption: "Kết quả kiểm tra",
+                                allowEditing: false,
+                            },
+                            {
+                                dataField: "GhiChuKiemTra",
+                                caption: "Ghi chú kiểm tra",
+                                allowEditing: false,
+                            },
+                            {
+                                dataField: "HoTenNguoiKiemTra",
+                                caption: "Đã kiểm tra bởi",
+                                allowEditing: false,
+                            },
+                            {
+                                dataField: "NgayKiemTra",
+                                caption: "Ngày kiểm tra",
+                                allowEditing: false,
+                            },
+                            {
+                                dataField: "LyDoHuy",
+                                caption: "Lý do từ chối",
+                                allowEditing: false,
+                            },
+                            {
+                                dataField: "NgayTao",
+                                caption: "Ngày tạo",
+                                allowEditing: false,
+                            },
+                        ],
+                        onRowDblClick: function (e) {
+                            window.location.href =
+                                '@Url.Action("Edit","TangCa")?id=' + e.key + "&op=3";
+                        },
+                    });
+                KTApp.unblockPage();
+            }).fail(function () { KTApp.unblockPage();});
+        }
+        function XuatFileExcel() {
+            var item = $('#danh-sach').dxDataGrid('instance');
+            $("#danh-sach").dxDataGrid("instance").exportToExcel(false);
+        }
+    </script>
+}

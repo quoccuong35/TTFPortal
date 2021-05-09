@@ -1,0 +1,493 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = Resources.Menu.CongCongTrinh;
+}
+@section ScriptsFile{
+    <style>
+        .color_status {
+            cursor: default;
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            border: 1px solid #c3c3c3;
+            border-radius: 50%;
+            margin-top: 7px;
+        }
+
+        .dx-datagrid .dx-header-filter {
+            position: relative;
+            color: blue;
+            font: 14px/1 DXIcons;
+        }
+
+        .dx-datagrid .dx-header-filter-empty {
+            color: rgba(149,149,149,.5);
+        }
+    </style>
+}
+@section Link{
+    <div class="d-flex align-items-center flex-wrap mr-1">
+
+        <div class="d-flex align-items-baseline flex-wrap mr-5">
+            <ul class="breadcrumb breadcrumb-transparent breadcrumb-dot font-weight-bold p-0 my-2 ">
+                <li class="breadcrumb-item text-muted">
+                    <a href="" class="text-muted">@Resources.Menu.Cong</a>
+                </li>
+                <li class="breadcrumb-item text-muted">
+                    <a href="" class="text-muted">@Resources.Menu.CongCongTrinh</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+}
+@section Header{
+    <div class="d-flex align-items-center flex-wrap mr-1">
+    </div>
+    <div class="d-flex">
+        <div id="Mobile">
+            <button type="button" class="btn btn-primary font-weight-bolder mr-2" id="btn-chonfilencheck" data-toggle="modal" data-target="#ImportModalNcheck">
+                <i class="icon-md fas fa-long-arrow-alt-up"></i> @Resources.App.DocFIleCSVNcheck
+            </button>
+            <button type="button" class="btn btn-info font-weight-bolder mr-2" id="btn-chonfilenhansu" data-toggle="modal" data-target="#ImportModalNhanSu">
+                <i class="icon-md fas fa-long-arrow-alt-up"></i> @Resources.App.DocFileExcelNhanSu
+            </button>
+            @*<button type="button" class="btn btn-success font-weight-bolder mr-2">
+                    <i class="icon-md fas fa-file-export"></i> @Resources.App.ExcelFileMau
+                </button>*@
+            <button type="button" class="btn btn-light-primary font-weight-bolder mr-2" onclick="CapNhatXacNhanCongTac()">
+                <i class="icon-md fas fa-plus"></i> @Resources.App.CongCongTrinhCT
+            </button>
+            <button type="button" class="btn btn-success font-weight-bolder mr-2" onclick="HuyCapNhatXacNhanCongTac()">
+                <i class="icon-md fa fa-ban"></i> @Resources.App.CongCongTrinhHuy
+            </button>
+            <button type="button" class="btn btn-light-primary font-weight-bolder mr-2" data-toggle="modal" data-target="#ModalFilter">
+                <i class="icon-md fas fa-filter"></i> @Resources.App.BoLoc
+            </button>
+            <button type="button" class="btn btn-warning" onclick="TimKiem()">
+                <i class="icon-md fas fa-search"></i>
+                @Resources.App.TimKiem
+            </button>
+        </div>
+    </div>
+}
+<div class="row">
+    <div class="col-lg-12" id="mobliesize">
+        <div id="list_danh_sach"></div>
+    </div>
+</div>
+<div class="modal fade" id="ModalFilter" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="form-group row">
+                    <div class="col-lg-4">
+                        <label class="form-label">
+                            Mã công trình
+                        </label>
+                        <div id="select-duan">
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <label class="form-label">Từ ngày</label>
+                        <div id="date-tungay"></div>
+                    </div>
+                    <div class="col-lg-3">
+                        <label class="form-label">Đến ngày</label>
+                        <div id="date-denngay"></div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-4">
+                        <label class="form-label">Mã nhân viên</label>
+                        <input type="text" id="txt-manv" class="form-control" placeholder="Mã nhân viên">
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-label">Họ và tên</label>
+                        <input type="text" id="txt-hoten" class="form-control" placeholder="Họ và tên">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light-primary font-weight-bold" data-dismiss="modal">Thoát</button>
+                <button type="button" class="btn btn-warning" onclick="TimFilter()" data-dismiss="modal"><i class="icon-md fas fa-search"></i> Tìm kiếm</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="ImportModalNhanSu" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title font-weight-bold" id="exampleModalLabel">Nhập dữ liệu từ tập tin excel</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i aria-hidden="true" class="ki ki-close"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="#" class="form-validate is-alter" novalidate="novalidate">
+                    <div class="form-group">
+                        <a style="color:red" href="@Url.Action("ExportFileMau","CongCongTrinh")">Tải file excel mẫu </a>
+                        <hr />
+                        <label class="form-label" for="full-name">Tập tin *</label>
+                        <div class="form-control-wrap">
+                            <input type="file" name="UploadedFileNhanSu" id="UploadedFileNhanSu" accept=".xlsx" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-info font-weight-bolder mr-5" id="btn-chonfile" onclick="LuuImportExcel()">
+                            <i class="icon-1x text-dark-40 ki ki-long-arrow-up"></i> Lưu thông tin
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="ImportModalNcheck" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title font-weight-bold" id="exampleModalLabel">Nhập dữ liệu từ Ncheck</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i aria-hidden="true" class="ki ki-close"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="#" class="form-validate is-alter" novalidate="novalidate">
+                    <div class="form-group">
+                        <label class="form-label" for="full-name">Tập tin *</label>
+                        <div class="form-control-wrap">
+                            <input type="file" name="UploadedFile" id="UploadedFile" accept=".csv" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-info font-weight-bolder mr-5" id="btn-chonfile" onclick="LuuImporCSV()">
+                            <i class="icon-1x text-dark-40 ki ki-long-arrow-up"></i> Lưu thông tin
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section CustomScripts{
+    <script type="text/javascript">
+        $('body').addClass('subheader-fixed');
+        var date = new Date(), tungay,denngay,manv,hovaten,maduan;
+        var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+        tungay = Globalize.format(firstDay, "yyyy-MM-dd");
+        denngay = Globalize.format(date, "yyyy-MM-dd");
+        $(function () {
+            var wh = $(window).height();
+            $('#list_danh_sach').height(wh - 200);
+            setDuAn('select-duan',@Html.Raw(TTFPortal.Class.DanhMuc.DMDuAN()), false, 'Mã công trình');
+            $("#date-tungay").dxDateBox({
+                value: firstDay,
+                width: '100%',
+                type: "date",
+                displayFormat: 'dd/MM/yyyy',
+                showClearButton: true,
+                onValueChanged: function (data) {
+                    tungay = Globalize.format(data.value, "yyyy-MM-dd");
+                },
+            }).dxDateBox("instance");
+            $("#date-denngay").dxDateBox({
+                value: date,
+                width: '100%',
+                type: "date",
+                displayFormat: 'dd/MM/yyyy',
+                showClearButton: true,
+                onValueChanged: function (data) {
+                    denngay = Globalize.format(data.value, "yyyy-MM-dd");
+                },
+            }).dxDateBox("instance");
+            TimKiem();
+        });
+        function LoadData() {
+            try {
+                KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang tải dữ liệu...' });
+                $.ajax({
+                    url: "@Url.Action("GetCongCongTrinh", "CongCongTrinh")",
+                    method: "GET",
+                    timeout: 600000,
+                    contentType: 'application/json; charset=utf-8',
+                    data: { tuNgay: tungay, denNgay: denngay, maDuAn: maduan, maNV:manv,hoTen:hovaten}
+                }).done(function (rs) {
+                    KTApp.unblockPage();
+                    LoadGrid(rs);
+
+                }).fail(function (jqXHR, textStatus) {
+                        KTApp.unblockPage();
+                        if (textStatus == 'timeout') {
+                            alert('jQuery Promise: Failed from timeout');
+                            //do something. Try again perhaps?
+                        }
+                        else {
+                            alert(textStatus);
+                        }
+
+                    });
+                  @*$.get("@Url.Action("GetCanHo", "CanHo")").done(function (rs) {
+
+                  });*@
+            } catch (e) {
+                KTApp.unblockPage();
+            }
+        }
+        function TimKiem() {
+            hovaten = "", manv = "", maduan = "";
+            LoadData();
+        }
+        function TimFilter() {
+            maduan = $("#select-duan").dxSelectBox("instance").option('value');
+            manv = $('#txt-manv').val();
+            hovaten = $('#txt-hoten').val();
+            LoadData();
+            //$("#ModalFilter").hide();
+        }
+        function LoadGrid(data) {
+            $("#list_danh_sach").dxDataGrid({
+                dataSource: data,
+                showRowLines: true,
+                rowAlternationEnabled: true,
+                showBorders: true,
+                hoverStateEnabled: true,
+                allowColumnReordering: true,
+                allowColumnResizing: true,
+                columnAutoWidth: true,
+                //  columnHidingEnabled: true, // ẩn hiện nội dung khi màn hình quá nhỏ column
+                //columnChooser: {
+                //    enabled: true,
+                //    mode: "selectd" // or "ragAndDrop"
+                //},
+                selection: {
+                    mode: "multiple"
+                },
+                export: {
+                    enabled: true
+                },
+                rowAlternationEnabled: true, // bỏ định dạng màu dòng chan le
+                filterRow: {
+                    visible: true,
+                },
+                paging: {
+                    pageSize: 50
+                },
+                pager: {
+                    showPageSizeSelector: true,
+                    allowedPageSizes: [10, 15, 20, 50, 100],
+                    showInfo: true
+                },
+
+                columns: [
+                    {
+                        dataField: "EmployeeCode",
+                        caption: "Mã NV",
+                        //fixed: true,
+                        //allowFiltering: false
+                    },
+                    {
+                        dataField: "Name",
+                        caption: "Họ Tên",
+                        /// fixed: true,
+                        //allowFiltering: false
+                    },
+                    {
+                        dataField: "Date",
+                        caption: "Ngày",
+                        //  fixed: true,
+                        //allowFiltering: false
+                    },
+                    {
+                        dataField: "Time",
+                        caption: "Thời gian",
+
+                        //allowFiltering: false
+                    },
+                    {
+                        dataField: "DirectionAndStatus",
+                        caption: "Loại chấm",
+
+                        //allowFiltering: false
+                    },
+                    {
+                        dataField: "Construction",
+                        caption: "Công trình",
+
+                        //allowFiltering: false
+                    },
+                    {
+                        dataField: "Location",
+                        caption: "Vị trí",
+
+                        //allowFiltering: false
+                    },
+                    {
+                        dataField: "Address",
+                        caption: "Địa chỉ",
+
+                        //allowFiltering: false
+                    },
+                    {
+                        dataField: "CongTac",
+                        caption: "Công CT",
+                        fixed: true,
+                        //allowFiltering: false
+                    }
+                ]
+
+            });
+
+        }
+        function LuuImporCSV() {
+            var formData = new FormData();
+            var files = $("#UploadedFile").get(0).files;
+            formData.append('FileInbox', files[0]);
+            formData.append('__RequestVerificationToken', $('input[name="__RequestVerificationToken"]').val());
+            KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang import dữ liệu...' });
+            $.ajax({
+                url: '/CongCongTrinh/ImportExcelUploadNcheck',
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (rs) {
+                    KTApp.unblockPage();
+                    //Sho(rs.text)
+                    if (rs.code == 1) {
+                         ShowToast.success(rs.text, 4000);
+                    }
+                    else if (rs.code == 0) {
+                         Swal.fire("Có lỗi! ", rs.text, "error");
+                    }
+                    else {
+                         ShowToast.info('Hết thời gian thao tác đăng nhập lại', 4000);
+                         window.location.href = '@Url.Action("Login", "Account")?';
+                    }
+                },
+                error: function (err) {
+                    toastr.error("Lỗi hệ thống liên hệ nhà quản trị để được hỗ trợ" + err);
+                    KTApp.unblockPage();
+                }
+            });
+        }
+        function LuuImportExcel() {
+            var formData = new FormData();
+            var files = $("#UploadedFileNhanSu").get(0).files;
+            formData.append('FileInbox', files[0]);
+            formData.append('__RequestVerificationToken', $('input[name="__RequestVerificationToken"]').val());
+            KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang import dữ liệu...' });
+            $.ajax({
+                url: '/CongCongTrinh/ImportExcelUploadNhanSu',
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (rs) {
+                    KTApp.unblockPage();
+                    //Sho(rs.text)
+                    if (rs.code == 1) {
+                        ShowToast.success(rs.text, 4000);
+                        
+                    }
+                    else if (rs.code == 0) {
+                         Swal.fire("Có lỗi! ", rs.text, "error");
+                    }
+                    else {
+                         ShowToast.info('Hết thời gian thao tác đăng nhập lại', 4000);
+                         window.location.href = '@Url.Action("Login", "Account")?';
+                    }
+                },
+                error: function (err) {
+                    toastr.error("Lỗi hệ thống liên hệ nhà quản trị để được hỗ trợ" + err);
+                    KTApp.unblockPage();
+                }
+            });
+        }
+    function CapNhatXacNhanCongTac()
+    {
+        var congtac = [];
+        var NoiDung = "", maTem = "", ngayTem = "";
+             $.each($("#list_danh_sach").dxDataGrid('instance').getSelectedRowsData(), function (index,item) {
+                 if (maTem == "" && ngayTem == "") {
+                     NoiDung = NoiDung + item["EmployeeCode"] + "-" + item["Date"] + ";";
+                     maTem = item["EmployeeCode"];
+                     ngayTem = item["Date"];
+                 }
+                 else if (item["EmployeeCode"] == maTem && item["Date"] == ngayTem) {
+                     
+                 }
+                 else {
+                     NoiDung = NoiDung + item["EmployeeCode"] + "-" + item["Date"] + ";";
+                     maTem = item["EmployeeCode"];
+                     ngayTem = item["Date"];
+                 }
+        });
+        var data = {};
+        data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+        data.NoiDung = NoiDung;
+        KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang cập nhật...' });
+        $.post("@Url.Action("CapNhatCongTac", "CongCongTrinh")", data).done(function (rs) {
+            KTApp.unblockPage();
+             if (rs.code == 1) {
+                        ShowToast.success(rs.text, 4000);
+                        TimFilter();
+                    }
+                    else if (rs.code == 0) {
+                         Swal.fire("Có lỗi! ", rs.text, "error");
+                    }
+                    else {
+                         ShowToast.info('Hết thời gian thao tác đăng nhập lại', 4000);
+                         window.location.href = '@Url.Action("Login", "Account")?';
+                    }
+        }).fail(function (err) {
+            toastr.error("Lỗi hệ thống liên hệ nhà quản trị để được hỗ trợ" + err);
+            KTApp.unblockPage();
+        })
+
+    }
+    function HuyCapNhatXacNhanCongTac()
+    {
+        var congtac = [];
+        var NoiDung = "",maTem = "",ngayTem = "";
+        $.each($("#list_danh_sach").dxDataGrid('instance').getSelectedRowsData(), function (index, item) {
+            if (maTem == "" && ngayTem == "") {
+                NoiDung = NoiDung + item["EmployeeCode"] + "-" + item["Date"] + ";";
+                maTem = item["EmployeeCode"];
+                ngayTem = item["Date"];
+            }
+            else if (item["EmployeeCode"] == maTem && item["Date"] == ngayTem) {
+                
+            }
+            else {
+                NoiDung = NoiDung + item["EmployeeCode"] + "-" + item["Date"] + ";";
+                maTem = item["EmployeeCode"];
+                ngayTem = item["Date"];
+            }
+           
+        });
+        var data = {};
+        data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+        data.NoiDung = NoiDung;
+        KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang cập nhật...' });
+        $.post("@Url.Action("HuyCapNhatCongTac", "CongCongTrinh")", data).done(function (rs) {
+            KTApp.unblockPage();
+             if (rs.code == 1) {
+                         ShowToast.success(rs.text, 4000);
+                         TimFilter();
+                    }
+                    else if (rs.code == 0) {
+                         Swal.fire("Có lỗi! ", rs.text, "error");
+                    }
+                    else {
+                         ShowToast.info('Hết thời gian thao tác đăng nhập lại', 4000);
+                         window.location.href = '@Url.Action("Login", "Account")?';
+                    }
+        }).fail(function (err) {
+            KTApp.unblockPage();
+            toastr.error("Lỗi hệ thống liên hệ nhà quản trị để được hỗ trợ" + err);
+        })
+
+    }
+    </script>
+}

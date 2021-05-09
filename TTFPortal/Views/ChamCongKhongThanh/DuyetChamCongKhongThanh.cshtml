@@ -1,0 +1,324 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = Resources.Menu.ChamCongKhongThanhDuyet;
+}
+@section Link{
+    <div class="d-flex align-items-center flex-wrap mr-1">
+
+        <div class="d-flex align-items-baseline flex-wrap mr-5">
+
+            @*<h5 class="text-dark font-weight-bold my-1 mr-5">
+                    Chi tiết yêu cầu #1
+
+                </h5>*@
+            <ul class="breadcrumb breadcrumb-transparent breadcrumb-dot font-weight-bold p-0 my-2 ">
+                <li class="breadcrumb-item text-muted">
+                    <a href="" class="text-muted">@Resources.Menu.ChamCongKhongThanh</a>
+                </li>
+                <li class="breadcrumb-item text-muted">
+                    <a href="" class="text-muted">@Resources.Menu.ChamCongKhongThanhDuyet</a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+}
+@section Header{
+    <div class="d-flex align-items-center flex-wrap mr-1">
+        <div class="form-group row">
+            <div class="col-lg-3">
+                <label class="form-labe">Phòng/Phân Xưởng</label>
+                <div id="select-phongban">
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <label class="form-labe">Từ ngày</label>
+                <div id="date-tungay">
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <label class="form-labe">Đến ngày</label>
+                <div id="date-denngay">
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <label class="form-labe">Mã NV/Họ tên</label>
+                <input type="text" id="txt-hoten" name="txt-hoten" class="form-control" />
+            </div>
+        </div>
+    </div>
+    <div class="d-flex">
+        <div id="Mobile">
+
+            @if (User.IsInRole("46=1") || User.IsInRole("0=0"))
+            {
+                <button class="btn btn-bg-info font-weight-bolder mr-2" title="@Resources.App.Duyet" id="btn-duyet">
+                    <i class="icon-md fas fa-check"></i>
+                    @Resources.App.Duyet
+                </button>
+                <button type="button" class="btn btn-primary" title="@Resources.App.TuChoi" id="btn-tuchoi">
+                    <i class="icon-md fa fa-ban"></i>
+                    @Resources.App.TuChoi
+                </button>
+            }
+            <button type="button" class="btn btn-warning" onclick="LoadData()" title="@Resources.App.TimKiem">
+                <i class="icon-md fas fa-search"></i>
+                @Resources.App.TimKiem
+            </button>
+        </div>
+    </div>
+}
+<div class="row">
+    <div class="col-lg-12" id="mobliesize">
+        <div id="danh-sach"></div>
+    </div>
+</div>
+@section CustomScripts{
+    <script type="text/javascript">
+        var date = new Date();
+        var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+        $(function () {
+            $('#danh-sach').height($(window).height() - 200);
+            setPhongBan('select-phongban',@Html.Raw(TTFPortal.Class.DanhMuc.DMPhongBan()),false , 'Phòng/Phân xưởng');
+            $("#date-tungay").dxDateBox({
+                value: firstDay,
+                width: '100%',
+                type: "date",
+                displayFormat: 'dd/MM/yyyy',
+                showClearButton: true,
+                onValueChanged: function (data) {
+                    tungay = Globalize.format(data.value, "yyyy-MM-dd");
+                },
+            }).dxDateBox("instance");
+            $("#date-denngay").dxDateBox({
+                value: date,
+                width: '100%',
+                type: "date",
+                displayFormat: 'dd/MM/yyyy',
+                showClearButton: true,
+                onValueChanged: function (data) {
+                    tungay = Globalize.format(data.value, "yyyy-MM-dd");
+                },
+            }).dxDateBox("instance");
+            LoadData();
+        });
+        function LoadData() {
+            KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang tải dữ liệu...' });
+            var data = {};
+            data.tuNgay = Globalize.format($("#date-tungay").dxDateBox("instance").option('value'), 'yyyy-MM-dd');
+            data.denNgay = Globalize.format($("#date-denngay").dxDateBox("instance").option('value'), 'yyyy-MM-dd');
+            data.maNV = $("#txt-hoten").val();
+            data.maPhongBan = $("#select-phongban").dxSelectBox("instance").option('value');
+            data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+            $.get("@Url.Action("GetDuyetChamCongKhongThanh", "ChamCongKhongThanh")", data).done(function (rs) {
+                if (rs.code == 1) {
+                    $("#danh-sach").dxDataGrid({
+                        dataSource: rs.data,
+                        selection: {
+                            mode: "multiple"
+                        },
+                        remoteOperations: {
+                            paging: true,
+                            filtering: true
+                        },
+                        keyExpr: "IDXacNhanCong",
+                        filterRow: {
+                            visible: true,
+                            applyFilter: "auto"
+                        },
+                        paging: {
+                            pageSize: 20
+                        },
+                        showRowLines: true,
+                        rowAlternationEnabled: true,
+                        showBorders: true,
+                        hoverStateEnabled: true,
+                        allowColumnReordering: true,
+                        allowColumnResizing: true,
+                        columnAutoWidth: true,
+                        pager: {
+                            showPageSizeSelector: true,
+                            allowedPageSizes: [10, 15, 20, 50, 100],
+                            showInfo: true
+                        },
+                        columnFixing: {
+                            enabled: false
+                        },
+
+                        columns: [
+                            {
+                                dataField: "MaNV",
+                                caption: "Mã NV",
+                                width: 120,
+                                allowEditing: false, fixed: true
+                            },
+                            {
+                                dataField: "HoVaTen",
+                                caption: "Họ và tên",
+                                width: 150,
+                                allowEditing: false,
+                                //dataType: "date",
+                                //format: 'dd/MM/yyyy',
+                            },
+                            {
+                                dataField: "TenPhong_PhanXuong",
+                                caption: "Phòng/Phân xưởng",
+                                width: 200,
+                                allowEditing: false,
+
+                                //fixed: true
+                            },
+                            {
+                                dataField: "Ngay",
+                                caption: "Ngày xác nhận",
+                                width: 120, allowEditing: false,
+                            },
+                            {
+                                dataField: "ThoiGian",
+                                caption: "Thời gian",
+                                width: 100, allowEditing: false,
+                            },
+                            {
+                                dataField: "LoaiXacNhan",
+                                caption: "Loại xác nhận",
+                                width: 120, allowEditing: false,
+                            },
+                            {
+                                dataField: "NguyenNhan",
+                                caption: "Nguyên nhân",
+                                allowEditing: false,
+                            },
+
+                        ],
+                        onRowDblClick: function (e) {
+                            window.location.href =
+                                '@Url.Action("Edit","XacNhanCong")?id=' + e.key + "&op=2";
+                        },
+                    });
+                }
+                else {
+                    Swal.fire("Có lỗi! ", rs.text, "error");
+                }
+
+                KTApp.unblockPage();
+            }).fail(function () { KTApp.unblockPage();});
+        }
+    </script>
+    @if (User.IsInRole("46=1") || User.IsInRole("0=0"))
+    {
+        <script>
+            $("#btn-duyet").click(function () {
+                 Swal.fire({
+                    title: "Thông báo!",
+                    html: 'Bạn có chắc duyệt các chấm công không thành đang chọn!',
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Có, duyệt ngay!",
+                    cancelButtonText: "Hủy!",
+                    reverseButtons: true
+                }).then(function (result) {
+                    if (result.value) {
+                        KTApp.blockPage({
+                            overlayColor: '#000000',
+                            state: 'primary',
+                            message: 'Đang duyệt...'
+                        });
+                        try {
+                            var lid = [];
+                            var data = {};
+                            $.each($("#danh-sach").dxDataGrid('instance').getSelectedRowsData(), function () {
+                                lid.push(this.IDXacNhanCong);
+                            });
+                            if (lid.length == 0) {
+                                ShowToast.warning('Chưa chọn thông tin duyệt', 3000);
+                            }
+                            data.lid = lid;
+                            data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+                            $.post("@Url.Action("Duyet_ChamCongKhongThanhAll", "ChamCongKhongThanh")", data).done(function (rs) {
+                                KTApp.unblockPage();
+                                if (rs.code == 1) {
+                                    ShowToast.success(rs.text, 4000);
+                                    window.location.href = '@Url.Action("DuyetChamCongKhongThanh", "ChamCongKhongThanh")';
+
+                                   // ShowToast.success(rs.text, 10000);
+                                }
+                                else if (rs.code == 0) {
+                                    Swal.fire("Có lỗi! ", rs.text, "error");
+                                }
+                                else {
+                                    ShowToast.info('Hết thời gian thao tác đăng nhập lại', 4000);
+                                    window.location.href = '@Url.Action("Login", "Account")?';
+                                }
+                            }).fail(function () {
+                                KTApp.unblockPage();
+                            });
+                        } catch (e) {
+                            KTApp.unblockPage();
+                        }
+                    } else if (result.dismiss === "cancel") {
+                        ShowToast.info('Bạn đã hủy duyệt', 3000);
+
+                    }
+                });
+            })
+            $("#btn-tuchoi").click(function () {
+                Swal.fire({
+                    title: "Thông báo!",
+                    html: 'Bạn có chắc hủy duyệt các chấm công không thành đang chọn!',
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Có, hủy ngay!",
+                    cancelButtonText: "Hủy!",
+                    reverseButtons: true
+                }).then(function (result) {
+                    if (result.value) {
+                        KTApp.blockPage({
+                            overlayColor: '#000000',
+                            state: 'primary',
+                            message: 'Đang hủy...'
+                        });
+                        try {
+                            var lid = [];
+                            var data = {};
+                            var LyDo = prompt("Nhập lý do hủy", "");
+                            if (LyDo == null || LyDo == "") {
+                                ShowToast.warning('Chưa nhập lý do hủy', 3000);
+                                return;
+                            }
+                            $.each($("#danh-sach").dxDataGrid('instance').getSelectedRowsData(), function () {
+                                lid.push(this.IDXacNhanCong);
+                            });
+                            if (lid.length == 0) {
+                                ShowToast.warning('Chưa chọn thông tin duyệt', 3000);
+                            }
+                            data.lid = lid;
+                            data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+                            data.LyDo = LyDo;
+                            $.post("@Url.Action("Mass_Cancel_ChamCongKhongThanh", "ChamCongKhongThanh")", data).done(function (rs) {
+                                if (rs.code == 1) {
+                                    ShowToast.success(rs.text,4000);
+                                    window.location.href = '@Url.Action("DuyetXacNhanCong", "XacNhanCong")?';
+                                }
+                                else if (rs.code == 0) {
+                                    Swal.fire("Có lỗi! ", rs.text, "error");
+                                }
+                                else {
+                                    ShowToast.info('Hết thời gian thao tác đăng nhập lại', 3000);
+                                    window.location.href = '@Url.Action("Login", "Account")?';
+                                }
+                            }).fail(function () {
+                                KTApp.unblockPage();
+                            });
+                        } catch (e) {
+                            KTApp.unblockPage();
+                        }
+                    } else if (result.dismiss === "cancel") {
+                        ShowToast.info('Bạn đã hủy duyệt', 3000);
+
+                    }
+                });
+            })
+        </script>
+    }
+}
