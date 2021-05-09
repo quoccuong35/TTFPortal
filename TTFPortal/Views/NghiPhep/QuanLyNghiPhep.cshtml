@@ -1,0 +1,420 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = Resources.Menu.NghiPhepQuanLyNghiPhep;
+}
+@section ScriptsFile{
+    <style>
+        .color_status {
+            cursor: default;
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            border: 1px solid #c3c3c3;
+            border-radius: 50%;
+            margin-top: 7px;
+        }
+
+        .dx-datagrid .dx-header-filter {
+            position: relative;
+            color: blue;
+            font: 14px/1 DXIcons;
+        }
+
+        .dx-datagrid .dx-header-filter-empty {
+            color: rgba(149,149,149,.5);
+        }
+    </style>
+}
+@section Link{
+    <div class="d-flex align-items-center flex-wrap mr-1">
+
+        <div class="d-flex align-items-baseline flex-wrap mr-5">
+
+            @*<h5 class="text-dark font-weight-bold my-1 mr-5">
+                    Chi tiết yêu cầu #1
+
+                </h5>*@
+            <ul class="breadcrumb breadcrumb-transparent breadcrumb-dot font-weight-bold p-0 my-2 ">
+                <li class="breadcrumb-item text-muted">
+                    <a href="" class="text-muted">@Resources.Menu.NghiPhep</a>
+                </li>
+                <li class="breadcrumb-item text-muted">
+                    <a href="" class="text-muted">@Resources.Menu.NghiPhepQuanLyNghiPhep</a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+}
+@section Header{
+    <div class="d-flex align-items-center flex-wrap mr-1">
+    </div>
+    <div class="d-flex">
+        @if (User.IsInRole("44=1") || User.IsInRole("0=0"))
+        {
+            <button type="button" class="btn btn-info font-weight-bolder mr-2" id="btn-chonfile" data-toggle="modal" data-target="#ImportModal" title="@Resources.App.DocFileXecel">
+                <i class="icon-md fas fa-long-arrow-alt-up"></i> Import phép nhanh
+            </button>
+        }
+        @if (User.IsInRole("44=1") || User.IsInRole("0=0") )
+        {
+            <button type="button" class="btn btn-success font-weight-bolder mr-2" onclick="XuatFileExcel()" title="@Resources.App.XuatFileExcel">
+                <i class="icon-md fas fa-file-export"></i> @Resources.App.XuatFileExcel
+            </button>
+        }
+        
+        <button type="button" class="btn btn-light-primary font-weight-bolder mr-2" data-toggle="modal" data-target="#ModalFilter" title="@Resources.App.BoLoc">
+            <i class="icon-md fas fa-filter"></i> @Resources.App.BoLoc
+        </button>
+        <button type="button" class="btn btn-warning" onclick="TimKiem()" title=" @Resources.App.TimKiem">
+            <i class="icon-md fas fa-search"></i>
+            @Resources.App.TimKiem
+        </button>
+    </div>
+}
+<div class="row">
+    <div class="col-lg-12" id="mobliesize">
+        <div id="danh-sach"></div>
+    </div>
+</div>
+<div class="modal fade" id="ModalFilter" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="form-group row">
+                    <div class="col-lg-4">
+                        <label class="form-label">
+                            Phòng/Phân Xưởng
+                        </label>
+                        <div id="select-phongban">
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-label">Từ ngày</label>
+                        <div id="date-tungay"></div>
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-label">Đến ngày</label>
+                        <div id="date-denngay"></div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-4">
+                        <label class="form-label">
+                            Loại nghỉ phép
+                        </label>
+                        <div id="select-loainghiphep">
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-label">Họ tên/Mã nhân viên</label>
+                        <input type="text" id="txt-hoten" class="form-control" placeholder="Họ tên/Mã nhân viên">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light-primary font-weight-bold" data-dismiss="modal">Thoát</button>
+                <button type="button" class="btn btn-warning" onclick="TimFilter()" data-dismiss="modal"><i class="icon-md fas fa-search"></i> Tìm kiếm</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="ImportModal" tabindex="-2" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title font-weight-bold" id="exampleModalLabel">Nhập dữ liệu từ tập tin excel</h3>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row">
+                    <div class="col-lg-4">
+                        <label class="form-label" for="full-name">Tập tin *</label>
+                        <input type="file" name="FileInbox" id="UploadedFile" accept=".xlsx" class="form-control" />
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-label">Từ ngày</label>
+                        <div id="date-nghitungay"></div>
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-label">Đến ngày</label>
+                        <div id="date-nghidenngay"></div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-12">
+                        <label class="form-label">Lý do nghỉ</label>
+                        <input type="text" id="txt-lydonghiphep" name="txt-lydonghiphep" class="form-control">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light-primary font-weight-bold" data-dismiss="modal">Thoát</button>
+                <button type="button" class="btn btn-info font-weight-bolder mr-5" id="btn-luuchonfile" >
+                    <i class="icon-md far fa-save"></i> Lưu thông tin
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+@section CustomScripts{
+    <script type="text/javascript">
+        var maphongban = "", maloainghiphep = "", tungay,denngay,hovaten,manv;
+        var date = new Date();
+        var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+        tungay = Globalize.format(firstDay, "yyyy-MM-dd");
+        $(function () {
+            var wh = $(window).height();
+            $('#danh-sach').height(wh - 200);
+            $("#date-tungay").dxDateBox({
+                value: firstDay,
+                width: '100%',
+                type: "date",
+                displayFormat: 'dd/MM/yyyy',
+                showClearButton: true,
+                onValueChanged: function (data) {
+                    tungay = Globalize.format(data.value, "yyyy-MM-dd");
+                },
+            }).dxDateBox("instance");
+            $("#date-denngay").dxDateBox({
+                value: date,
+                width: '100%',
+                type: "date",
+                displayFormat: 'dd/MM/yyyy',
+                showClearButton: true,
+                onValueChanged: function (data) {
+                    denngay = Globalize.format(data.value, "yyyy-MM-dd");
+                },
+            }).dxDateBox("instance");
+            $("#date-nghitungay").dxDateBox({
+                //value: firstDay,
+                width: '100%',
+                type: "date",
+                displayFormat: 'dd/MM/yyyy',
+                showClearButton: true,
+                onValueChanged: function (data) {
+                    tungay = Globalize.format(data.value, "yyyy-MM-dd");
+                },
+            }).dxDateBox("instance");
+            $("#date-nghidenngay").dxDateBox({
+                //value: date,
+                width: '100%',
+                type: "date",
+                displayFormat: 'dd/MM/yyyy',
+                showClearButton: true,
+                onValueChanged: function (data) {
+                    denngay = Globalize.format(data.value, "yyyy-MM-dd");
+                },
+            }).dxDateBox("instance");
+            setPhongBan('select-phongban',@Html.Raw(TTFPortal.Class.DanhMuc.DMPhongBan()), false, 'Phòng/Phân xưởng');
+            setLoaiNghiPhep('select-loainghiphep',@Html.Raw(TTFPortal.Class.DanhMuc.DMLoaiNghiPhep()), false, 'Loại nghỉ phép');
+
+
+            LoadData();
+        });
+        function TimFilter() {
+
+            tungay = Globalize.format($("#date-tungay").dxDateBox("instance").option('value'), 'yyyy-MM-dd');
+            denngay = Globalize.format($("#date-denngay").dxDateBox("instance").option('value'), 'yyyy-MM-dd');
+            manv = $("#txt-hoten").val();
+            maphongban = $("#select-phongban").dxSelectBox("instance").option('value');
+            maloainghiphep = $("#select-loainghiphep").dxSelectBox("instance").option('value'); 
+            LoadData();
+
+        }
+        function TimKiem() {
+            denngay = null;
+            denngay = null;
+            manv = null;
+            maphongban = null;
+            maloainghiphep = null;
+            LoadData();
+        }
+        function LoadData() {
+            KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang tải dữ liệu...' });
+            var data = {};
+            data.TuNgay = tungay;
+            data.DenNgay = denngay;
+            data.MaNV = manv;
+            data.MaPhongBan = maphongban;
+            data.MaLoaiNghiPhep = maloainghiphep;
+            data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+            $.post("@Url.Action("GetQuanLyNghiPhep", "NghiPhep")", data).done(function (rs) {
+                $("#danh-sach").dxDataGrid({
+                    dataSource: rs,
+                    selection: {
+                        mode: "multiple"
+                    },
+                    remoteOperations: {
+                        paging: true,
+                        filtering: true
+                    },
+                    keyExpr: "IDNghiPhep",
+                    filterRow: {
+                        visible: true,
+                        applyFilter: "auto"
+                    },
+                    paging: {
+                        pageSize: 20
+                    },
+                    export: {
+                        enabled: true,
+                        fileName: "Danh Sách Nghỉ Phép",
+                        allowExportSelectedData: true
+                    },
+                    showRowLines: true,
+                    rowAlternationEnabled: true,
+                    showBorders: true,
+                    hoverStateEnabled: true,
+                    allowColumnReordering: true,
+                    allowColumnResizing: true,
+                    columnAutoWidth: true,
+                    pager: {
+                        showPageSizeSelector: true,
+                        allowedPageSizes: [10, 15, 20, 50, 100],
+                        showInfo: true
+                    },
+                    columnFixing: {
+                        enabled: false
+                    },
+                    export: {
+                        enabled: true,
+                       
+                        allowExportSelectedData: true
+                    },
+                    groupPanel: {
+                        visible: true
+                    },
+                    columns: [
+                        {
+                            dataField: "MaNV",
+                            caption: "Mã NV",
+                            width: 150,
+                            allowEditing: false, fixed: true
+                        },
+                        {
+                            dataField: "HoVaTen",
+                            caption: "Họ và tên",
+                            width: 150,
+                            allowEditing: false, fixed: true
+                            //dataType: "date",
+                            //format: 'dd/MM/yyyy',
+                        },
+                        {
+                            dataField: "TenPhongBan",
+                            caption: "Phòng/Phân xưởng",
+                            width: 200,
+                            allowEditing: false,
+                            fixed: true
+
+                            //fixed: true
+                        },
+                        {
+                            dataField: "TuNgay",
+                            caption: "Từ ngày",
+                            width: 150, allowEditing: false,
+                            fixed: true
+                        },
+                        {
+                            dataField: "DenNgay",
+                            caption: "Đến ngày",
+                            width: 100, allowEditing: false, fixed: true
+                        },
+                        {
+                            dataField: "TenLoaiNghiPhep",
+                            caption: "Tên loại nghỉ phép",
+                            width: 200, allowEditing: false, 
+                        },
+                       
+                        {
+                            dataField: "TenTrangThaiDuyet",
+                            caption: "Trạng thái duyệt",
+                            width: 150, allowEditing: false,
+                        },
+                        {
+                            dataField: "NguoiDuyet",
+                            caption: "Người duyệt",
+                            width: 150, allowEditing: false,
+                        },
+                        {
+                            dataField: "SoNgayNghi",
+                            caption: "Số ngày nghỉ",
+                            width: 100, allowEditing: false,
+                        },
+                        {
+                            dataField: "LyDoNghi",
+                            caption: "Lý do nghỉ",
+                            width: 150, allowEditing: false,
+                        },
+                        {
+                            dataField: "LyDoHuy",
+                            caption: "Lý do hủy",
+                            width: 150, allowEditing: false,
+                        },
+                    ],
+                     onRowDblClick: function (e) {
+                        window.location.href = '@Url.Action("Edit","NghiPhep")?id=' + e.key+"&op=3";
+                    },
+                });
+                KTApp.unblockPage();
+            }).fail(function () { KTApp.unblockPage();});
+        }
+        function XuatFileExcel() {
+            var item = $('#danh-sach').dxDataGrid('instance');
+            $("#danh-sach").dxDataGrid("instance").exportToExcel(false);
+        }
+    </script>
+
+    @if (User.IsInRole("0=0") || User.IsInRole("44-1"))
+    {
+        <Script>
+            $("#btn-luuchonfile").click(function () {
+                var LyDo = $("#txt-lydonghiphep").val();
+                if (LyDo == null || LyDo == "") {
+                    ShowToast.warning('Chưa nhập lý do nghỉ', 3000);
+                    return;
+                }
+                var tungay = Globalize.format($("#date-nghitungay").dxDateBox("instance").option('value'), 'yyyy-MM-dd');
+                var denngay = Globalize.format($("#date-nghidenngay").dxDateBox("instance").option('value'), 'yyyy-MM-dd');
+                if (tungay == null || denngay == "") {
+                    ShowToast.warning("Chưa nhập thời gian nghỉ", 3000);
+                    return;
+                }
+                if (Date.parse(tungay) > Date.parse(denngay)) {
+                    ShowToast.warning("Thời gian nghỉ từ ngày đến ngày không hợp lệ", 3000);
+                    return;
+                }
+                var formData = new FormData();
+                var files = $("#UploadedFile").get(0).files;
+                formData.append('FileInbox', files[0]);
+                formData.append('__RequestVerificationToken', $('input[name="__RequestVerificationToken"]').val());
+                formData.append('TuNgay', tungay);
+                formData.append('DenNgay', denngay);
+                formData.append('LyDo', LyDo);
+                KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang import dữ liệu...' });
+                $.ajax({
+                    url: '/NghiPhep/ImportExcelUploadNghiPhep',
+                    type: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (rs) {
+                        KTApp.unblockPage();
+                        //Sho(rs.text)
+                        if (rs.code == 1) {
+                            ShowToast.success(rs.text, 3000);
+                        }
+                        else {
+                            ShowToast.warning(rs.text, 3000);
+                        }
+                       
+                    },
+                    error: function (err) {
+                        toastr.error("Lỗi hệ thống liên hệ nhà quản trị để được hỗ trợ" + err);
+                        KTApp.unblockPage();
+                    }
+                });
+            })
+        </Script>
+    }
+}

@@ -1,0 +1,855 @@
+﻿@using TTFPortal.Models;
+@model NghiPhep
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = Resources.App.NghiPhepThongTin;
+    var ng = TTFPortal.Class.Users.GetNguoiDung(User.Identity.Name);
+    bool enable = false;
+    if (ViewBag.OP == 3)
+    {
+        enable = true;
+    }
+}
+<link href="~/Content/css/wizard-4790f.css?v=2.0.1" rel="stylesheet" type="text/css" />
+@section Link{
+    <div class="d-flex align-items-center flex-wrap mr-1">
+
+        <div class="d-flex align-items-baseline flex-wrap mr-5">
+
+            <ul class="breadcrumb breadcrumb-transparent breadcrumb-dot font-weight-bold p-0 my-2 ">
+                <li class="breadcrumb-item text-muted">
+                    <a href="" class="text-muted">@Resources.Menu.NghiPhep</a>
+                </li>
+                <li class="breadcrumb-item text-muted">
+                    <a href="" class="text-muted">@Resources.App.NghiPhepThongTin </a> 
+                </li>
+
+            </ul>
+        </div>
+    </div>
+}
+@section Header{
+    <div class="d-flex align-items-center flex-wrap mr-1">
+    </div>
+    <div class="d-flex align-items-center">
+        @if (Model.NguoiTao == ng.NguoiDung && ViewBag.Op == 1)
+        {
+            <a href="@Url.Action("NghiPhepCuaBan","NghiPhep")" class="btn btn-default font-weight-bold  px-2 font-size-base  mr-2"> <i class="icon-md fas fa-arrow-left"></i> @Resources.App.QuayLai</a>
+        }
+        @if ((User.IsInRole("0=0") || User.IsInRole("42=2")) && Model.NguoiTao == ng.NguoiDung && ViewBag.Op == 1)
+        {
+            <a href="@Url.Action("Create", "NghiPhep")" class="btn btn-primary font-weight-bold  px-2 font-size-base  mr-2" title="Thêm mới nghỉ phép"> <i class="icon-md fas fa-sync"></i> @Resources.App.ThemMoi</a>
+        }
+        @if (Model.Block != true && Model.NguoiTao == ng.NguoiDung && ViewBag.Op == 1)
+        {
+            <button type="submit" class="btn btn-info mr-2" id="btn-guimail">
+                <i class="icon-md fas fa-mail-bulk"></i>
+                @Resources.App.GuiMail
+            </button>
+        }
+        @if (Model.Block != true && (User.IsInRole("42=3") || User.IsInRole("0=0")) && Model.NguoiTao == ng.NguoiDung && ViewBag.Op == 1)
+        {
+            <button type="submit" class="btn btn-warning mr-2" id="btn-capnhat" title="Người dùng cập nhật">
+                <i class="icon-md far fa-save"></i>
+                @Resources.App.CapNhat
+            </button>
+        }
+        @if (Model.Block != true && (User.IsInRole("0=0") || User.IsInRole("42=4")) && Model.NguoiTao == ng.NguoiDung && ViewBag.Op == 1)
+        {
+            <button type="submit" class="btn btn-danger font-weight-bold  px-2 font-size-base  mr-2" id="btn-xoa">
+                <i class="icon-md far fa-trash-alt"></i>
+                @Resources.App.Xoa
+            </button>
+
+        }
+        @if (Model.Block == true && (User.IsInRole("43=1") || User.IsInRole("0=0")) && ng.NhanSu == Model.IDNguoiDuyetKeTiep && ViewBag.Op == 2)
+        {
+            <a href="@Url.Action("DuyetNghiPhep","NghiPhep")" class="btn btn-default font-weight-bold  px-2 font-size-base  mr-2"> <i class="icon-md fas fa-arrow-left"></i> @Resources.App.QuayLai</a>
+            <button class="btn btn-bg-info font-weight-bolder mr-2" title="@Resources.App.Duyet" id="btn-duyet">
+                <i class="icon-md fas fa-check"></i>
+                @Resources.App.Duyet
+            </button>
+            <button type="button" class="btn btn-primary" title="@Resources.App.TuChoi" id="btn-tuchoi">
+                <i class="icon-md fa fa-ban"></i>
+                @Resources.App.TuChoi
+            </button>
+        }
+        @if (User.IsInRole("44=1") || User.IsInRole("0=0") && ViewBag.Op == 3)
+        {
+            <a href="@Url.Action("QuanLyNghiPhep","NghiPhep")" class="btn btn-default font-weight-bold  px-2 font-size-base  mr-2"> <i class="icon-md fas fa-arrow-left"></i> @Resources.App.QuayLai</a>
+            <button type="submit" class="btn btn-warning mr-2" id="btn-capnhatnhansu" title="Nhân sự cập nhật">
+                <i class="icon-md far fa-save"></i>
+                @Resources.App.CapNhat
+            </button>
+            <button type="button" class="btn btn-primary" title="Nhân sự từ chối" id="btn-tuchoinhansu">
+                <i class="icon-md fa fa-ban"></i>
+                @Resources.App.TuChoi
+            </button>
+        }
+    </div>
+}
+<div class="container">
+    <!--begin::Card-->
+    <div class="card card-custom">
+        <div class="card-header">
+            <h3 class="card-title">Thông tin nghỉ phép #@Model.IDNghiPhep</h3>
+        </div>
+        <!--begin::Form-->
+        <form>
+            <div class="card-body center">
+                <div class="form-group row">
+                    <div class="col-lg-4">
+                        <label class="form-labe">Từ ngày<b class="text-danger">*</b></label>
+                        <div id="date-tungay">
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-labe">Đến ngày<b class="text-danger">*</b></label>
+                        <div id="date-denngay">
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-labe">Mã nhân viên</label>
+                        <input type="text" id="txt-manv" name="txt-manv" class="form-control" readonly />
+                    </div>
+                    <input type="hidden" id="txt-nhansu" name="txt-nhansu" />
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-4">
+                        <label class="form-labe">Loại nghỉ phép<b class="text-danger">*</b></label>
+                        <div id="select-loainghiphep">
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-labe">Số ngày phép còn lại</label>
+                        <input type="text" id="txt-songayphepconlai" name="txt-songayphepconlai" class="form-control" readonly />
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-labe">Họ và tên</label>
+                        <input type="text" id="txt-hoten" name="txt-hoten" class="form-control" readonly />
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-8">
+                        <label class="form-labe">Lý do nghỉ <b class="text-danger">*</b></label>
+                        @* <input type="text" id="txt-lydo" name="txt-lydo" class="form-control" required />*@
+                        <div id="txt-lydo">
+
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-labe">Phòng ban/Bộ phận </label>
+                        <input type="text" id="txt-phongban" name="txt-phongban" class="form-control" readonly />
+                    </div>
+                </div>
+                <hr />
+                <div class="row">
+                    <div class="col-lg-12" id="mobliesize">
+                        <div id="danh-sach"></div>
+                    </div>
+                </div>
+            </div>
+
+            @*<div class="card-footer">
+                    <button type="reset" class="btn btn-primary mr-2">Submit</button>
+                    <button type="reset" class="btn btn-secondary">Cancel</button>
+                </div>*@
+        </form>
+        <!--end::Form-->
+    </div>
+    <!--end::Card-->
+</div>
+@section CustomScripts{
+    <script type="text/javascript">
+        var date = new Date(), MaNV = '@Model.MaNhanVien', BuoiLamViec, tungay, denngay, data = [], tungay, denngay;
+        //tungay = denngay = Globalize.format(date, "yyyy-MM-dd")
+        var json =  @Html.Raw(Json.Encode(@Model.NPCT));
+        data = JSON.parse(JSON.stringify(json));
+        $('body').addClass('subheader-fixed');
+        $(function () {
+            setLoaiNghiPhep('select-loainghiphep',@Html.Raw(TTFPortal.Class.DanhMuc.DMLoaiNghiPhep()), true, 'Loại nghỉ phép','@Model.MaLoaiNghiPhep.Trim()','@enable'=="True"?false:true);
+            $('#danh-sach').height(200);
+
+            $("#txt-lydo").dxTextBox({
+                showClearButton: true,
+                placeholder: "Nhập lý do",
+                value: "@Html.Raw(Model.LyDoNghi.ToString())",
+            }).dxValidator({
+                validationRules: [{
+                    type: "required",
+                    message: "Chưa nhập lý do"
+                }]
+            });
+            $("#date-tungay").dxDateBox({
+                value: "@Model.TuNgay.Value.ToString("yyyy-MM-dd")",
+                width: '100%',
+                type: "date",
+                displayFormat: 'dd/MM/yyyy',
+                showClearButton: true,
+                onValueChanged: function (data) {
+                    tungay = Globalize.format(data.value, "yyyy-MM-dd");
+                    ThongTinNgayNghi();
+                },
+                invalidDateMessage: "Ngày nhập không hợp lệ",
+                readOnly: true,
+            }).dxValidator({
+                validationRules: [{
+                    type: "required",
+                    message: "Chưa nhập từ ngày"
+                }]
+            });
+            $("#date-denngay").dxDateBox({
+                value: "@Model.DenNgay.Value.ToString("yyyy-MM-dd")",
+                width: '100%',
+                type: "date",
+                displayFormat: 'dd/MM/yyyy',
+                showClearButton: true,
+                onValueChanged: function (data) {
+                    denngay = Globalize.format(data.value, "yyyy-MM-dd");
+                    ThongTinNgayNghi();
+                },
+                invalidDateMessage: "Ngày nhập không hợp lệ",
+                readOnly: true,
+            }).dxValidator({
+                validationRules: [{
+                    type: "required",
+                    message: "Chưa nhập đến ngày"
+                }]
+                });
+            $("#txt-manv").val("@Model.MaNhanVien");
+            $("#txt-nhansu").val("@Model.NhanSu");
+            $("#txt-hoten").val(" @Html.Raw(Model.HoVaTen.ToString())");
+            $("#txt-phongban").val("@Html.Raw(Model.TenPhong_PhanXuong)");
+            $("#txt-songayphepconlai").val("@Model.SoNgayPhepDuocNghi");
+           // TimNhanVien();
+            LoadDataChiTiet();
+        });
+        //$("#txt-manv").on('keyup', function (event) {
+        //    if (event.keyCode === 13) {
+        //        MaNV = $("#txt-manv").val();
+        //        TimNhanVien();
+        //    }
+        //});
+
+        function TimNhanVien() {
+            KTApp.blockPage({
+                overlayColor: '#000000',
+                state: 'primary',
+                message: 'Đang tìm nhân viên...'
+            });
+            $.post("@Url.Action("TimNhanVien","HeThong")", { MaNV: MaNV }).done(function (rs) {
+                KTApp.unblockPage();
+                if (rs.data == null || rs.data.length == 0) {
+                    Swal.fire("Có lỗi! ", rs.text, "error");
+                    $("#txt-manv").val("");
+                    $("#txt-nhansu").val("");
+                    $("#txt-hoten").val("");
+                    $("#txt-phongban").val("");
+                    $("#txt-songayphepconlai").val("");
+                    data = [];
+                    LoadDataChiTiet();
+                }
+                else {
+                    $("#txt-manv").val(rs.data.MaNV);
+                    $("#txt-nhansu").val(rs.data.NhanSu);
+                    $("#txt-hoten").val(rs.data.HoVaTen);
+                    $("#txt-phongban").val(rs.data.TenPhongBan);
+                    $("#txt-songayphepconlai").val(rs.data.SoNgayPhepConlai);
+                }
+            }).fail(function (error) { KTApp.unblockPage(); });
+        }
+        @*function ThongTinNgayNghi() {
+            data = null;
+            if (tungay == null || denngay == null)
+                return;
+            if (Date.parse(tungay) > Date.parse(denngay)) {
+                Swal.fire("Có lỗi! ", "Từ ngày-Đến ngày không hợp lệ", "error");
+                LoadDataChiTiet();
+                return;
+            }
+            var songay = 0;
+            $.post("@Url.Action("GetIntDate", "NghiPhep")", { TuNgay: tungay, DenNgay: denngay }).done(function (rs) {
+                data = rs;
+                LoadDataChiTiet();
+            });
+        }*@
+        function LoadDataChiTiet() {
+             $.post("@Url.Action("BuoiLamViec","NghiPhep")").done(function (rs) {
+                 BuoiLamViec = rs;
+                 $("#danh-sach").dxDataGrid({
+                     dataSource: data,
+                     ////selection: {
+                     ////    mode: "multiple"s
+                     ////},
+                     remoteOperations: {
+                         paging: true,
+                         filtering: true
+                     },
+                     editing: {
+                         allowUpdating: true,
+                         //allowAdding: true,
+                         //allowDeleting: false,
+                         mode: 'batch' // 'batch' | 'cell' | 'form' | 'popup'
+                     },
+                     keyExpr: "NgayS",
+                     //filterRow: {
+                     //    visible: true,
+                     //    applyFilter: "auto"
+                     //},
+                     paging: {
+                         pageSize: 20
+                     },
+                     showRowLines: true,
+                     rowAlternationEnabled: true,
+                     showBorders: true,
+                     hoverStateEnabled: true,
+                     allowColumnReordering: true,
+                     allowColumnResizing: true,
+                     columnAutoWidth: true,
+                     pager: {
+                         showPageSizeSelector: true,
+                         allowedPageSizes: [10, 15, 20, 50, 100],
+                         showInfo: true
+                     },
+                     columnFixing: {
+                         enabled: false
+                     },
+
+                     columns: [
+                         {
+                             dataField: "Check",
+                             caption: "Chọn",
+                             width: 100,
+                             allowEditing: false, fixed: true
+                         },
+                         {
+                             dataField: "IDNghiPhep",
+                             caption: "Id",
+                             width: 100,
+                             allowEditing: false, fixed: true,
+                             visible: false
+                         },
+                         {
+                             dataField: "NgayS",
+                             caption: "Ngày",
+                             width: 100,
+                             allowEditing: false,
+                             //dataType: "date",
+                             //format: 'dd/MM/yyyy',
+                         },
+                         {
+                             dataField: "ChuKyCaLamViec",
+                             caption: "Buồi",
+                             width: 200,
+                             allowEditing: "@enable"=="True"?true:false,
+                             lookup: {
+                                 dataSource: BuoiLamViec,
+                                 valueExpr: "ChuKyCaLamViec",
+                                 displayExpr: "TenBuoiLamViec"
+                             }
+                         },
+                         {
+                             dataField: "GhiChu",
+                             caption: "Ghi Chú",
+                             width: 250,
+                             allowEditing: false,
+                         },
+                         {
+                            width: 40,
+                            caption: "Xóa",
+                            type: "buttons",
+                            visible:"@enable" == "True" ? true : false,
+                            buttons: [{
+                                name: "Xóa",
+                                icon: "la la-trash-o",
+                                onClick: function (e) {
+                                    XoaChiTiet(e);
+                                }
+                            }]
+
+                         }
+                     ],
+                 });
+            });
+
+        }
+        
+       // nhan su xoa nghi phep chi tiêc
+        function XoaChiTiet(e) {
+            if ("@User.IsInRole("0=0")" == "True" || "@User.IsInRole("44=1")" == "True") {
+                var dk = e.row.data.IDNghiPhep + "_" + e.row.data.NgayS+"_"+"@Model.MaLoaiNghiPhep.Trim()";
+                var data = {};
+                data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+                data.dk = dk;
+                KTApp.blockPage({
+                    overlayColor: '#000000',
+                    state: 'primary',
+                    message: 'Đang xóa...'
+                });
+                $.post("@Url.Action("XoaNghiPhepChiTiet", "NghiPhep")", data).done(function (rs) {
+                    KTApp.unblockPage();
+                    if (rs.code == 1) {
+                        ShowToast.success(rs.text, 3000);
+                          window.location.href = '@Url.Action("Edit", "NghiPhep")?id=' + "@Model.IDNghiPhep"+"&op=3";
+                    }
+                    else if (rs.code == 0) {
+                        Swal.fire("Có lỗi! ", rs.text, "error");
+                    }
+                    else {
+                        ShowToast.info('Hết thời gian thao tác đăng nhập lại', 4000);
+                         window.location.href = '@Url.Action("Login", "Account")';
+                    }
+                }).fail(function (ex) {
+                    KTApp.unblockPage();
+                })
+            }
+            
+        }
+    </script>
+    @*Người dùng sửa nghỉ phép*@
+    @if ((User.IsInRole("0=0") || User.IsInRole("42=3")) && Model.NguoiTao == ng.NguoiDung)
+    {
+        <script type="text/javascript">
+
+            $("#btn-capnhat").click(function () {
+                var data = {}, validate = true;
+
+                data.TuNgay = Globalize.format($("#date-tungay").dxDateBox("instance").option('value'), 'yyyy-MM-dd');
+                if (!data.TuNgay) {
+                    $('#date-tungay').dxValidator('instance').validate();
+                    validate = false;
+                }
+                data.DenNgay = Globalize.format($("#date-denngay").dxDateBox("instance").option('value'), 'yyyy-MM-dd');
+                if (!data.DenNgay) {
+                    $('#date-denngay').dxValidator('instance').validate();
+                    validate = false;
+                }
+                data.MaLoaiNghiPhep = $("#select-loainghiphep").dxSelectBox("instance").option('value')
+                if (!data.MaLoaiNghiPhep) {
+                    $('#select-loainghiphep').dxValidator('instance').validate();
+                    validate = false;
+                }
+                data.LyDoNghi = $("#txt-lydo").dxTextBox("instance").option('value')
+                if (!data.LyDoNghi) {
+                    $('#txt-lydo').dxValidator('instance').validate();
+                    validate = false;
+                }
+                data.NhanSu = $("#txt-nhansu").val();
+                if (!data.NhanSu) {
+                    ShowToast.warning('Chưa nhập thông tin nhân sự nghỉ phép', 3000);
+                    validate = false;
+                }
+                //$('#danh-sach').dxDataGrid('instance').saveEditData().done(function (e) {
+                //    bLoi = true;
+                //});
+                //var dataitem = $('#danh-sach').dxDataGrid('instance').option("dataSource");
+                data.NPCT = $('#danh-sach').dxDataGrid('instance').option("dataSource")
+                if (!data.NPCT || data.NPCT.length == 0) {
+                    ShowToast.warning("Chưa nhập thông tin ngày nghỉ", 3000);
+                    validate = false;
+                }
+                data.Block = "@Model.Block";
+                data.IDNghiPhep = "@Model.IDNghiPhep"
+                data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+                if (validate) {
+                    KTApp.blockPage({
+                        overlayColor: '#000000',
+                        state: 'primary',
+                        message: 'Lưu thông tin...'
+                    });
+                    $.post("@Url.Action("SaveNghiPhep", "NghiPhep")", data).done(function (rs) {
+                        KTApp.unblockPage();
+                        if (rs.code == 1) {
+                            ShowToast.success(rs.text, 3000);
+
+                        }
+                        else if (rs.code == 0) {
+                            Swal.fire("Có lỗi! ", rs.text, "error");
+                        }
+                        else {
+                            ShowToast.info('Hết thời gian thao tác đăng nhập lại', 4000);
+                            window.location.href = '@Url.Action("Login", "Account")?';
+                        }
+                    }).fail(function () {
+                        KTApp.unblockPage();
+                    })
+                }
+            });
+             $("#btn-guimail").click(function () {
+                Swal.fire({
+                    title: "Gửi mail?",
+                    html: "@Html.Raw("<b>Chú ý: </b> khi gửi mail là thông tin không thể sửa hoặc xóa")",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Có, gửi ngay!",
+                    cancelButtonText: "Hủy!",
+                    reverseButtons: true
+                }).then(function (result) {
+                    if (result.value) {
+                        var data = {};
+                        KTApp.blockPage({
+                            overlayColor: '#000000',
+                            state: 'primary',
+                            message: 'Đang gửi mail...'
+                        });
+                        try {
+                            data.id = "@Model.IDNghiPhep";
+                            data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+                            $.post("@Url.Action("GuiMail","NghiPhep")", data).done(function (rs) {
+                                KTApp.unblockPage();
+                                if (rs.code == 1) {
+                                    ShowToast.success( rs.text,3000);
+                                     window.location.href = '@Url.Action("Edit", "NghiPhep")?id=' + rs.description+"&op=1";
+                                }
+                                else if (rs.code == 0) {
+                                     Swal.fire("Có lỗi! ", rs.text, "error");
+                                }
+                                else {
+                                     ShowToast.info('Hết thời gian thao tác đăng nhập lại', 4000);
+                                     window.location.href = '@Url.Action("Login", "Account")';
+                                 }
+                            }).fail(function () {
+                                KTApp.unblockPage();
+                            });
+                        } catch (e) {
+                            KTApp.unblockPage();
+                        }
+                    } else if (result.dismiss === "cancel") {
+                        ShowToast.info('Bạn đã hủy', 3000);
+
+                    }
+                });
+
+            });
+        </script>
+    }
+    @if ((User.IsInRole("0=0") || User.IsInRole("42=4")) && Model.NguoiTao == ng.NguoiDung)
+    {
+        <script type="text/javascript">
+            $("#btn-xoa").click(function () {
+                Swal.fire({
+                    title: "Cảnh báo?",
+                    html: 'Bạn có chắc xóa thông tin nghỉ phép đang chọn!',
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Có, xóa ngay!",
+                    cancelButtonText: "Hủy!",
+                    reverseButtons: true
+                }).then(function (result) {
+                    if (result.value) {
+                        KTApp.blockPage({
+                            overlayColor: '#000000',
+                            state: 'primary',
+                            message: 'Đang xóa...'
+                        });
+                        try {
+                            var data = {};
+                            data.id = "@Model.IDNghiPhep";
+                            data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+                            $.post("@Url.Action("Delete", "NghiPhep")", data).done(function (rs) {
+                                KTApp.unblockPage();
+                                if (rs.code == 1) {
+                                    ShowToast.success( rs.text,3000);
+                                    window.location.href = '@Url.Action("Create", "NghiPhep")?';
+                                }
+                                else if (rs.code == 0) {
+                                     Swal.fire("Có lỗi! ", rs.text, "error");
+                                }
+                                else {
+                                     ShowToast.info('Hết thời gian thao tác đăng nhập lại', 4000);
+                                     window.location.href = '@Url.Action("Login", "Account")?';
+                                 }
+                            }).fail(function () {
+                                KTApp.unblockPage();
+                            });
+                        } catch (e) {
+                            KTApp.unblockPage();
+                        }
+                    } else if (result.dismiss === "cancel") {
+                        ShowToast.info('Bạn đã hủy xóa', 3000);
+
+                    }
+                });
+
+            });
+
+        </script>
+    }
+    @*Duyệt nghỉ phép*@
+    @if ((User.IsInRole("43=1") || User.IsInRole("0=0")) && ng.NhanSu == Model.IDNguoiDuyetKeTiep)
+    {
+        <script>
+            $("#btn-duyet").click(function () {
+                 Swal.fire({
+                    title: "Thông báo!",
+                    html: 'Bạn có chắc duyệt các nghỉ phép đang chọn!',
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Có, duyệt ngay!",
+                    cancelButtonText: "Hủy!",
+                    reverseButtons: true
+                }).then(function (result) {
+                    if (result.value) {
+                        KTApp.blockPage({
+                            overlayColor: '#000000',
+                            state: 'primary',
+                            message: 'Đang duyệt...'
+                        });
+                        try {
+                            var lid = [];
+                            var data = {};
+                            lid.push("@Model.IDNghiPhep");
+                            if (lid.length == 0) {
+                                ShowToast.warning('Chưa chọn thông tin duyệt', 3000);
+                            }
+                            data.lid = lid;
+                            data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+                            $.post("@Url.Action("Duyet_NghiPhepAll", "NghiPhep")", data).done(function (rs) {
+                                KTApp.unblockPage();
+                                if (rs.code == 1) {
+                                    ShowToast.success( rs.text,4000);
+                                    window.location.href = '@Url.Action("DuyetNghiPhep", "NghiPhep")?';
+                                }
+                                else if (rs.code == 0) {
+                                    Swal.fire("Có lỗi! ", rs.text, "error");
+                                }
+                                else {
+                                    ShowToast.info('Hết thời gian thao tác đăng nhập lại', 4000);
+                                    window.location.href = '@Url.Action("Login", "Account")?';
+                                }
+                            }).fail(function () {
+                                KTApp.unblockPage();
+                            });
+                        } catch (e) {
+                            KTApp.unblockPage();
+                        }
+                    } else if (result.dismiss === "cancel") {
+                        ShowToast.info('Bạn đã hủy duyệt', 3000);
+
+                    }
+                });
+            })
+            $("#btn-tuchoi").click(function () {
+                Swal.fire({
+                    title: "Thông báo!",
+                    html: 'Bạn có chắc hủy duyệt các nghỉ phép đang chọn!',
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Có, hủy ngay!",
+                    cancelButtonText: "Hủy!",
+                    reverseButtons: true
+                }).then(function (result) {
+                    if (result.value) {
+                        KTApp.blockPage({
+                            overlayColor: '#000000',
+                            state: 'primary',
+                            message: 'Đang hủy...'
+                        });
+                        try {
+                            var lid = [];
+                            var data = {};
+                            var LyDo = prompt("Nhập lý do hủy", "");
+                            if (LyDo == null || LyDo == "") {
+                                ShowToast.warning('Chưa nhập lý do hủy', 3000);
+                                return;
+                            }
+                            lid.push("@Model.IDNghiPhep");
+                            if (lid.length == 0) {
+                                ShowToast.warning('Chưa chọn thông tin duyệt', 3000);
+                            }
+                            data.lid = lid;
+                            data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+                            data.LyDo = LyDo;
+                            $.post("@Url.Action("Mass_Cancel_NghiNghep", "NghiPhep")", data).done(function (rs) {
+                                if (rs.code == 1) {
+                                    ShowToast.success( rs.text, 4000);
+                                    window.location.href = '@Url.Action("DuyetNghiPhep", "NghiPhep")';
+                                }
+                                else if (rs.code == 0) {
+                                    Swal.fire("Có lỗi! ", rs.text, "error");
+                                }
+                                else {
+                                    ShowToast.info('Hết thời gian thao tác đăng nhập lại', 3000);
+                                    window.location.href = '@Url.Action("Login", "Account")?';
+                                }
+                            }).fail(function () {
+                                KTApp.unblockPage();
+                            });
+                        } catch (e) {
+                            KTApp.unblockPage();
+                        }
+                    } else if (result.dismiss === "cancel") {
+                        ShowToast.info('Bạn đã hủy duyệt', 3000);
+
+                    }
+                });
+            })
+        </script>
+    }
+    @* Nhân sự cập nhật nghỉ phép*@
+    @if (User.IsInRole("44=1") || User.IsInRole("0=0"))
+    {
+        <script type="text/javascript">
+
+            $("#btn-capnhatnhansu").click(function () {
+                var data = {}, validate = true;
+
+                data.TuNgay = Globalize.format($("#date-tungay").dxDateBox("instance").option('value'), 'yyyy-MM-dd');
+                if (!data.TuNgay) {
+                    $('#date-tungay').dxValidator('instance').validate();
+                    validate = false;
+                }
+                data.DenNgay = Globalize.format($("#date-denngay").dxDateBox("instance").option('value'), 'yyyy-MM-dd');
+                if (!data.DenNgay) {
+                    $('#date-denngay').dxValidator('instance').validate();
+                    validate = false;
+                }
+                data.MaLoaiNghiPhep = $("#select-loainghiphep").dxSelectBox("instance").option('value')
+                if (!data.MaLoaiNghiPhep) {
+                    $('#select-loainghiphep').dxValidator('instance').validate();
+                    validate = false;
+                }
+                data.LyDoNghi = $("#txt-lydo").dxTextBox("instance").option('value')
+                if (!data.LyDoNghi) {
+                    $('#txt-lydo').dxValidator('instance').validate();
+                    validate = false;
+                }
+                data.NhanSu = $("#txt-nhansu").val();
+                if (!data.NhanSu) {
+                    ShowToast.warning('Chưa nhập thông tin nhân sự nghỉ phép', 3000);
+                    validate = false;
+                }
+                //$('#danh-sach').dxDataGrid('instance').saveEditData().done(function (e) {
+                //    bLoi = true;
+                //});
+                //var dataitem = $('#danh-sach').dxDataGrid('instance').option("dataSource");
+                var items = $('#danh-sach').dxDataGrid('instance');
+                items.saveEditData().done(function (e) {
+                    //bLoi = true;
+                });
+                data.NPCT = items.option("dataSource")
+                if (!data.NPCT || data.NPCT.length == 0) {
+                    ShowToast.warning("Chưa nhập thông tin ngày nghỉ", 3000);
+                    validate = false;
+                }
+                data.Block = "@Model.Block";
+                data.IDNghiPhep = "@Model.IDNghiPhep"
+                data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+                if (validate) {
+                    KTApp.blockPage({
+                        overlayColor: '#000000',
+                        state: 'primary',
+                        message: 'Lưu thông tin...'
+                    });
+                    $.post("@Url.Action("SaveNghiPhepNhanSu", "NghiPhep")", data).done(function (rs) {
+                        KTApp.unblockPage();
+                        if (rs.code == 1) {
+                            ShowToast.success( rs.text,4000);
+                            window.location.href = "@Url.Action("Edit","NghiPhep")?id=" + "@Model.IDNghiPhep" + "&op=3";
+                        }
+                        else if (rs.code == 0) {
+                            Swal.fire("Có lỗi! ", rs.text, "error");
+                        }
+                        else {
+                            ShowToast.info('Hết thời gian thao tác đăng nhập lại', 4000);
+                            window.location.href = '@Url.Action("Login", "Account")?';
+                        }
+                    }).fail(function () {
+                        KTApp.unblockPage();
+                    })
+                }
+            });
+            $("#btn-tuchoinhansu").click(function () {
+                Swal.fire({
+                    title: "Thông báo!",
+                    html: 'Bạn có chắc hủy duyệt các nghỉ phép đang chọn!',
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Có, hủy ngay!",
+                    cancelButtonText: "Hủy!",
+                    reverseButtons: true
+                }).then(function (result) {
+                    if (result.value) {
+                        KTApp.blockPage({
+                            overlayColor: '#000000',
+                            state: 'primary',
+                            message: 'Đang hủy...'
+                        });
+                        try {
+                            var data = {};
+                            var LyDo = prompt("Nhập lý do hủy", "");
+                            if (LyDo == null || LyDo == "") {
+                                ShowToast.warning('Chưa nhập lý do hủy', 3000);
+                                return;
+                            }
+                            var data = {};
+
+                            data.TuNgay = Globalize.format($("#date-tungay").dxDateBox("instance").option('value'), 'yyyy-MM-dd');
+                            if (!data.TuNgay) {
+                                $('#date-tungay').dxValidator('instance').validate();
+                                validate = false;
+                            }
+                            data.DenNgay = Globalize.format($("#date-denngay").dxDateBox("instance").option('value'), 'yyyy-MM-dd');
+                            if (!data.DenNgay) {
+                                $('#date-denngay').dxValidator('instance').validate();
+                                validate = false;
+                            }
+                            data.MaLoaiNghiPhep = $("#select-loainghiphep").dxSelectBox("instance").option('value')
+                            if (!data.MaLoaiNghiPhep) {
+                                $('#select-loainghiphep').dxValidator('instance').validate();
+                                validate = false;
+                            }
+                            data.LyDoNghi = $("#txt-lydo").dxTextBox("instance").option('value')
+                            if (!data.LyDoNghi) {
+                                $('#txt-lydo').dxValidator('instance').validate();
+                                validate = false;
+                            }
+                            data.LyDoHuy = LyDo;
+                            data.NhanSu = $("#txt-nhansu").val();
+                            if (!data.NhanSu) {
+                                ShowToast.warning('Chưa nhập thông tin nhân sự nghỉ phép', 3000);
+                                validate = false;
+                            }
+                            //$('#danh-sach').dxDataGrid('instance').saveEditData().done(function (e) {
+                            //    bLoi = true;
+                            //});
+                            //var dataitem = $('#danh-sach').dxDataGrid('instance').option("dataSource");
+                            var items = $('#danh-sach').dxDataGrid('instance');
+                            items.saveEditData().done(function (e) {
+                                //bLoi = true;
+                            });
+                            data.NPCT = items.option("dataSource")
+                            if (!data.NPCT || data.NPCT.length == 0) {
+                                ShowToast.warning("Chưa nhập thông tin ngày nghỉ", 3000);
+                                validate = false;
+                            }
+                            data.Block = "@Model.Block";
+                            data.IDNghiPhep = "@Model.IDNghiPhep"
+                            data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+                            $.post("@Url.Action("TuChoiNghiPhepNhanSu", "NghiPhep")", data).done(function (rs) {
+                                if (rs.code == 1) {
+                                    ShowToast.success(rs.text, 4000);
+                                    window.location.href = '@Url.Action("QuanLyNghiPhep", "NghiPhep")?';
+                                }
+                                else if (rs.code == 0) {
+                                    Swal.fire("Có lỗi! ", rs.text, "error");
+                                }
+                                else {
+                                    ShowToast.info('Hết thời gian thao tác đăng nhập lại', 3000);
+                                    window.location.href = '@Url.Action("Login", "Account")?';
+                                }
+                            }).fail(function () {
+                                KTApp.unblockPage();
+                            });
+                        } catch (e) {
+                            KTApp.unblockPage();
+                        }
+                    } else if (result.dismiss === "cancel") {
+                        ShowToast.info('Bạn đã hủy duyệt', 3000);
+
+                    }
+                });
+            });
+        </script>
+    }
+}

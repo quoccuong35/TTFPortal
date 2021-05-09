@@ -1,0 +1,192 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = Resources.Menu.NghiPhepCuaBan;
+}
+@section Link{
+    <div class="d-flex align-items-center flex-wrap mr-1">
+
+        <div class="d-flex align-items-baseline flex-wrap mr-5">
+
+            @*<h5 class="text-dark font-weight-bold my-1 mr-5">
+                    Chi tiết yêu cầu #1
+
+                </h5>*@
+            <ul class="breadcrumb breadcrumb-transparent breadcrumb-dot font-weight-bold p-0 my-2 ">
+                <li class="breadcrumb-item text-muted">
+                    <a href="" class="text-muted">@Resources.Menu.NghiPhep</a>
+                </li>
+                <li class="breadcrumb-item text-muted">
+                    <a href="" class="text-muted">@Resources.Menu.NghiPhepCuaBan</a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+}
+@section Header{
+    <div class="d-flex align-items-center flex-wrap mr-1">
+        <div class="form-group row">
+            <label class="col-lg-4 col-form-label">Từ ngày</label>
+            <div class="col-lg-7">
+                <div id="date-tungay">
+                </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-lg-4 col-form-label">Đến ngày</label>
+            <div class="col-lg-7">
+                <div id="date-denngay">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="d-flex">
+        <div id="Mobile">
+            <a class="btn btn-primary font-weight-bolder mr-2" title="@Resources.App.ThemMoi" href="@Url.Action("Create","NghiPhep")">
+                <i class="icon-md fas fa-plus"></i>
+                @Resources.App.ThemMoi
+            </a>
+            <button type="button" class="btn btn-warning" onclick="LoadData()">
+                <i class="icon-md fas fa-search"></i>
+                @Resources.App.TimKiem
+            </button>
+        </div>
+    </div>
+}
+<div class="row">
+    <div class="col-lg-12" id="mobliesize">
+        <div id="danh-sach"></div>
+    </div>
+</div>
+@section CustomScripts{
+    <script type="text/javascript">
+        var date = new Date();
+        var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+        $(function () {
+            $('#danh-sach').height($(window).height() - 200);
+            $("#date-tungay").dxDateBox({
+                value: firstDay,
+                width: '100%',
+                type: "date",
+                displayFormat: 'dd/MM/yyyy',
+                showClearButton: true,
+                onValueChanged: function (data) {
+                    tungay = Globalize.format(data.value, "yyyy-MM-dd");
+                },
+            }).dxDateBox("instance");
+            $("#date-denngay").dxDateBox({
+                value: date,
+                width: '100%',
+                type: "date",
+                displayFormat: 'dd/MM/yyyy',
+                showClearButton: true,
+                onValueChanged: function (data) {
+                    tungay = Globalize.format(data.value, "yyyy-MM-dd");
+                },
+            }).dxDateBox("instance");
+            LoadData();
+        });
+        function LoadData() {
+            KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang tải dữ liệu...' });
+            var data = {};
+            data.TuNgay = Globalize.format($("#date-tungay").dxDateBox("instance").option('value'), 'yyyy-MM-dd');
+            data.DenNgay = Globalize.format($("#date-denngay").dxDateBox("instance").option('value'), 'yyyy-MM-dd');
+            data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+            $.post("@Url.Action("gvNghiPhepPartial", "NghiPhep")", data).done(function (rs) {
+                $("#danh-sach").dxDataGrid({
+                    dataSource: rs,
+                    ////selection: {
+                    ////    mode: "multiple"
+                    ////},
+                    remoteOperations: {
+                        paging: true,
+                        filtering: true
+                    },
+                    keyExpr: "IDNghiPhep",
+                    filterRow: {
+                        visible: true,
+                        applyFilter: "auto"
+                    },
+                    paging: {
+                        pageSize: 20
+                    },
+                    showRowLines: true,
+                    rowAlternationEnabled: true,
+                    showBorders: true,
+                    hoverStateEnabled: true,
+                    allowColumnReordering: true,
+                    allowColumnResizing: true,
+                    columnAutoWidth: true,
+                    pager: {
+                        showPageSizeSelector: true,
+                        allowedPageSizes: [10, 15, 20, 50, 100],
+                        showInfo: true
+                    },
+                    columnFixing: {
+                        enabled: false
+                    },
+
+                    columns: [
+                        {
+                            dataField: "HoVaTen",
+                            caption: "Họ và tên",
+                            width: 150,
+                            allowEditing: false, fixed: true
+                        },
+                        {
+                            dataField: "TuNgay",
+                            caption: "Từ Ngày",
+                            width: 100,
+                            allowEditing: false,
+                            //dataType: "date",
+                            //format: 'dd/MM/yyyy',  
+                        },
+                        {
+                            dataField: "DenNgay",
+                            caption: "Đến ngày",
+                            width: 100,
+                            allowEditing: false, 
+
+                            //fixed: true
+                        },
+                        {
+                            dataField: "TenLoaiNghiPhep",
+                            caption: "Tên loại nghỉ phép",
+                            width: 150, allowEditing: false, 
+                        },
+                        {
+                            dataField: "SoNgayNghi",
+                            caption: "Số Ngày nghỉ",
+                            width: 100, allowEditing: false, 
+                        },
+                        {
+                            dataField: "LyDoNghi",
+                            caption: "Lý do nghỉ",
+                            width: 200, allowEditing: false,
+                        },
+                        {
+                            dataField: "TenTrangThaiDuyet",
+                            caption: "Tên trạng thái",
+                            width: 200, allowEditing: false,
+                        },
+                        {
+                            dataField: "TenNguoiDuyet",
+                            caption: "Người duyệt",
+                            width: 150, allowEditing: false,
+                        },
+                        {
+                            dataField: "LyDoHuy",
+                            caption: "Lý do hủy",
+                            width: 150, allowEditing: false,
+                        },
+                    ],
+                     onRowDblClick: function (e) {
+                         window.location.href = '@Url.Action("Edit","NghiPhep")?id=' + e.key+ "&op=1";
+                },
+                });
+                KTApp.unblockPage();
+            }).fail(function () { KTApp.unblockPage();});
+        }
+    </script>
+}
