@@ -23,7 +23,7 @@
         <div class="form-group row">
             <div class="col-lg-5  mr-1">
                 <label class="form-labe">File</label>
-                <input type="file" accept=".xlsx" />
+                <input type="file" accept=".xlsx" id="UploadedFile" name="UploadedFile" />
             </div>
             <div class="col-lg-3 mr-1">
                 <label class="form-labe">Ngày</label>
@@ -32,23 +32,23 @@
             </div>
             <div class="col-lg-3">
                 <label class="form-labe">Mã NV</label>
-                <input type="text" id="txt-hoten" name="txt-hoten" class="form-control" />
+                <input type="text" id="txt-manv" name="txt-manv" class="form-control" />
             </div>
         </div>
     </div>
     <div class="d-flex">
-        <button type="button" class="btn btn-info font-weight-bolder mr-2" id="btn-chonfile" data-toggle="modal" data-target="#ImportModal">
+        <button type="button" class="btn btn-info font-weight-bolder mr-2" id="btn-chonfile" onclick="GetDatExcel()">
             <i class="icon-md fas fa-long-arrow-alt-up"></i> @Resources.App.DocFileXecel
         </button>
-        <button type="submit" class="btn btn-light-primary font-weight-bolder mr-2" id="btn-capnhat" title="Người dùng cập nhật">
+        <button type="submit" class="btn btn-light-primary font-weight-bolder mr-2" id="btn-capnhat" title="Người dùng cập nhật" onclick="LuuDLVTCaDem()">
             <i class="icon-md far fa-save"></i>
             @Resources.App.CapNhat
         </button>
-        <button type="submit" class="btn btn-danger font-weight-bold  px-2 font-size-base  mr-2" id="btn-xoa">
+        <button type="submit" class="btn btn-danger font-weight-bold  px-2 font-size-base  mr-2" id="btn-xoa" onclick="XoaDataDLVTCaDem()">
             <i class="icon-md far fa-trash-alt"></i>
             @Resources.App.Xoa
         </button>
-        <button type="button" class="btn btn-warning" onclick="LoadData()" title="@Resources.App.TimKiem">
+        <button type="button" class="btn btn-warning" onclick="GetDataDLVTCaDem()" title="@Resources.App.TimKiem">
             <i class="icon-md fas fa-search"></i>
             @Resources.App.TimKiem
         </button>
@@ -76,7 +76,221 @@
                     tungay = Globalize.format(data.value, "yyyy-MM-dd");
                 },
             }).dxDateBox("instance");
-           
+
         });
+
+
     </script>
+    @if (User.IsInRole("0=0") || User.IsInRole("52=1"))
+    {
+        <script>
+            function GetDatExcel() {
+                var formData = new FormData();
+                var files = $("#UploadedFile").get(0).files;
+                if (files == null) {
+                    Swal.files("Có lỗi", "Chưa chọn file", "error");
+                    return;
+                }
+                formData.append('UploadedFile', files[0]);
+                //formData.append('__RequestVerificationToken', $('input[name="__RequestVerificationToken"]').val());
+                KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang tải dữ liệu...' });
+                $.ajax({
+                    url: '/Cong/GetImportDLVTCaDem',
+                    type: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (rs) {
+                        KTApp.unblockPage();
+                        LoadData(rs.data);
+                        //Sho(rs.text)
+                        if (rs.text != "") {
+                            Swal.fire("Có lỗi! ", rs.text, "error");
+                        }
+                        @*else {
+                            ShowToast.info('Hết thời gian thao tác đăng nhập lại', 4000);
+                            window.location.href = '@Url.Action("Login", "Account")?';
+                        }*@
+                },
+                    error: function (err) {
+                        toastr.error("Lỗi hệ thống liên hệ nhà quản trị để được hỗ trợ" + err);
+                        KTApp.unblockPage();
+                    }
+                });
+            }
+            function LoadData(data) {
+                $('#danh-sach').height($(window).height() - 200);
+                $("#danh-sach").dxDataGrid({
+                    dataSource: data,
+                    selection: {
+                        mode: "multiple"
+                    },
+                    remoteOperations: {
+                        paging: true,
+                        filtering: true
+                    },
+                    //keyExpr: "IDNghiPhep",
+                    filterRow: {
+                        visible: true,
+                        applyFilter: "auto"
+                    },
+                    paging: {
+                        pageSize: 50
+                    },
+                    export: {
+                        enabled: true,
+                        fileName: "Danh Sách dữ liệu ca đêm",
+                        allowExportSelectedData: true
+                    },
+                    showRowLines: true,
+                    rowAlternationEnabled: true,
+                    showBorders: true,
+                    hoverStateEnabled: true,
+                    allowColumnReordering: true,
+                    allowColumnResizing: true,
+                    columnAutoWidth: true,
+                    pager: {
+                        showPageSizeSelector: true,
+                        allowedPageSizes: [10, 15, 20, 50, 100],
+                        showInfo: true
+                    },
+                    columnFixing: {
+                        enabled: false
+                    },
+                    //export: {
+                    //    enabled: true,
+
+                    //    allowExportSelectedData: true
+                    //},
+                    //groupPanel: {
+                    //    visible: true
+                    //},
+                    columns: [
+                        {
+                            dataField: "GID",
+                            caption: "GID",
+                            width: 80,
+                            allowEditing: false
+                        },
+                        {
+                            dataField: "UID",
+                            caption: "UID",
+                            width: 100,
+                            allowEditing: false
+                            //dataType: "date",
+                            //format: 'dd/MM/yyyy',
+                        },
+                        {
+                            dataField: "Name",
+                            caption: "Name",
+                            width: 200,
+                            allowEditing: false,
+                            //fixed: true
+                        },
+                        {
+                            dataField: "InDate",
+                            caption: "InDate",
+                            width: 150,
+                            allowEditing: false,
+                        },
+                        {
+                            dataField: "InTime",
+                            caption: "InTime",
+                            width: 100,
+                            allowEditing: false
+                        },
+                        {
+                            dataField: "OutDate",
+                            caption: "OutDate",
+                            width: 100, allowEditing: false,
+                        },
+                        {
+                            dataField: "OutTime",
+                            caption: "OutTime",
+                            width: 100, allowEditing: false,
+                        }
+                    ]
+                });
+            }
+            function LuuDLVTCaDem() {
+                var data = {};
+                data.list = $('#danh-sach').dxDataGrid('instance').option("dataSource");
+                data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+                KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang lưu thông tin...' });
+                $.post("@Url.Action("LuuDLVTCaDem", "Cong")", data).done(function (rs) {
+                    KTApp.unblockPage();
+                    if (rs.code = 1) {
+                        ShowToast.success(rs.text, 3000);
+                    }
+                    else {
+                        Swal.fire("Có lỗi! ", rs.text, "error");
+                    }
+                }).fail(function (err) {
+                    toastr.error("Lỗi hệ thống liên hệ nhà quản trị để được hỗ trợ");
+                    KTApp.unblockPage();
+                });
+            }
+            function GetDataDLVTCaDem() {
+                var data = {};
+                data.ngay = Globalize.format($("#date-ngay").dxDateBox("instance").option('value'), 'yyyy-MM-dd');
+                data.maNV = $("#txt-manv").val();
+                KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang tải dữ liệu...' });
+                $.get("@Url.Action("GetDataDLVTCaDem","Cong")", data).done(function (rs) {
+                    KTApp.unblockPage();
+                    LoadData(rs.Data.data);
+                }).fail(function (er) {
+                    toastr.error("Lỗi hệ thống liên hệ nhà quản trị để được hỗ trợ");
+                    KTApp.unblockPage();
+                });
+            }
+            function XoaDataDLVTCaDem() {
+
+                 Swal.fire({
+                    title: "Cảnh báo?",
+                    html: 'Bạn có chắc xóa các DLVT ca đêm đang chọn!',
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Có, xóa ngay!",
+                    cancelButtonText: "Hủy!",
+                    reverseButtons: true
+                }).then(function (result) {
+                    if (result.value) {
+                        KTApp.blockPage({
+                            overlayColor: '#000000',
+                            state: 'primary',
+                            message: 'Đang xóa...'
+                        });
+                        try {
+                            var data = {};
+                            var item = 
+                            data.list = $('#danh-sach').dxDataGrid('instance').getSelectedRowsData();
+                            if (data.list == null || data.list.length == 0) {
+                                ShowToast.info("Chưa chọn thông tin xóa", 3000);
+                                KTApp.unblockPage();
+                                return;
+                            }
+                            data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+                            $.post("@Url.Action("XoaCongCaDem","Cong")", data).done(function (rs) {
+                                KTApp.unblockPage();
+                                if (rs.code == 1) {
+                                    ShowToast.success(rs.text, 3000);
+                                    GetDataDLVTCaDem();
+                                }
+                                else {
+                                    Swal.fire("Có lỗi! ", rs.text, "error");
+                                }
+                                   
+                           }).fail(function () {
+                                KTApp.unblockPage();
+                           });
+                        } catch (e) {
+                            KTApp.unblockPage();
+                        }
+                    } else if (result.dismiss === "cancel") {
+                        ShowToast.info('Bạn đã hủy xóa', 3000);
+                    }
+                    });
+            }
+        </script>
+    }
 }
