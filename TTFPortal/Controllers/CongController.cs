@@ -4,6 +4,7 @@ using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
 using System.Web;
@@ -406,6 +407,7 @@ namespace TTFPortal.Controllers
             return View();
         }
         [RoleAuthorize(Roles = "0=0,51=2")]
+        [HttpPost]
         public async Task<JsonResult> GetImportDLVTCaDem(HttpPostedFileBase UploadedFile) {
             JsonStatus rs = new JsonStatus();
             rs.code = 0;
@@ -415,7 +417,7 @@ namespace TTFPortal.Controllers
             {
                 string resultFilePath = "";
                 if (UploadedFile != null && UploadedFile.ContentLength > 0
-                    && (Path.GetExtension(UploadedFile.FileName).Equals(".xlsx")))
+                    && ((Path.GetExtension(UploadedFile.FileName).Equals(".xlsx")) || (Path.GetExtension(UploadedFile.FileName).Equals(".xlx"))))
                 {
                     string fileName = UploadedFile.FileName;
                     string UploadDirectory = Server.MapPath("~/Content/Temps/");
@@ -521,47 +523,54 @@ namespace TTFPortal.Controllers
             rs.data = model;
             return Json(rs, JsonRequestBehavior.AllowGet);
         }
-        [RoleAuthorize(Roles = "0=0,51=2")]
+        [RoleAuthorize(Roles = "0=0,52=1")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<JsonResult> LuuDLVTCaDem(List<DLVT_CaDem> list)
         {
             JsonStatus rs = new JsonStatus();
             rs.code = 0;
-            using (var db = new SaveDB())
+            using (var tran = new TransactionScope())
             {
-                db.GhiChu = "Import dữ liệu ca đêm";
-                DateTime ngay = new DateTime();
-                TTF_DLVT_CaDem objTTF_DLVT_CaDem = null;
-                string UID = "";
-                string d = "";
-                try
+                using (var db = new SaveDB())
                 {
-                    foreach (var item in list)
+                    db.GhiChu = "Import dữ liệu ca đêm";
+                    DateTime ngay = new DateTime();
+                    TTF_DLVT_CaDem objTTF_DLVT_CaDem = null;
+                    string UID = "";
+                    string d = "";
+                    int kq = 0;
+                    try
                     {
-                        UID = item.UID;
-                        d = item.InDate;
-                        ngay = DateTime.ParseExact(item.InDate, "dd/MM/yyyy", new CultureInfo("en-US"));
-                        var CheckExist = db.TTF_DLVT_CaDem.Where(o => o.UID == item.UID && o.InDate == ngay).FirstOrDefault();
-                        if (CheckExist == null)
+                        foreach (var item in list)
                         {
-                            objTTF_DLVT_CaDem = new TTF_DLVT_CaDem();
-                            objTTF_DLVT_CaDem.UID = item.UID;
-                            objTTF_DLVT_CaDem.InDate = DateTime.ParseExact(item.InDate, "dd/MM/yyyy", new CultureInfo("en-US"));
-                            objTTF_DLVT_CaDem.OutDate = DateTime.ParseExact(item.OutDate, "dd/MM/yyyy", new CultureInfo("en-US"));
-                            objTTF_DLVT_CaDem.InTime = item.InTime != null && item.InTime.Trim() != "" ? TimeSpan.Parse(item.InTime).ToString() : null;
-                            objTTF_DLVT_CaDem.OutTime = item.OutTime != null && item.OutDate.Trim() != "" ? TimeSpan.Parse(item.OutTime).ToString() : null;
-                            db.TTF_DLVT_CaDem.Add(objTTF_DLVT_CaDem);
-                           
+                            UID = item.UID;
+                            d = item.InDate;
+                            ngay = DateTime.ParseExact(item.InDate, "dd/MM/yyyy", new CultureInfo("en-US"));
+                            var CheckExist = db.TTF_DLVT_CaDem.Where(o => o.UID == item.UID && o.InDate == ngay).FirstOrDefault();
+                            if (CheckExist == null)
+                            {
+                                objTTF_DLVT_CaDem = new TTF_DLVT_CaDem();
+                                objTTF_DLVT_CaDem.UID = item.UID;
+                                objTTF_DLVT_CaDem.InDate = DateTime.ParseExact(item.InDate, "dd/MM/yyyy", new CultureInfo("en-US"));
+                                objTTF_DLVT_CaDem.OutDate = DateTime.ParseExact(item.OutDate, "dd/MM/yyyy", new CultureInfo("en-US"));
+                                objTTF_DLVT_CaDem.InTime = item.InTime != null && item.InTime.Trim() != "" ? TimeSpan.Parse(item.InTime).ToString() : null;
+                                objTTF_DLVT_CaDem.OutTime = item.OutTime != null && item.OutDate.Trim() != "" ? TimeSpan.Parse(item.OutTime).ToString() : null;
+                                db.TTF_DLVT_CaDem.Add(objTTF_DLVT_CaDem);
+                                db.SaveChanges();
+                                kq++;
+
+                            }
+                            else
+                            {
+                                CheckExist.OutDate = DateTime.ParseExact(item.OutDate, "dd/MM/yyyy", new CultureInfo("en-US"));
+                                CheckExist.InTime = item.InTime != null && item.InTime.Trim() != "" ? TimeSpan.Parse(item.InTime).ToString() : null;
+                                CheckExist.OutTime = item.OutTime != null && item.OutDate.Trim() != "" ? TimeSpan.Parse(item.OutTime).ToString() : null;
+                                db.SaveChanges();
+                                kq++;
+                            }
                         }
-                        else
-                        {
-                            CheckExist.OutDate = DateTime.ParseExact(item.OutDate, "dd/MM/yyyy", new CultureInfo("en-US"));
-                            CheckExist.InTime = item.InTime != null && item.InTime.Trim() != "" ? TimeSpan.Parse(item.InTime).ToString() : null;
-                            CheckExist.OutTime = item.OutTime != null && item.OutDate.Trim() != "" ? TimeSpan.Parse(item.OutTime).ToString() : null;
-                        }
-                    }
-                    using (var tran = new TransactionScope())
-                    {
-                        int kq = db.SaveChanges();
+                       
                         if (kq > 0)
                         {
                             tran.Complete();
@@ -569,18 +578,98 @@ namespace TTFPortal.Controllers
                             rs.text = "Thành công " + kq;
                         }
                     }
-                    ViewBag.Message = "Thành công";
-                }
-                catch (Exception ex)
-                {
-                    rs.text = "Thất bại dòng: " + UID + "," + d + "\r\n" + ex.Message;
+                    catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+                    {
+                        StringBuilder sb = new StringBuilder();
+                        foreach (var eve in ex.EntityValidationErrors)
+                        {
+                            sb.AppendLine(string.Format("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:",
+                                                            eve.Entry.Entity.GetType().Name,
+                                                            eve.Entry.State));
+                            foreach (var ve in eve.ValidationErrors)
+                            {
+                                sb.AppendLine(string.Format("- Property: \"{0}\", Error: \"{1}\"",
+                                                            ve.PropertyName,
+                                                            ve.ErrorMessage));
+                            }
+                        }
+                        //clsFunction.NhatkyLoi(DateTime.Now, HttpContext.Current.User.Identity.Name, sb.ToString(), tablename, type);
+                        //return 0;
+                        rs.text = sb.ToString();
+                    }
+                    catch (Exception ex)
+                    {
+                        rs.text = "Thất bại dòng: " + UID + "," + d + "\r\n" + ex.Message;
+                    }
                 }
             }
             return Json(rs, JsonRequestBehavior.AllowGet);
         }
-        public async Task<JsonResult> GetDataDLVTCaDem()
+        [HttpGet]
+        [RoleAuthorize(Roles = "0=0,52=1")]
+        public async Task<JsonResult> GetDataDLVTCaDem(string maNV, string ngay)
         {
             JsonStatus rs = new JsonStatus();
+            string sWhere1 = "1 = 1 And Convert(Date,InDate) = '" + ngay + "'", sWhere2 = "1 = 1 ";
+            if (maNV != null && maNV != "")
+            {
+                sWhere2 += " And MaNV = '" + maNV + "' ";
+            }
+            string sql = "SELECT 0 GID,CONVERT(NVARCHAR(10),InDate,103) InDate,InTime,CONVERT(NVARCHAR(10),OutDate,103)  OutDate,OutTime,UID,TTF_NhanSu.HoVaTen AS Name " +
+                            " FROM (SELECT * FROM dbo.TTF_DLVT_CaDem WHERE " + sWhere1 + " )TTF_DLVT_CaDem " +
+                            " INNER JOIN (SELECT MaChamCong,HoVaTen FROM dbo.TTF_NhanSu WHERE " + sWhere2 + ")TTF_NhanSu ON TTF_DLVT_CaDem.UID = TTF_NhanSu.MaChamCong ";
+            using (var db = new TTF_FACEIDEntities())
+            {
+                rs.data = db.Database.SqlQuery<DLVT_CaDem>(sql).ToList();
+            }
+            var js = Json(rs, JsonRequestBehavior.AllowGet);
+            js.MaxJsonLength = int.MaxValue;
+           
+            return Json(js, JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        [RoleAuthorize(Roles = "0=0,52=1")]
+        [ValidateAntiForgeryToken]
+        public async Task<JsonResult> XoaCongCaDem(List<DLVT_CaDem> list) {
+            JsonStatus rs = new JsonStatus();
+            rs.code = 0;
+            using (var tran = new TransactionScope())
+            {
+                using (var db = new SaveDB())
+                {
+                    try
+                    {
+                        db.GhiChu = "Xóa dữ liệu công ca đêm";
+                        int ikq = 0;
+                        DateTime dtemp;
+                        foreach (var item in list)
+                        {
+                            dtemp = DateTime.ParseExact(item.InDate, "dd/MM/yyyy", new CultureInfo("en-US"));
+                            var del = db.TTF_DLVT_CaDem.FirstOrDefault(it => it.UID == item.UID && it.InDate == dtemp.Date);
+                            if (del != null)
+                            {
+                                db.TTF_DLVT_CaDem.Remove(del);
+                                db.SaveChanges();
+                                ikq++;
+                            }
+                        }
+                        if (ikq > 0)
+                        {
+                            tran.Complete();
+                            rs.code = 1;
+                            rs.text = "Thành công " + ikq.ToString();
+                        }
+                        else
+                        {
+                            rs.text = "Không có dữ liệu xóa ";
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        rs.text = ex.Message;
+                    }
+                }
+            }
             return Json(rs, JsonRequestBehavior.AllowGet);
         }
     }
