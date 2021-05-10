@@ -1422,6 +1422,11 @@ warning 6002: The table/view 'TTF_FACEID.dbo.V_Users' does not have a primary ke
           <Parameter Name="hoVaTen" Type="nvarchar" Mode="In" />
           <Parameter Name="xacNhanCong" Type="bit" Mode="In" />
         </Function>
+        <Function Name="Proc_GetNhanSuCaLamViec" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="tuNgay" Type="nvarchar" Mode="In" />
+          <Parameter Name="denNgay" Type="nvarchar" Mode="In" />
+          <Parameter Name="HoTen" Type="nvarchar" Mode="In" />
+        </Function>
         <Function Name="Proc_NhanSuCaLamViec" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="TuNgay" Type="date" Mode="In" />
           <Parameter Name="DenNgay" Type="date" Mode="In" />
@@ -3164,6 +3169,11 @@ warning 6002: The table/view 'TTF_FACEID.dbo.V_Users' does not have a primary ke
             <Parameter Name="phongBan" Mode="In" Type="String" />
             <Parameter Name="hoVaTen" Mode="In" Type="String" />
           </FunctionImport>
+          <FunctionImport Name="Proc_GetNhanSuCaLamViec" ReturnType="Collection(TTF_FACEIDModel.Proc_GetNhanSuCaLamViec_Result)">
+            <Parameter Name="tuNgay" Mode="In" Type="String" />
+            <Parameter Name="denNgay" Mode="In" Type="String" />
+            <Parameter Name="HoTen" Mode="In" Type="String" />
+          </FunctionImport>
         </EntityContainer>
         <ComplexType Name="TTF_GET_ALL_NhanSu_Result">
           <Property Type="Int32" Name="NhanSu" Nullable="false" />
@@ -3790,6 +3800,15 @@ warning 6002: The table/view 'TTF_FACEID.dbo.V_Users' does not have a primary ke
           <Property Type="String" Name="LoaiXacNhan" Nullable="false" MaxLength="7" />
           <Property Type="String" Name="ThoiGian" Nullable="true" MaxLength="8" />
           <Property Type="String" Name="TenPhong_PhanXuong" Nullable="true" MaxLength="500" />
+        </ComplexType>
+        <ComplexType Name="Proc_GetNhanSuCaLamViec_Result">
+          <Property Type="Int32" Name="NhanSu" Nullable="false" />
+          <Property Type="String" Name="Ngay" Nullable="true" MaxLength="10" />
+          <Property Type="String" Name="GioVao" Nullable="true" MaxLength="8" />
+          <Property Type="String" Name="GioRa" Nullable="true" MaxLength="8" />
+          <Property Type="String" Name="GhiChu" Nullable="true" MaxLength="500" />
+          <Property Type="String" Name="MaNV" Nullable="true" MaxLength="10" />
+          <Property Type="String" Name="HoVaTen" Nullable="true" MaxLength="300" />
         </ComplexType>
       </Schema>
     </edmx:ConceptualModels>
@@ -5786,6 +5805,19 @@ warning 6002: The table/view 'TTF_FACEID.dbo.V_Users' does not have a primary ke
                 <ScalarProperty Name="LoaiXacNhan" ColumnName="LoaiXacNhan" />
                 <ScalarProperty Name="ThoiGian" ColumnName="ThoiGian" />
                 <ScalarProperty Name="TenPhong_PhanXuong" ColumnName="TenPhong_PhanXuong" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="Proc_GetNhanSuCaLamViec" FunctionName="TTF_FACEIDModel.Store.Proc_GetNhanSuCaLamViec">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="TTF_FACEIDModel.Proc_GetNhanSuCaLamViec_Result">
+                <ScalarProperty Name="NhanSu" ColumnName="NhanSu" />
+                <ScalarProperty Name="Ngay" ColumnName="Ngay" />
+                <ScalarProperty Name="GioVao" ColumnName="GioVao" />
+                <ScalarProperty Name="GioRa" ColumnName="GioRa" />
+                <ScalarProperty Name="GhiChu" ColumnName="GhiChu" />
+                <ScalarProperty Name="MaNV" ColumnName="MaNV" />
+                <ScalarProperty Name="HoVaTen" ColumnName="HoVaTen" />
               </ComplexTypeMapping>
             </ResultMapping>
           </FunctionImportMapping>

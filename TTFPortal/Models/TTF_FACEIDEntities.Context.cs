@@ -818,5 +818,22 @@ namespace TTFPortal.Models
     
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Proc_GetDuyetChamCongKhongThanh_Result>("Proc_GetDuyetChamCongKhongThanh", nguoiDuyetParameter, tuNgayParameter, denNgayParameter, phongBanParameter, hoVaTenParameter);
         }
+    
+        public virtual ObjectResult<Proc_GetNhanSuCaLamViec_Result> Proc_GetNhanSuCaLamViec(string tuNgay, string denNgay, string hoTen)
+        {
+            var tuNgayParameter = tuNgay != null ?
+                new ObjectParameter("tuNgay", tuNgay) :
+                new ObjectParameter("tuNgay", typeof(string));
+    
+            var denNgayParameter = denNgay != null ?
+                new ObjectParameter("denNgay", denNgay) :
+                new ObjectParameter("denNgay", typeof(string));
+    
+            var hoTenParameter = hoTen != null ?
+                new ObjectParameter("HoTen", hoTen) :
+                new ObjectParameter("HoTen", typeof(string));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Proc_GetNhanSuCaLamViec_Result>("Proc_GetNhanSuCaLamViec", tuNgayParameter, denNgayParameter, hoTenParameter);
+        }
     }
 }

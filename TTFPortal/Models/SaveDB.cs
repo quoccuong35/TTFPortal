@@ -21,10 +21,15 @@ namespace TTFPortal.Models
             //omitted for brevity
         }
 
-        object GetPrimaryKeyValue(DbEntityEntry entry)
+        string GetPrimaryKeyValue(DbEntityEntry entry)
         {
+            string sq = "";
             var objectStateEntry = ((IObjectContextAdapter)this).ObjectContext.ObjectStateManager.GetObjectStateEntry(entry.Entity);
-            return objectStateEntry.EntityKey.EntityKeyValues[0].Value;
+            for (int i = 0; i < objectStateEntry.EntityKey.EntityKeyValues.Length; i++)
+            {
+                sq += objectStateEntry.EntityKey.EntityKeyValues[i].Value.ToString()+";";
+            }
+            return sq.Substring(0,sq.Length - 1);
         }
         public override int SaveChanges()
         {
