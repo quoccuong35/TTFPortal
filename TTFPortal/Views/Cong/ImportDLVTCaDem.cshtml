@@ -21,11 +21,11 @@
 @section Header{
     <div class="d-flex align-items-center flex-wrap mr-1">
         <div class="form-group row">
-            <div class="col-lg-5  mr-1">
+            <div class="col-lg-4">
                 <label class="form-labe">File</label>
-                <input type="file" accept=".xlsx" id="UploadedFile" name="UploadedFile" />
+                <input type="file" accept=".xlsx" id="UploadedFile" name="UploadedFile" class="form-control"  />
             </div>
-            <div class="col-lg-3 mr-1">
+            <div class="col-lg-3">
                 <label class="form-labe">Ngày</label>
                 <div id="date-ngay">
                 </div>
@@ -67,7 +67,7 @@
             $('#danh-sach').height($(window).height() - 200);
             setPhongBan('select-phongban',@Html.Raw(TTFPortal.Class.DanhMuc.DMPhongBan()),false , 'Phòng/Phân xưởng');
             $("#date-ngay").dxDateBox({
-               // value: firstDay,
+                value: firstDay,
                 width: '100%',
                 type: "date",
                 displayFormat: 'dd/MM/yyyy',
