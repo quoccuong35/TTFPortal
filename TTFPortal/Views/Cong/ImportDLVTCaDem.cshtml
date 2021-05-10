@@ -37,21 +37,25 @@
         </div>
     </div>
     <div class="d-flex">
-        <button type="button" class="btn btn-info font-weight-bolder mr-2" id="btn-chonfile" onclick="GetDatExcel()">
-            <i class="icon-md fas fa-long-arrow-alt-up"></i> @Resources.App.DocFileXecel
-        </button>
-        <button type="submit" class="btn btn-light-primary font-weight-bolder mr-2" id="btn-capnhat" title="Người dùng cập nhật" onclick="LuuDLVTCaDem()">
-            <i class="icon-md far fa-save"></i>
-            @Resources.App.CapNhat
-        </button>
-        <button type="submit" class="btn btn-danger font-weight-bold  px-2 font-size-base  mr-2" id="btn-xoa" onclick="XoaDataDLVTCaDem()">
-            <i class="icon-md far fa-trash-alt"></i>
-            @Resources.App.Xoa
-        </button>
-        <button type="button" class="btn btn-warning" onclick="GetDataDLVTCaDem()" title="@Resources.App.TimKiem">
-            <i class="icon-md fas fa-search"></i>
-            @Resources.App.TimKiem
-        </button>
+        @if (User.IsInRole("0=0") || User.IsInRole("52=1"))
+        {
+            <button type="button" class="btn btn-info font-weight-bolder mr-2" id="btn-chonfile" onclick="GetDatExcel()">
+                <i class="icon-md fas fa-long-arrow-alt-up"></i> @Resources.App.DocFileXecel
+            </button>
+            <button type="submit" class="btn btn-light-primary font-weight-bolder mr-2" id="btn-capnhat" title="Người dùng cập nhật" onclick="LuuDLVTCaDem()">
+                <i class="icon-md far fa-save"></i>
+                @Resources.App.CapNhat
+            </button>
+            <button type="submit" class="btn btn-danger font-weight-bold  px-2 font-size-base  mr-2" id="btn-xoa" onclick="XoaDataDLVTCaDem()">
+                <i class="icon-md far fa-trash-alt"></i>
+                @Resources.App.Xoa
+            </button>
+            <button type="button" class="btn btn-warning" onclick="GetDataDLVTCaDem()" title="@Resources.App.TimKiem">
+                <i class="icon-md fas fa-search"></i>
+                @Resources.App.TimKiem
+            </button>
+        }
+
     </div>
 }
 <div class="row">
