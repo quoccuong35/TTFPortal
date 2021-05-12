@@ -1,0 +1,268 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = Resources.Menu.CongKyCongNguoiDung;
+}
+@section ScriptsFile{
+    <style>
+        .color_status {
+            cursor: default;
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            border: 1px solid #c3c3c3;
+            border-radius: 50%;
+            margin-top: 7px;
+        }
+
+        .dx-datagrid .dx-header-filter {
+            position: relative;
+            color: blue;
+            font: 14px/1 DXIcons;
+        }
+
+        .dx-datagrid .dx-header-filter-empty {
+            color: rgba(149,149,149,.5);
+        }
+    </style>
+}
+@section Link{
+    <div class="d-flex align-items-center flex-wrap mr-1">
+        <div class="d-flex align-items-baseline flex-wrap mr-5">
+            <ul class="breadcrumb breadcrumb-transparent breadcrumb-dot font-weight-bold p-0 my-2 ">
+                <li class="breadcrumb-item text-muted">
+                    <a href="" class="text-muted">@Resources.Menu.Cong</a>
+                </li>
+                <li class="breadcrumb-item text-muted">
+                    <a href="" class="text-muted">@Resources.Menu.CongKyCongNguoiDung</a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+}
+@section Header{
+    <div class="d-flex align-items-center flex-wrap mr-1">
+        <div class="form-group row">
+            <div class="col-lg-6">
+                <label class="form-labe">Năm</label>
+                <div id="txt-nam">
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <label class="form-labe">Tháng</label>
+                <div id="txt-thang">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="d-flex">
+        <button type="submit" class="btn btn-primary mr-2" id="btn-capnhat" onclick="ThemMoi()">
+            <i class="icon-md fas fa-plus"></i>
+            @Resources.App.ThemMoi
+        </button>
+        <button type="button" class="btn btn-warning" onclick="TimKiem()" title=" @Resources.App.TimKiem">
+            <i class="icon-md fas fa-search"></i>
+            @Resources.App.TimKiem
+        </button>
+    </div>
+}
+<div class="row">
+    <div class="col-lg-12" id="mobliesize">
+        <div id="danh-sach"></div>
+    </div>
+</div>
+@section CustomScripts{
+    <script type="text/javascript">
+        var date = new Date(), nam,thang;
+        nam = date.getFullYear();
+        thang = date.getMonth();
+        $(function () {
+            $("#txt-nam").dxNumberBox({
+                value: nam,
+                min: 2018,
+                max: 9999,
+                showSpinButtons: true
+            });
+            $("#txt-thang").dxNumberBox({
+                value: thang,
+                min: 1,
+                max: 12,
+                showSpinButtons: true
+            });
+            TimKiem();
+        });
+        function TimKiem() {
+            nam  = $("#txt-nam").dxNumberBox("instance").option('value');
+            thang  = $("#txt-thang").dxNumberBox("instance").option('value');
+            KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang tải dữ liệu...' });
+            $.get("@Url.Action("GetKyCongNguoiDung", "KyCong")", { nam: nam,thang:thang }).done(function (rs) {
+                KTApp.unblockPage();
+                LoadData(rs);
+            }).fail(function () {
+                KTApp.unblockPage();
+            })
+        }
+        function LoadData(data) {
+            $('#danh-sach').height($(window).height() - 200);
+            $("#danh-sach").dxDataGrid({
+                dataSource: data,
+                //selection: {
+                //    mode: "multiple"
+                //},
+                remoteOperations: {
+                    paging: true,
+                    filtering: true
+                },
+                keyExpr: "Id",
+                filterRow: {
+                    visible: true,
+                    applyFilter: "auto"
+                },
+                 editing: {
+                        mode: "popup",// 'batch' | 'cell' | 'row' | 'popup'
+                        allowUpdating:true,
+                        //allowDeleting: true,
+                        allowAdding: true,
+                        useIcons: true,
+                        //form: {
+                        //    items: [{
+                        //        itemType: "group",
+                        //        colCount: 1,
+                        //        colSpan: 2,
+                        //        items: ["TenLoaiDuAn",  {
+                        //            dataField: "MoTa",
+                        //            editorType: "dxTextArea",
+                        //            colSpan: 2,
+                        //            editorOptions: {
+                        //                height: 50
+                        //            }
+                        //        }]
+                        //    }]
+                        //}
+                     },
+                paging: {
+                    pageSize: 50
+                },
+                //export: {
+                //    enabled: true,
+                //    fileName: "",
+                //    allowExportSelectedData: true
+                //},
+                showRowLines: true,
+                rowAlternationEnabled: true,
+                showBorders: true,
+                hoverStateEnabled: true,
+                allowColumnReordering: true,
+                allowColumnResizing: true,
+                columnAutoWidth: true,
+                pager: {
+                    showPageSizeSelector: true,
+                    allowedPageSizes: [10, 15, 20, 50, 100],
+                    showInfo: true
+                },
+                columnFixing: {
+                    enabled: false
+                },
+                columns: [
+                    {
+                        dataField: "Nam",
+                        caption: "Năm",
+                        width: 80,
+                        dataType: "number",
+                        validationRules: [{ type: "required", message: "Chưa nhật năm" }]
+                        //allowEditing: false,
+                    },
+                    {
+                        dataField: "Thang",
+                        caption: "Tháng",
+                        width: 80,
+                        dataType: "number",
+                        validationRules: [{ type: "required", message: "Chưa nhật tháng" }]
+                        //allowEditing: false,
+                    },
+                    {
+                        dataField: "TuNgay",
+                        caption: "Từ ngày",
+                        width: 100,
+                        //allowEditing: false,
+                        dataType: "date",
+                        format: "dd/MM/yyyy",
+                        validationRules: [{ type: "required", message: "Chưa nhật từ ngày" }]
+                        //fixed: true
+                    },
+                    {
+                        dataField: "DenNgay",
+                        caption: "Đến ngày",
+                        width: 150,
+                        //allowEditing: false,
+                        dataType: "date",
+                        format: "dd/MM/yyyy",
+                        validationRules: [{ type: "required", message: "Chưa nhật đến ngày" }]
+                    },
+                    {
+                        dataField: "Dong",
+                        caption: "Đóng kỳ công",
+                        width: 120,
+                    }
+                ],
+                onRowInserting: function (e) {
+                    AddKyCong(e);
+                },
+                onRowUpdating: function (e) {
+                    EditKyCong(e.newData, e.oldData);
+                }
+            });
+        }
+        function ThemMoi() {
+            $('#danh-sach').dxDataGrid('instance').addRow();
+        }
+        function AddKyCong(e) {
+            var data = {};
+            data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+            data.TuNgay = e.data.TuNgay;
+            data.DenNgay = e.data.DenNgay;
+            data.Nam = e.data.Nam;
+            data.Thang = e.data.Thang;
+            data.Dong = e.data.Dong;
+            KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang lưu thông tin...' });
+            $.post('@Url.Action("Add_KyCongNguoiDung", "KyCong")', data).done(function (rs) {
+                if (rs.code == "1") {
+                    KTApp.unblockPage();
+                    ShowToast.success('Thành công', 3000);
+                    TimKiem();
+                }
+                else {
+                    TimKiem();
+                    KTApp.unblockPage();
+                        Swal.fire("Có lỗi!", rs.text, "error");
+                }
+
+            }).fail(function () {
+                KTApp.unblockPage();
+                TimKiem()
+             });
+        }
+        function EditKyCong(newData, oldData) {
+            var data = {};
+                data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+                var arryPropertyName = Object.getOwnPropertyNames(newData);
+                for (var i = 0; i < arryPropertyName.length; i++) {
+                    //data[arryPropertyName[i]] = item[arryPropertyName[i]].toString()
+                    oldData[arryPropertyName[i]] = newData[arryPropertyName[i]].toString();
+                }
+                data.item = oldData;
+                $.post('@Url.Action("EditKyCongNguoiDung", "KyCong")', data).done(function (rs) {
+                    if (rs.code == "1") {
+                        ShowToast.success("Thành công", 3000);
+                        TimKiem();
+                    }
+                    else {
+                        TimKiem();
+                        Swal.fire("Có lỗi!", rs.text, "error");
+                    }
+                    }).fail(function () {
+                        TimKiem();
+                    });
+        }
+    </script>
+}
