@@ -50,7 +50,7 @@
     <div id="kt_header_mobile" class="header-mobile header-mobile-fixed">
         <!--begin::Logo-->
 
-        <img alt="Logo" src="~/Content/images/logo.png" class="max-h-30px" id="kt_aside_toggle1" />
+      @*  <img alt="Logo" src="~/Content/images/logo.png" class="max-h-30px" id="kt_header_mobile_toggle"/>*@
 
         <!--end::Logo-->
         <!--begin::Toolbar-->
@@ -97,17 +97,15 @@
                     <!--begin::Container-->
                     <div class="container-fluid">
                         <!--begin::Header Menu Wrapper-->
-                        <div class="header-menu-wrapper header-menu-wrapper-left" id="kt_header_menu_wrapper">
+                        <div class="header-menu-wrapper header-menu-wrapper-left" >
                             <!--begin::Logo-->
                             <div class="header-logo mr-10 d-none d-lg-flex" id="kt_aside_toggle">
-                                @*<a href="~/">*@
                                 <img alt="Logo" src="~/Content/images/logo.png" class="h-40px" />
-
-                                @* </a>*@
                             </div>
                             @RenderSection("Link", required: false)
                             <!--end::Logo-->
                             <div class="aside aside-left d-flex flex-column flex-row-auto" id="kt_aside">
+                                
                                 <!--begin::Aside Menu-->
                                 <div class="aside-menu-wrapper flex-column-fluid" id="kt_aside_menu_wrapper">
                                     <!--begin::Menu Container-->
@@ -526,6 +524,36 @@
                                                                 </a>
                                                             </li>
                                                         }
+                                                        @if (User.IsInRole("49=1") || User.IsInRole("0=0"))
+                                                        {
+                                                            <li class="menu-item" aria-haspopup="true">
+                                                                <a href="@Url.Action("QLKyCong", "KyCong")" class="menu-link">
+                                                                    <i class="menu-bullet menu-bullet-dot">
+                                                                        <span></span>
+                                                                    </i>
+                                                                    <span class="menu-text">@Resources.Menu.CongKyCongNhanSu</span>
+                                                                </a>
+                                                            </li>
+                                                            <li class="menu-item" aria-haspopup="true">
+                                                                <a href="@Url.Action("KyCongNguoiDung", "KyCong")" class="menu-link">
+                                                                    <i class="menu-bullet menu-bullet-dot">
+                                                                        <span></span>
+                                                                    </i>
+                                                                    <span class="menu-text">@Resources.Menu.CongKyCongNguoiDung</span>
+                                                                </a>
+                                                            </li>
+                                                        }
+                                                        @if (User.IsInRole("52=1") || User.IsInRole("0=0"))
+                                                        {
+                                                            <li class="menu-item" aria-haspopup="true">
+                                                                <a href="@Url.Action("Index", "NgayLe")" class="menu-link">
+                                                                    <i class="menu-bullet menu-bullet-dot">
+                                                                        <span></span>
+                                                                    </i>
+                                                                    <span class="menu-text">@Resources.Menu.CongNgayLe</span>
+                                                                </a>
+                                                            </li>
+                                                        }
                                                     </ul>
                                                 </div>
                                             </li>
@@ -787,7 +815,18 @@
     @Scripts.Render("~/js/libs")
     @RenderSection("ScriptsFile", required: false)
     @RenderSection("CustomScripts", required: false)
-    <script>
+    <script type="text/javascript">
+        //var showMobile = false;
+        //var element = document.getElementById("kt_aside");
+        //$("#kt_header_mobile_toggle").click(function () {
+        //    showMobile = !showMobile;
+        //    if (showMobile) {
+        //        element.classList.add("aside-on");
+        //    }
+        //    else {
+        //        element.classList.remove("aside-on");
+        //    }
+        //});
     </script>
 </body>
 </html>
