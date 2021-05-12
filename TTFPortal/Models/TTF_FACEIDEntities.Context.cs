@@ -835,5 +835,36 @@ namespace TTFPortal.Models
     
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Proc_GetNhanSuCaLamViec_Result>("Proc_GetNhanSuCaLamViec", tuNgayParameter, denNgayParameter, hoTenParameter);
         }
+    
+        public virtual ObjectResult<Proc_GetKyCongNhanSu_Result> Proc_GetKyCongNhanSu(Nullable<int> nam)
+        {
+            var namParameter = nam.HasValue ?
+                new ObjectParameter("nam", nam) :
+                new ObjectParameter("nam", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Proc_GetKyCongNhanSu_Result>("Proc_GetKyCongNhanSu", namParameter);
+        }
+    
+        public virtual ObjectResult<Proc_GetKyCongNguoiDung_Result> Proc_GetKyCongNguoiDung(Nullable<int> nam, Nullable<int> thang)
+        {
+            var namParameter = nam.HasValue ?
+                new ObjectParameter("nam", nam) :
+                new ObjectParameter("nam", typeof(int));
+    
+            var thangParameter = thang.HasValue ?
+                new ObjectParameter("thang", thang) :
+                new ObjectParameter("thang", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Proc_GetKyCongNguoiDung_Result>("Proc_GetKyCongNguoiDung", namParameter, thangParameter);
+        }
+    
+        public virtual ObjectResult<Proc_NgayLe_Result> Proc_NgayLe(Nullable<int> nam)
+        {
+            var namParameter = nam.HasValue ?
+                new ObjectParameter("nam", nam) :
+                new ObjectParameter("nam", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Proc_NgayLe_Result>("Proc_NgayLe", namParameter);
+        }
     }
 }

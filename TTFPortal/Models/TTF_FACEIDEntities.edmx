@@ -1422,10 +1422,20 @@ warning 6002: The table/view 'TTF_FACEID.dbo.V_Users' does not have a primary ke
           <Parameter Name="hoVaTen" Type="nvarchar" Mode="In" />
           <Parameter Name="xacNhanCong" Type="bit" Mode="In" />
         </Function>
+        <Function Name="Proc_GetKyCongNguoiDung" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="nam" Type="int" Mode="In" />
+          <Parameter Name="thang" Type="int" Mode="In" />
+        </Function>
+        <Function Name="Proc_GetKyCongNhanSu" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="nam" Type="int" Mode="In" />
+        </Function>
         <Function Name="Proc_GetNhanSuCaLamViec" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="tuNgay" Type="nvarchar" Mode="In" />
           <Parameter Name="denNgay" Type="nvarchar" Mode="In" />
           <Parameter Name="HoTen" Type="nvarchar" Mode="In" />
+        </Function>
+        <Function Name="Proc_NgayLe" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="nam" Type="int" Mode="In" />
         </Function>
         <Function Name="Proc_NhanSuCaLamViec" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="TuNgay" Type="date" Mode="In" />
@@ -3174,6 +3184,16 @@ warning 6002: The table/view 'TTF_FACEID.dbo.V_Users' does not have a primary ke
             <Parameter Name="denNgay" Mode="In" Type="String" />
             <Parameter Name="HoTen" Mode="In" Type="String" />
           </FunctionImport>
+          <FunctionImport Name="Proc_GetKyCongNhanSu" ReturnType="Collection(TTF_FACEIDModel.Proc_GetKyCongNhanSu_Result)">
+          <Parameter Name="nam" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="Proc_GetKyCongNguoiDung" ReturnType="Collection(TTF_FACEIDModel.Proc_GetKyCongNguoiDung_Result)">
+            <Parameter Name="nam" Mode="In" Type="Int32" />
+            <Parameter Name="thang" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="Proc_NgayLe" ReturnType="Collection(TTF_FACEIDModel.Proc_NgayLe_Result)">
+            <Parameter Name="nam" Mode="In" Type="Int32" />
+          </FunctionImport>
         </EntityContainer>
         <ComplexType Name="TTF_GET_ALL_NhanSu_Result">
           <Property Type="Int32" Name="NhanSu" Nullable="false" />
@@ -3809,6 +3829,25 @@ warning 6002: The table/view 'TTF_FACEID.dbo.V_Users' does not have a primary ke
           <Property Type="String" Name="GhiChu" Nullable="true" MaxLength="500" />
           <Property Type="String" Name="MaNV" Nullable="true" MaxLength="10" />
           <Property Type="String" Name="HoVaTen" Nullable="true" MaxLength="300" />
+        </ComplexType>
+        <ComplexType Name="Proc_GetKyCongNhanSu_Result">
+          <Property Type="String" Name="TuNgay" Nullable="true" MaxLength="10" />
+          <Property Type="String" Name="DenNgay" Nullable="true" MaxLength="10" />
+          <Property Type="Int32" Name="Year" Nullable="false" />
+          <Property Type="Int32" Name="Month" Nullable="false" />
+          <Property Type="Boolean" Name="Status" Nullable="true" />
+        </ComplexType>
+        <ComplexType Name="Proc_GetKyCongNguoiDung_Result">
+          <Property Type="String" Name="TuNgay" Nullable="true" MaxLength="10" />
+          <Property Type="String" Name="DenNgay" Nullable="true" MaxLength="10" />
+          <Property Type="Int32" Name="Nam" Nullable="false" />
+          <Property Type="Int32" Name="Thang" Nullable="false" />
+          <Property Type="Boolean" Name="Dong" Nullable="true" />
+          <Property Type="Int64" Name="Id" Nullable="false" />
+        </ComplexType>
+        <ComplexType Name="Proc_NgayLe_Result">
+          <Property Type="String" Name="Ngay" Nullable="true" MaxLength="10" />
+          <Property Type="String" Name="GhiChu" Nullable="true" MaxLength="200" />
         </ComplexType>
       </Schema>
     </edmx:ConceptualModels>
@@ -5818,6 +5857,37 @@ warning 6002: The table/view 'TTF_FACEID.dbo.V_Users' does not have a primary ke
                 <ScalarProperty Name="GhiChu" ColumnName="GhiChu" />
                 <ScalarProperty Name="MaNV" ColumnName="MaNV" />
                 <ScalarProperty Name="HoVaTen" ColumnName="HoVaTen" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="Proc_GetKyCongNhanSu" FunctionName="TTF_FACEIDModel.Store.Proc_GetKyCongNhanSu">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="TTF_FACEIDModel.Proc_GetKyCongNhanSu_Result">
+                <ScalarProperty Name="TuNgay" ColumnName="TuNgay" />
+                <ScalarProperty Name="DenNgay" ColumnName="DenNgay" />
+                <ScalarProperty Name="Year" ColumnName="Year" />
+                <ScalarProperty Name="Month" ColumnName="Month" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="Proc_GetKyCongNguoiDung" FunctionName="TTF_FACEIDModel.Store.Proc_GetKyCongNguoiDung">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="TTF_FACEIDModel.Proc_GetKyCongNguoiDung_Result">
+                <ScalarProperty Name="TuNgay" ColumnName="TuNgay" />
+                <ScalarProperty Name="DenNgay" ColumnName="DenNgay" />
+                <ScalarProperty Name="Nam" ColumnName="Nam" />
+                <ScalarProperty Name="Thang" ColumnName="Thang" />
+                <ScalarProperty Name="Dong" ColumnName="Dong" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="Proc_NgayLe" FunctionName="TTF_FACEIDModel.Store.Proc_NgayLe">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="TTF_FACEIDModel.Proc_NgayLe_Result">
+                <ScalarProperty Name="Ngay" ColumnName="Ngay" />
+                <ScalarProperty Name="GhiChu" ColumnName="GhiChu" />
               </ComplexTypeMapping>
             </ResultMapping>
           </FunctionImportMapping>
