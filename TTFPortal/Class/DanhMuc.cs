@@ -5,6 +5,7 @@ using System.Web;
 using TTFPortal.Models;
 using Newtonsoft.Json;
 using System.Web.Mvc;
+using System.Threading.Tasks;
 
 namespace TTFPortal.Class
 {
@@ -180,6 +181,15 @@ namespace TTFPortal.Class
 
                 return JsonConvert.SerializeObject(model);
             }
+        }
+        public static HT_NHOMNGUOIDUNG GetNhomNguoiDungByID(int id)
+        {
+            try
+            {
+                TTF_FACEIDEntities db = new TTF_FACEIDEntities();
+                return Task.Run(() => db.HT_NHOMNGUOIDUNG.FirstOrDefault(it => it.NHOMNGUOIDUNG == id)).Result;
+            }
+            catch { return null; }
         }
     }
     public class NhanSu

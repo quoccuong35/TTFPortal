@@ -1012,7 +1012,7 @@ namespace TTFPortal.Class
                             objCongNgay.NgoaiGioHC = (CDGioRa - CDGioRaChuan).TotalHours;
                         }
                         objCongNgay.NgoaiGioHC = Math.Round(objCongNgay.NgoaiGioHC, 2);
-                        objCongNgay.TangCa = objCongNgay.NgoaiGioHC;
+                        //objCongNgay.TangCa = objCongNgay.NgoaiGioHC;
 
                         if (objCongNgay.InTime == objCongNgay.OutTime)
                         {
