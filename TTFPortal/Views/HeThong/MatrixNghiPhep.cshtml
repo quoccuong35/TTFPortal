@@ -1,6 +1,6 @@
 ﻿@{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewBag.Title = Resources.Menu.CongNgayLe;
+    ViewBag.Title = Resources.Menu.HeThongDuyetNghiPhep;
 }
 @section ScriptsFile{
     <style>
@@ -30,10 +30,10 @@
         <div class="d-flex align-items-baseline flex-wrap mr-5">
             <ul class="breadcrumb breadcrumb-transparent breadcrumb-dot font-weight-bold p-0 my-2 ">
                 <li class="breadcrumb-item text-muted">
-                    <a href="" class="text-muted">@Resources.Menu.Cong</a>
+                    <a href="" class="text-muted">@Resources.Menu.HeThong</a>
                 </li>
                 <li class="breadcrumb-item text-muted">
-                    <a href="" class="text-muted">@Resources.Menu.CongNgayLe</a>
+                    <a href="" class="text-muted">@Resources.Menu.HeThongDuyetNghiPhep</a>
                 </li>
 
             </ul>
@@ -44,8 +44,18 @@
     <div class="d-flex align-items-center flex-wrap mr-1">
         <div class="form-group row">
             <div class="col-lg-6">
-                <label class="form-labe">Năm</label>
-                <div id="txt-nam">
+                <label class="form-labe">Phòng/Phân Xưởng</label>
+                <div id="select-phongban">
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <label class="form-labe">Từ ngày</label>
+                <div id="txt-tungay">
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <label class="form-labe">Đến ngày</label>
+                <div id="txt-denngay">
                 </div>
             </div>
         </div>
@@ -68,21 +78,27 @@
 </div>
 @section CustomScripts{
     <script type="text/javascript">
-        var date = new Date(), nam;
-        nam = date.getFullYear();
+        var dtPhongBan = @Html.Raw(TTFPortal.Class.DanhMuc.DMPhongBan())
         $(function () {
-            $("#txt-nam").dxNumberBox({
-                value: nam,
-                min: 2018,
+            $("#txt-tungay").dxNumberBox({
+                value:null,
                 max: 9999,
                 showSpinButtons: true
             });
+            $("#txt-denngay").dxNumberBox({
+                value: null,
+                max: 9999,
+                showSpinButtons: true
+            });
+            setPhongBan('select-phongban', dtPhongBan, false, 'Phòng/Phân xưởng');
             TimKiem();
         });
         function TimKiem() {
-            nam = $("#txt-nam").dxNumberBox("instance").option('value');
+            var tuNgay = $("#txt-tungay").dxNumberBox("instance").option('value');
+            var denNgay = $("#txt-denngay").dxNumberBox("instance").option('value');
+            var maPhongBan = $("#select-phongban").dxSelectBox("instance").option('value');
             KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang tải dữ liệu...' });
-            $.get("@Url.Action("GetNgayLe", "NgayLe")", { nam: nam }).done(function (rs) {
+            $.get("@Url.Action("GetMatrixNghiPhep", "HeThong")", { tuNgay:tuNgay,denNgay:denNgay,maPhongBan:maPhongBan}).done(function (rs) {
                 KTApp.unblockPage();
                 LoadData(rs);
             }).fail(function () {
@@ -100,7 +116,7 @@
                     paging: true,
                     filtering: true
                 },
-                keyExpr:"Ngay",
+                keyExpr: "ID",
                 filterRow: {
                     visible: true,
                     applyFilter: "auto"
@@ -111,21 +127,6 @@
                         allowDeleting: true,
                         allowAdding: true,
                         useIcons: true,
-                        //form: {
-                        //    items: [{
-                        //        itemType: "group",
-                        //        colCount: 1,
-                        //        colSpan: 2,
-                        //        items: ["TenLoaiDuAn",  {
-                        //            dataField: "MoTa",
-                        //            editorType: "dxTextArea",
-                        //            colSpan: 2,
-                        //            editorOptions: {
-                        //                height: 50
-                        //            }
-                        //        }]
-                        //    }]
-                        //}
                      },
                 paging: {
                     pageSize: 50
@@ -151,46 +152,90 @@
                     enabled: false
                 },
                 columns: [
-
-
                     {
-                        dataField: "Ngay",
-                        caption: "Ngày",
-                        width: 150,
+                        dataField: "MaPhong_PhanXuong",
+                        caption: "Mã phòng/Phân xưởng",
+                        width: 250,
+                        //dataType: "number",
+                        validationRules: [{ type: "required", message: "Chưa chọn phòng phân xưởng" }],
+                        lookup: {
+                            dataSource: function (options) {
+                                return {
+                                    store: dtPhongBan,
+                                    filter: options.data ? ["MaPhong_PhanXuong", "=", options.data.MaPhong_PhanXuong] : null
+                                };
+                            },
+                            displayExpr: "TenPhong_PhanXuong",
+                            valueExpr: "MaPhong_PhanXuong", // provides display values
+                        },
                         //allowEditing: false,
-                        dataType: "date",
-                        format: "dd/MM/yyyy",
-                        validationRules: [{ type: "required", message: "Chưa nhật ngày" }]
+                    },
+                    {
+                        dataField: "TuNgay",
+                        caption: "Từ ngày",
+                        width: 80,
+                        dataType: "number",
+                        validationRules: [{ type: "required", message: "Chưa nhật từ ngày" }]
+                        //allowEditing: false,
+                    },
+                    {
+                        dataField: "DenNgay",
+                        caption: "Đến ngày",
+                        width: 80,
+                        //allowEditing: false,
+                        dataType: "number",
+                        //format: "dd/MM/yyyy",
+                        validationRules: [{ type: "required", message: "Chưa nhật đến ngày" }]
+                        //fixed: true
+                    },
+                    {
+                        dataField: "CapDuyet",
+                        caption: "Cấp duyệt",
+                        width: 80,
+                        //allowEditing: false,
+                        dataType: "number",
+                        //format: "dd/MM/yyyy",
+                        validationRules: [{ type: "required", message: "Chưa nhật cấp duyệt" }]
+                        //fixed: true
+                    },
+                    {
+                        dataField: "NguoiDuyet",
+                        caption: "Người duyệt",
+                        width: 120,
+                        validationRules: [{ type: "required", message: "Chưa nhật người duyệt" }]
                     },
                     {
                         dataField: "GhiChu",
                         caption: "Ghi chú",
-                        width: 250,
-                        validationRules: [{ type: "required", message: "Chưa nhật tên ngày lễ" }]
+                        width: 220,
                     }
                 ],
                 onRowInserting: function (e) {
-                    AddNgayLe(e);
+                    AddMatrixNghiPhep(e);
                 },
                 onRowUpdating: function (e) {
-                    EditNgayLe(e.newData, e.oldData);
+                    EdiMatrixNghiPhep(e.newData, e.oldData);
                 },
                 onRowRemoving: function (e) {
-                    XoaNgayLe(e.key);
+                    XoaMatrixNghiPhep(e.key);
                 }
             });
         }
         function ThemMoi() {
             $('#danh-sach').dxDataGrid('instance').addRow();
         }
-        function AddNgayLe(e) {
+        function AddMatrixNghiPhep(e) {
             var data = {};
             data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
-            data.Ngay = e.data.Ngay;
+            data.TuNgay = e.data.TuNgay;
+            data.DenNgay = e.data.DenNgay;
+            data.MaPhong_PhanXuong = e.data.MaPhong_PhanXuong;
+            data.CapDuyet = e.data.CapDuyet;
+            data.NguoiDuyet = e.data.NguoiDuyet;
             data.GhiChu = e.data.GhiChu;
             KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang lưu thông tin...' });
-            $.post('@Url.Action("Save_NgayLe", "NgayLe")', data).done(function (rs) {
-                if (rs.code == 1) {
+            $.post('@Url.Action("AddMatrixNghiPhep", "HeThong")', data).done(function (rs) {
+                if (rs.code == "1") {
                     KTApp.unblockPage();
                     ShowToast.success('Thành công', 3000);
                     TimKiem();
@@ -199,17 +244,18 @@
                     TimKiem();
                     KTApp.unblockPage();
                         Swal.fire("Có lỗi!", rs.text, "error");
-                }else if (rs.indexOf("kt_login_signin_form") > 0) {
-                                    ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
-                                    setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
-                                }
+                }
+                else {
+                     ShowToast.info('Hết thời gian thao tác đăng nhập lại', 4000);
+                     window.location.href = '@Url.Action("Login", "Account")?';
+                }
 
             }).fail(function () {
                 KTApp.unblockPage();
                 TimKiem()
              });
         }
-        function EditNgayLe(newData, oldData) {
+        function EdiMatrixNghiPhep(newData, oldData) {
             var data = {};
                 data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
                 var arryPropertyName = Object.getOwnPropertyNames(newData);
@@ -218,24 +264,24 @@
                     oldData[arryPropertyName[i]] = newData[arryPropertyName[i]].toString();
                 }
                 data.item = oldData;
-                $.post('@Url.Action("Save_NgayLe", "NgayLe")', data).done(function (rs) {
+                $.post('@Url.Action("SaveMatrixNghiPhep", "HeThong")', data).done(function (rs) {
                     if (rs.code == "1") {
                         ShowToast.success("Thành công", 3000);
                         TimKiem();
                     }
-                    else if (rs.code == 0) {
-                         Swal.fire("Có lỗi! ", rs.text, "error");
-                         TimKiem();
+                    else if(rs.code==0){
+                        TimKiem();
+                        Swal.fire("Có lỗi!", rs.text, "error");
                     }
-                    else if (rs.indexOf("kt_login_signin_form") > 0) {
-                          ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
-                          setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
+                    else {
+                     ShowToast.info('Hết thời gian thao tác đăng nhập lại', 4000);
+                     window.location.href = '@Url.Action("Login", "Account")?';
                     }
                 }).fail(function () {
-                        TimKiem();
+                      TimKiem();
                 });
         }
-        function XoaNgayLe(ngay) {
+        function XoaMatrixNghiPhep(Id) {
                         KTApp.blockPage({
                             overlayColor: '#000000',
                             state: 'primary',
@@ -243,9 +289,9 @@
                         });
                         try {
                             var data = {};
-                            data.Ngay = ngay;
+                            data.Id = Id;
                             data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
-                            $.post("@Url.Action("XoaNgayLe", "NgayLe")", data).done(function (rs) {
+                            $.post("@Url.Action("XoaMatrixNghiPhep", "HeThong")", data).done(function (rs) {
                                 KTApp.unblockPage();
                                 if (rs.code == 1) {
                                     ShowToast.success( rs.text,3000);
@@ -255,10 +301,10 @@
                                     Swal.fire("Có lỗi! ", rs.text, "error");
                                     TimKiem();
                                 }
-                                else if (rs.indexOf("kt_login_signin_form") > 0) {
-                                    ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
-                                    setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
-                                }
+                                else {
+                                     ShowToast.info('Hết thời gian thao tác đăng nhập lại', 4000);
+                                     window.location.href = '@Url.Action("Login", "Account")?';
+                                 }
                             }).fail(function () {
                                 KTApp.unblockPage();
                             });

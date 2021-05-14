@@ -98,7 +98,13 @@
             data.DenNgay = Globalize.format($("#date-denngay").dxDateBox("instance").option('value'), 'yyyy-MM-dd');
             //data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
             $.get("@Url.Action("GVXacNhanCongCuaBan", "XacNhanCong")", data).done(function (rs) {
-                $("#danh-sach").dxDataGrid({
+                KTApp.unblockPage();
+                if (rs.indexOf("kt_login_signin_form") > 0) {
+                    ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
+                    setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
+                }
+                else {
+                     $("#danh-sach").dxDataGrid({
                     dataSource: rs,
                     ////selection: {
                     ////    mode: "multiple"
@@ -130,7 +136,6 @@
                     columnFixing: {
                         enabled: false
                     },
-
                     columns: [
                         {
                             dataField: "HoVaTen",
@@ -201,7 +206,7 @@
                          window.location.href = '@Url.Action("Edit","XacNhanCong")?id=' + e.key+ "&op=1";
                 },
                 });
-                KTApp.unblockPage();
+                }
             }).fail(function () { KTApp.unblockPage();});
         }
     </script>

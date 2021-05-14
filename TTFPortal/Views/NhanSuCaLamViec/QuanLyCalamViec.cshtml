@@ -258,8 +258,12 @@
                     if (rs.code == 1) {
                         ShowToast.success(rs.text, 3000);
                     }
-                    else {
-                        Swal.fire("Có lỗi! ", rs.text, "error");
+                    else if (rs.code == 0) {
+                          Swal.fire("Có lỗi! ", rs.text, "error");
+                    }
+                    else if (rs.indexOf("kt_login_signin_form") > 0) {
+                          ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
+                          setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
                     }
                 }).fail(function (err) {
                     toastr.error("Lỗi hệ thống liên hệ nhà quản trị để được hỗ trợ");
@@ -297,8 +301,12 @@
                                 if (rs.code == 1) {
                                     ShowToast.success(rs.text, 3000);
                                 }
-                                else {
-                                    Swal.fire("Có lỗi! ", rs.text, "error");
+                                else if (rs.code == 0) {
+                                      Swal.fire("Có lỗi! ", rs.text, "error");
+                                }
+                                else if (rs.indexOf("kt_login_signin_form") > 0) {
+                                      ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
+                                      setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
                                 }
                                    
                            }).fail(function () {
@@ -320,7 +328,13 @@
                 KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang tải dữ liệu...' });
                 $.get("@Url.Action("GetQuanLyCalamViec", "NhanSuCaLamViec")", data).done(function (data) {
                     KTApp.unblockPage();
-                    LoadData(data);
+                    if (data.indexOf("kt_login_signin_form") > 0) {
+                        ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
+                        setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
+                    }
+                    else {
+                        LoadData(data);
+                    }
                 }).fail(function (er) {
                     toastr.error("Lỗi hệ thống liên hệ nhà quản trị để được hỗ trợ");
                     KTApp.unblockPage();

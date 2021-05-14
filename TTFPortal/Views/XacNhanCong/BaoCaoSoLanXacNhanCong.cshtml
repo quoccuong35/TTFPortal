@@ -118,88 +118,98 @@
              data.SoLan = solan;
             data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
 
-            $.get("@Url.Action("BaoCaoSoLanXacNhanCongPartial", "XacNhanCong")", data).done(function (rs) {
-                $("#danh-sach").dxDataGrid({
-                    dataSource: rs.data,
-                    //selection: {
-                    //    mode: "multiple"
-                    //},
-                    remoteOperations: {
-                        paging: true,
-                        filtering: true
-                    },
-                  //  keyExpr: "IDXacNhanCong",
-                    filterRow: {
-                        visible: true,
-                        applyFilter: "auto"
-                    },
-                    paging: {
-                        pageSize: 20
-                    },
-                    showRowLines: true,
-                    rowAlternationEnabled: true,
-                    showBorders: true,
-                    hoverStateEnabled: true,
-                    allowColumnReordering: true,
-                    allowColumnResizing: true,
-                    columnAutoWidth: true,
-                    pager: {
-                        showPageSizeSelector: true,
-                        allowedPageSizes: [10, 15, 20, 50, 100],
-                        showInfo: true
-                    },
-                    columnFixing: {
-                        enabled: false
-                    },
-                    export: {
-                        enabled: true,
-                        fileName: "BaoCaoSoLanXacNhanCong",
-                        allowExportSelectedData: true
-                    },
-                    groupPanel: {
-                        visible: true
-                    },
-                    columns: [
-                        {
-                            dataField: "MaNV",
-                            caption: "Mã NV",
-                            width: 150,
-                            allowEditing: false, 
-                            fixed: true
-                        },
-                        {
-                            dataField: "HoVaTen",
-                            caption: "Họ và tên",
-                            width: 250,
-                            allowEditing: false, 
-                            fixed: true
-                            //dataType: "date",
-                            //format: 'dd/MM/yyyy',
-                        },
-                        {
-                            dataField: "TenPhong_PhanXuong",
-                            caption: "Phòng/Phân xưởng",
+             $.get("@Url.Action("BaoCaoSoLanXacNhanCongPartial", "XacNhanCong")", data).done(function (rs) {
+                 KTApp.unblockPage();
+                 if(rs.code = 1) {
+                     $("#danh-sach").dxDataGrid({
+                         dataSource: rs.data,
+                         //selection: {
+                         //    mode: "multiple"
+                         //},
+                         remoteOperations: {
+                             paging: true,
+                             filtering: true
+                         },
+                         //  keyExpr: "IDXacNhanCong",
+                         filterRow: {
+                             visible: true,
+                             applyFilter: "auto"
+                         },
+                         paging: {
+                             pageSize: 20
+                         },
+                         showRowLines: true,
+                         rowAlternationEnabled: true,
+                         showBorders: true,
+                         hoverStateEnabled: true,
+                         allowColumnReordering: true,
+                         allowColumnResizing: true,
+                         columnAutoWidth: true,
+                         pager: {
+                             showPageSizeSelector: true,
+                             allowedPageSizes: [10, 15, 20, 50, 100],
+                             showInfo: true
+                         },
+                         columnFixing: {
+                             enabled: false
+                         },
+                         export: {
+                             enabled: true,
+                             fileName: "BaoCaoSoLanXacNhanCong",
+                             allowExportSelectedData: true
+                         },
+                         groupPanel: {
+                             visible: true
+                         },
+                         columns: [
+                             {
+                                 dataField: "MaNV",
+                                 caption: "Mã NV",
+                                 width: 150,
+                                 allowEditing: false,
+                                 fixed: true
+                             },
+                             {
+                                 dataField: "HoVaTen",
+                                 caption: "Họ và tên",
+                                 width: 250,
+                                 allowEditing: false,
+                                 fixed: true
+                                 //dataType: "date",
+                                 //format: 'dd/MM/yyyy',
+                             },
+                             {
+                                 dataField: "TenPhong_PhanXuong",
+                                 caption: "Phòng/Phân xưởng",
 
-                            allowEditing: false,
-                            fixed: true
+                                 allowEditing: false,
+                                 fixed: true
 
-                            //fixed: true
-                        },
-                        {
-                            dataField: "TenChucVu",
-                            caption: "Chức vụ",
-                            width: 200, allowEditing: false,
-                            //fixed: true
-                        },
-                        {
-                            dataField: "SoLan",
-                            caption: "Số lần XNC",
-                            width: 120, allowEditing: false,
-                            //fixed: true
-                        }
-                    ]
-                });
-                KTApp.unblockPage();
+                                 //fixed: true
+                             },
+                             {
+                                 dataField: "TenChucVu",
+                                 caption: "Chức vụ",
+                                 width: 200, allowEditing: false,
+                                 //fixed: true
+                             },
+                             {
+                                 dataField: "SoLan",
+                                 caption: "Số lần XNC",
+                                 width: 120, allowEditing: false,
+                                 //fixed: true
+                             }
+                         ]
+                     });
+                 }
+                 else if (rs.code == 0) {
+                     Swal.fire("Có lỗi! ", rs.text, "error");
+                     TimKiem();
+                 }
+                 else  if (rs.indexOf("kt_login_signin_form") > 0) {
+                       ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
+                       setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
+                 }
             }).fail(function () { KTApp.unblockPage();});
         }
         function XuatFileExcel() {

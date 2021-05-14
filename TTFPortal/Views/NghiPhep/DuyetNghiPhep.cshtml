@@ -112,8 +112,20 @@
             data.MaPhongBan = $("#select-phongban").dxSelectBox("instance").option('value');
             data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
             $.post("@Url.Action("GetDuyetNghiPhep", "NghiPhep")", data).done(function (rs) {
-                $("#danh-sach").dxDataGrid({
-                    dataSource: rs,
+                if (rs.indexOf("kt_login_signin_form") > 0) {
+                    ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
+                    setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 4000);
+                }
+                else {
+                    LoadGrid(rs);
+                }
+               
+                KTApp.unblockPage();
+            }).fail(function () { KTApp.unblockPage();});
+        }
+        function LoadGrid(data) {
+             $("#danh-sach").dxDataGrid({
+                 dataSource: data,
                     selection: {
                         mode: "multiple"
                     },
@@ -203,9 +215,7 @@
                      window.location.href = 
                          '@Url.Action("Edit","NghiPhep")?id=' + e.key  + "&op=2";
                 },
-                });
-                KTApp.unblockPage();
-            }).fail(function () { KTApp.unblockPage();});
+             });
         }
     </script>
     @if (User.IsInRole("43=1") || User.IsInRole("0=0")) {
@@ -246,9 +256,9 @@
                                 else if (rs.code == 0) {
                                     Swal.fire("Có lỗi! ", rs.text, "error");
                                 }
-                                else {
-                                    ShowToast.info('Hết thời gian thao tác đăng nhập lại', 4000);
-                                    window.location.href = '@Url.Action("Login", "Account")?';
+                                else  if (rs.indexOf("kt_login_signin_form") > 0) {
+                                    ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
+                                    setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
                                 }
                             }).fail(function () {
                                 KTApp.unblockPage();
@@ -303,9 +313,9 @@
                                 else if (rs.code == 0) {
                                     Swal.fire("Có lỗi! ", rs.text, "error");
                                 }
-                                else {
-                                    ShowToast.info('Hết thời gian thao tác đăng nhập lại', 3000);
-                                    window.location.href = '@Url.Action("Login", "Account")?';
+                                else  if (rs.indexOf("kt_login_signin_form") > 0) {
+                                    ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
+                                    setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
                                 }
                             }).fail(function () {
                                 KTApp.unblockPage();

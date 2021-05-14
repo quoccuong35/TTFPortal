@@ -188,7 +188,13 @@
             data.maPhongBan = maphongban;
           //  data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
             $.get("@Url.Action("GetQuanLyXacNhanCong", "XacNhanCong")", data).done(function (rs) {
-                $("#danh-sach").dxDataGrid({
+                KTApp.unblockPage();
+                if (rs.indexOf("kt_login_signin_form") > 0) {
+                    ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
+                    setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
+                }
+                else {
+                    $("#danh-sach").dxDataGrid({
                     dataSource: rs,
                     //selection: {
                     //    mode: "multiple"
@@ -297,7 +303,9 @@
                         window.location.href = '@Url.Action("Edit","XacNhanCong")?id=' + e.key+"&op=3";
                     },
                 });
-                KTApp.unblockPage();
+              }
+                
+              
             }).fail(function () { KTApp.unblockPage();});
         }
         function XuatFileExcel() {

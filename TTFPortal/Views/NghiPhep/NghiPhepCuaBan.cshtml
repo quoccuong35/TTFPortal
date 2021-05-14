@@ -47,7 +47,7 @@
                 <i class="icon-md fas fa-plus"></i>
                 @Resources.App.ThemMoi
             </a>
-            <button type="button" class="btn btn-warning" onclick="LoadData()">
+            <button type="button" class="btn btn-warning" onclick="Timkiem()">
                 <i class="icon-md fas fa-search"></i>
                 @Resources.App.TimKiem
             </button>
@@ -85,17 +85,29 @@
                     tungay = Globalize.format(data.value, "yyyy-MM-dd");
                 },
             }).dxDateBox("instance");
-            LoadData();
+            Timkiem();
         });
-        function LoadData() {
+        function Timkiem() {
             KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang tải dữ liệu...' });
             var data = {};
             data.TuNgay = Globalize.format($("#date-tungay").dxDateBox("instance").option('value'), 'yyyy-MM-dd');
             data.DenNgay = Globalize.format($("#date-denngay").dxDateBox("instance").option('value'), 'yyyy-MM-dd');
-            data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
-            $.post("@Url.Action("gvNghiPhepPartial", "NghiPhep")", data).done(function (rs) {
-                $("#danh-sach").dxDataGrid({
-                    dataSource: rs,
+            //data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+            $.get("@Url.Action("gvNghiPhepPartial", "NghiPhep")", data).done(function (rs) {
+                KTApp.unblockPage();
+                if (rs.indexOf("kt_login_signin_form") > 0) {
+                    ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
+                    setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
+                }
+                else {
+                    LoadGird(rs);
+                }
+               
+            }).fail(function () { KTApp.unblockPage();});
+        }
+        function LoadGird(data) {
+            $("#danh-sach").dxDataGrid({
+                    dataSource: data,
                     ////selection: {
                     ////    mode: "multiple"
                     ////},
@@ -184,9 +196,7 @@
                      onRowDblClick: function (e) {
                          window.location.href = '@Url.Action("Edit","NghiPhep")?id=' + e.key+ "&op=1";
                 },
-                });
-                KTApp.unblockPage();
-            }).fail(function () { KTApp.unblockPage();});
+            });
         }
     </script>
 }

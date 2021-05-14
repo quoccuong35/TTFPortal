@@ -1,6 +1,6 @@
 ﻿@{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewBag.Title = Resources.Menu.CongKyCongNguoiDung;
+    ViewBag.Title = Resources.Menu.HeThongDuyetTangCa;
 }
 @section ScriptsFile{
     <style>
@@ -30,10 +30,10 @@
         <div class="d-flex align-items-baseline flex-wrap mr-5">
             <ul class="breadcrumb breadcrumb-transparent breadcrumb-dot font-weight-bold p-0 my-2 ">
                 <li class="breadcrumb-item text-muted">
-                    <a href="" class="text-muted">@Resources.Menu.Cong</a>
+                    <a href="" class="text-muted">@Resources.Menu.HeThong</a>
                 </li>
                 <li class="breadcrumb-item text-muted">
-                    <a href="" class="text-muted">@Resources.Menu.CongKyCongNguoiDung</a>
+                    <a href="" class="text-muted">@Resources.Menu.HeThongDuyetTangCa</a>
                 </li>
 
             </ul>
@@ -43,14 +43,9 @@
 @section Header{
     <div class="d-flex align-items-center flex-wrap mr-1">
         <div class="form-group row">
-            <div class="col-lg-6">
-                <label class="form-labe">Năm</label>
-                <div id="txt-nam">
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <label class="form-labe">Tháng</label>
-                <div id="txt-thang">
+            <div class="col-lg-12">
+                <label class="form-labe">Loại tăng ca</label>
+                <div id="select-loaitangca">
                 </div>
             </div>
         </div>
@@ -73,29 +68,15 @@
 </div>
 @section CustomScripts{
     <script type="text/javascript">
-        var date = new Date(), nam,thang;
-        nam = date.getFullYear();
-        thang = date.getMonth();
+        var dtLoaiTangCa = @Html.Raw(TTFPortal.Class.DanhMuc.DMLoaiTangCa())
         $(function () {
-            $("#txt-nam").dxNumberBox({
-                value: nam,
-                min: 2018,
-                max: 9999,
-                showSpinButtons: true
-            });
-            $("#txt-thang").dxNumberBox({
-                value: thang,
-                min: 1,
-                max: 12,
-                showSpinButtons: true
-            });
+                setLoaiTangCa('select-loaitangca', dtLoaiTangCa, false, 'Loại tăng ca');
             TimKiem();
         });
         function TimKiem() {
-            nam  = $("#txt-nam").dxNumberBox("instance").option('value');
-            thang  = $("#txt-thang").dxNumberBox("instance").option('value');
+            var maLoaiTangCa = $("#select-loaitangca").dxSelectBox("instance").option('value');
             KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang tải dữ liệu...' });
-            $.get("@Url.Action("GetKyCongNguoiDung", "KyCong")", { nam: nam,thang:thang }).done(function (rs) {
+            $.get("@Url.Action("GetMatrixTangCa", "HeThong")", {maLoaiTangCa: maLoaiTangCa}).done(function (rs) {
                 KTApp.unblockPage();
                 LoadData(rs);
             }).fail(function () {
@@ -113,7 +94,7 @@
                     paging: true,
                     filtering: true
                 },
-                keyExpr: "Id",
+                keyExpr: "ID",
                 filterRow: {
                     visible: true,
                     applyFilter: "auto"
@@ -121,7 +102,7 @@
                  editing: {
                         mode: "popup",// 'batch' | 'cell' | 'row' | 'popup'
                         allowUpdating:true,
-                        //allowDeleting: true,
+                        allowDeleting: true,
                         allowAdding: true,
                         useIcons: true,
                         //form: {
@@ -165,89 +146,80 @@
                 },
                 columns: [
                     {
-                        dataField: "Nam",
-                        caption: "Năm",
-                        width: 80,
-                        dataType: "number",
-                        validationRules: [{ type: "required", message: "Chưa nhật năm" }]
+                        dataField: "LoaiTangCa",
+                        caption: "Loại tăng ca",
+                        width: 250,
+                        //dataType: "number",
+                        validationRules: [{ type: "required", message: "Chưa chọn loại tăng ca" }],
+                        lookup: {
+                            dataSource: dtLoaiTangCa,
+                            valueExpr: "LoaiLaoDongTangCa",
+                            displayExpr: "TenLoaiTangCa"
+                        }
                         //allowEditing: false,
                     },
                     {
-                        dataField: "Thang",
-                        caption: "Tháng",
+                        dataField: "CapDuyet",
+                        caption: "Cấp duyệt",
                         width: 80,
+                        //allowEditing: false,
                         dataType: "number",
-                        validationRules: [{ type: "required", message: "Chưa nhật tháng" }]
-                        //allowEditing: false,
-                    },
-                    {
-                        dataField: "TuNgay",
-                        caption: "Từ ngày",
-                        width: 100,
-                        //allowEditing: false,
-                        dataType: "date",
-                        format: "dd/MM/yyyy",
-                        validationRules: [{ type: "required", message: "Chưa nhật từ ngày" }]
+                        //format: "dd/MM/yyyy",
+                        validationRules: [{ type: "required", message: "Chưa nhật cấp duyệt" }]
                         //fixed: true
                     },
                     {
-                        dataField: "DenNgay",
-                        caption: "Đến ngày",
-                        width: 150,
-                        //allowEditing: false,
-                        dataType: "date",
-                        format: "dd/MM/yyyy",
-                        validationRules: [{ type: "required", message: "Chưa nhật đến ngày" }]
+                        dataField: "NguoiDuyet",
+                        caption: "Người duyệt",
+                        width: 120,
+                        validationRules: [{ type: "required", message: "Chưa nhật người duyệt" }]
                     },
                     {
-                        dataField: "Dong",
-                        caption: "Đóng kỳ công",
-                        width: 120,
+                        dataField: "GhiChu",
+                        caption: "Ghi chú",
+                        width: 220,
                     }
                 ],
                 onRowInserting: function (e) {
-                    AddKyCong(e);
+                    AddMatrixTangCa(e);
                 },
                 onRowUpdating: function (e) {
-                    EditKyCong(e.newData, e.oldData);
+                    EdiMatrixTangCa(e.newData, e.oldData);
+                },
+                onRowRemoving: function (e) {
+                    XoaMatrixTangCa(e.key);
                 }
             });
         }
         function ThemMoi() {
             $('#danh-sach').dxDataGrid('instance').addRow();
         }
-        function AddKyCong(e) {
+        function AddMatrixTangCa(e) {
             var data = {};
             data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
-            data.TuNgay = e.data.TuNgay;
-            data.DenNgay = e.data.DenNgay;
-            data.Nam = e.data.Nam;
-            data.Thang = e.data.Thang;
-            data.Dong = e.data.Dong;
+            data.LoaiTangCa = e.data.LoaiTangCa;
+            data.CapDuyet = e.data.CapDuyet;
+            data.NguoiDuyet = e.data.NguoiDuyet;
+            data.GhiChu = e.data.GhiChu;
             KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang lưu thông tin...' });
-            $.post('@Url.Action("Add_KyCongNguoiDung", "KyCong")', data).done(function (rs) {
-                KTApp.unblockPage();
+            $.post('@Url.Action("AddMatrixTangCa", "HeThong")', data).done(function (rs) {
                 if (rs.code == "1") {
-                   
+                    KTApp.unblockPage();
                     ShowToast.success('Thành công', 3000);
                     TimKiem();
                 }
-                else if (rs.code == 0) {
-                      Swal.fire("Có lỗi! ", rs.text, "error");
-                      TimKiem();
+                else {
+                    TimKiem();
+                    KTApp.unblockPage();
+                        Swal.fire("Có lỗi!", rs.text, "error");
                 }
-                else if (rs.indexOf("kt_login_signin_form") > 0) {
-                      ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
-                      setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
-                }
-               
 
             }).fail(function () {
                 KTApp.unblockPage();
                 TimKiem()
              });
         }
-        function EditKyCong(newData, oldData) {
+        function EdiMatrixTangCa(newData, oldData) {
             var data = {};
                 data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
                 var arryPropertyName = Object.getOwnPropertyNames(newData);
@@ -256,22 +228,49 @@
                     oldData[arryPropertyName[i]] = newData[arryPropertyName[i]].toString();
                 }
                 data.item = oldData;
-                $.post('@Url.Action("EditKyCongNguoiDung", "KyCong")', data).done(function (rs) {
+                $.post('@Url.Action("SaveMatrixTangCa", "HeThong")', data).done(function (rs) {
                     if (rs.code == "1") {
                         ShowToast.success("Thành công", 3000);
                         TimKiem();
                     }
-                    else if (rs.code == 0) {
-                         Swal.fire("Có lỗi! ", rs.text, "error");
-                         TimKiem();
-                    }
-                    else if (rs.indexOf("kt_login_signin_form") > 0) {
-                         ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
-                         setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
-                    }
-                }).fail(function () {
+                    else {
                         TimKiem();
-                });
+                        Swal.fire("Có lỗi!", rs.text, "error");
+                    }
+                    }).fail(function () {
+                        TimKiem();
+                    });
+        }
+        function XoaMatrixTangCa(Id) {
+                        KTApp.blockPage({
+                            overlayColor: '#000000',
+                            state: 'primary',
+                            message: 'Đang xóa...'
+                        });
+                        try {
+                            var data = {};
+                            data.Id = Id;
+                            data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+                            $.post("@Url.Action("XoaMatrixTangCa", "HeThong")", data).done(function (rs) {
+                                KTApp.unblockPage();
+                                if (rs.code == 1) {
+                                    ShowToast.success( rs.text,3000);
+                                    TimKiem();
+                                }
+                                else if (rs.code == 0) {
+                                    Swal.fire("Có lỗi! ", rs.text, "error");
+                                    TimKiem();
+                                }
+                                else {
+                                     ShowToast.info('Hết thời gian thao tác đăng nhập lại', 4000);
+                                     window.location.href = '@Url.Action("Login", "Account")?';
+                                 }
+                            }).fail(function () {
+                                KTApp.unblockPage();
+                            });
+                        } catch (e) {
+                            KTApp.unblockPage();
+                        }
         }
     </script>
 }

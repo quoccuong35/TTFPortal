@@ -1,6 +1,6 @@
 ﻿@{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewBag.Title = Resources.Menu.CongNgayLe;
+    ViewBag.Title = Resources.Menu.HeThongDuAnCongTrinh;
 }
 @section ScriptsFile{
     <style>
@@ -30,10 +30,10 @@
         <div class="d-flex align-items-baseline flex-wrap mr-5">
             <ul class="breadcrumb breadcrumb-transparent breadcrumb-dot font-weight-bold p-0 my-2 ">
                 <li class="breadcrumb-item text-muted">
-                    <a href="" class="text-muted">@Resources.Menu.Cong</a>
+                    <a href="" class="text-muted">@Resources.Menu.HeThong</a>
                 </li>
                 <li class="breadcrumb-item text-muted">
-                    <a href="" class="text-muted">@Resources.Menu.CongNgayLe</a>
+                    <a href="" class="text-muted">@Resources.Menu.HeThongDuAnCongTrinh</a>
                 </li>
 
             </ul>
@@ -42,11 +42,15 @@
 }
 @section Header{
     <div class="d-flex align-items-center flex-wrap mr-1">
-        <div class="form-group row">
+        <div class="row">
             <div class="col-lg-6">
-                <label class="form-labe">Năm</label>
-                <div id="txt-nam">
+                <label class="form-labe">Ca làm việc</label>
+                <div id="select-calamviec">
                 </div>
+            </div>
+            <div class="col-lg-4">
+                <label class="form-labe">Mã dự án</label>
+                <input type="text" id="txt-duan" name="txt-duan" class="form-control"/>
             </div>
         </div>
     </div>
@@ -68,21 +72,17 @@
 </div>
 @section CustomScripts{
     <script type="text/javascript">
-        var date = new Date(), nam;
-        nam = date.getFullYear();
+        var dtCaLamViec =  @Html.Raw(TTFPortal.Class.DanhMuc.DMCaLamViec())
         $(function () {
-            $("#txt-nam").dxNumberBox({
-                value: nam,
-                min: 2018,
-                max: 9999,
-                showSpinButtons: true
-            });
+             $('#danh-sach').height($(window).height() - 200);
+             setCaLamViec('select-calamviec', dtCaLamViec, false, 'Ca làm việc');
             TimKiem();
         });
         function TimKiem() {
-            nam = $("#txt-nam").dxNumberBox("instance").option('value');
+            var maCaLamViec = $("#select-calamviec").dxSelectBox("instance").option('value');
+            var maDuAn = $("#txt-duan").val();
             KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang tải dữ liệu...' });
-            $.get("@Url.Action("GetNgayLe", "NgayLe")", { nam: nam }).done(function (rs) {
+            $.get("@Url.Action("GetDuAn", "HeThong")", { maDuAn: maDuAn,maCaLamViec:maCaLamViec }).done(function (rs) {
                 KTApp.unblockPage();
                 LoadData(rs);
             }).fail(function () {
@@ -100,7 +100,7 @@
                     paging: true,
                     filtering: true
                 },
-                keyExpr:"Ngay",
+                keyExpr:"MaDuAn",
                 filterRow: {
                     visible: true,
                     applyFilter: "auto"
@@ -151,46 +151,88 @@
                     enabled: false
                 },
                 columns: [
-
-
                     {
-                        dataField: "Ngay",
-                        caption: "Ngày",
+                        dataField: "MaDuAn",
+                        caption: "Mã dự án",
                         width: 150,
                         //allowEditing: false,
-                        dataType: "date",
-                        format: "dd/MM/yyyy",
-                        validationRules: [{ type: "required", message: "Chưa nhật ngày" }]
+                        //dataType: "date",
+                        //format: "dd/MM/yyyy",
+                        validationRules: [{ type: "required", message: "Chưa nhật dự án" }]
+                    },
+                    {
+                        dataField: "Email",
+                        caption: "Email",
+                        width: 200,
+                        validationRules: [{ type: "required", message: "Chưa nhật mail" }]
+                    },
+                    {
+                        dataField: "HoTen",
+                        caption: "Họ và tên",
+                        width: 200,
+                        validationRules: [{ type: "required", message: "Chưa nhật họ tên" }]
+                    },
+                    {
+                        dataField: "MaCaLamViec",
+                        caption: "Ca làm việc",
+                        width: 200,
+                        validationRules: [{ type: "required", message: "Chưa chọn ca làm việc" }],
+                        lookup: {
+                            dataSource: dtCaLamViec,
+                            displayExpr: "TenCaLamViec",
+                            valueExpr: "MaCaLamViec",
+                        }
                     },
                     {
                         dataField: "GhiChu",
                         caption: "Ghi chú",
-                        width: 250,
-                        validationRules: [{ type: "required", message: "Chưa nhật tên ngày lễ" }]
+                        width: 200,
+                        validationRules: [{ type: "required", message: "Chưa nhật họ tên" }]
+                    },
+                    {
+                        dataField: "Del",
+                        caption: "Không gửi mail",
+                        width: 100,
+                        //validationRules: [{ type: "required", message: "Chưa nhật họ tên" }]
                     }
                 ],
                 onRowInserting: function (e) {
-                    AddNgayLe(e);
+                    AddDuAn(e);
                 },
                 onRowUpdating: function (e) {
-                    EditNgayLe(e.newData, e.oldData);
+                    EditDuAn(e.newData, e.oldData);
                 },
                 onRowRemoving: function (e) {
-                    XoaNgayLe(e.key);
-                }
+                    XoaDuAn(e.key);
+                },
+                onEditorPreparing: function (e) {
+                    if (e.parentType == "dataRow" && e.dataField == "MaCaLamViec") {
+                        e.editorOptions.itemTemplate = function (data, index, container) {
+                            var row = $("<div>").addClass("row-fluid");
+                            $("<div>").addClass("col-xs-2").text(data["TenCaLamViec"]).appendTo(row);
+                            $("<div>").addClass("col-xs-4").text(data["GioBacDau"]).appendTo(row);
+                            $("<div>").addClass("col-xs-4").text(data["GioKetThuc"]).appendTo(row);
+                            container.append(row);
+                        };
+                    }
+                },
             });
         }
         function ThemMoi() {
             $('#danh-sach').dxDataGrid('instance').addRow();
         }
-        function AddNgayLe(e) {
+        function AddDuAn(e) {
             var data = {};
             data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
-            data.Ngay = e.data.Ngay;
+            data.MaDuAn = e.data.MaDuAn;
+            data.HoTen = e.data.HoTen;
+            data.Email = e.data.Email;
             data.GhiChu = e.data.GhiChu;
+            data.Del = e.data.Del;
+            data.MaCaLamViec = e.data.MaCaLamViec;
             KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang lưu thông tin...' });
-            $.post('@Url.Action("Save_NgayLe", "NgayLe")', data).done(function (rs) {
-                if (rs.code == 1) {
+            $.post('@Url.Action("LuuThongTinDuAn", "HeThong")', data).done(function (rs) {
+                if (rs.code == "1") {
                     KTApp.unblockPage();
                     ShowToast.success('Thành công', 3000);
                     TimKiem();
@@ -199,17 +241,18 @@
                     TimKiem();
                     KTApp.unblockPage();
                         Swal.fire("Có lỗi!", rs.text, "error");
-                }else if (rs.indexOf("kt_login_signin_form") > 0) {
-                                    ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
-                                    setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
-                                }
+                }
+                else {
+                     ShowToast.info('Hết thời gian thao tác đăng nhập lại', 4000);
+                     window.location.href = '@Url.Action("Login", "Account")?';
+                }
 
             }).fail(function () {
                 KTApp.unblockPage();
                 TimKiem()
              });
         }
-        function EditNgayLe(newData, oldData) {
+        function EditDuAn(newData, oldData) {
             var data = {};
                 data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
                 var arryPropertyName = Object.getOwnPropertyNames(newData);
@@ -218,24 +261,24 @@
                     oldData[arryPropertyName[i]] = newData[arryPropertyName[i]].toString();
                 }
                 data.item = oldData;
-                $.post('@Url.Action("Save_NgayLe", "NgayLe")', data).done(function (rs) {
+                $.post('@Url.Action("LuuThongTinDuAn", "HeThong")', data).done(function (rs) {
                     if (rs.code == "1") {
                         ShowToast.success("Thành công", 3000);
                         TimKiem();
                     }
-                    else if (rs.code == 0) {
-                         Swal.fire("Có lỗi! ", rs.text, "error");
-                         TimKiem();
+                    else if(rs.code==0) {
+                        TimKiem();
+                        Swal.fire("Có lỗi!", rs.text, "error");
                     }
-                    else if (rs.indexOf("kt_login_signin_form") > 0) {
-                          ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
-                          setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
+                    else {
+                     ShowToast.info('Hết thời gian thao tác đăng nhập lại', 4000);
+                     window.location.href = '@Url.Action("Login", "Account")?';
                     }
                 }).fail(function () {
                         TimKiem();
-                });
+                    });
         }
-        function XoaNgayLe(ngay) {
+        function XoaDuAn(maDuAn) {
                         KTApp.blockPage({
                             overlayColor: '#000000',
                             state: 'primary',
@@ -243,9 +286,9 @@
                         });
                         try {
                             var data = {};
-                            data.Ngay = ngay;
+                            data.maDuAn = maDuAn;
                             data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
-                            $.post("@Url.Action("XoaNgayLe", "NgayLe")", data).done(function (rs) {
+                            $.post("@Url.Action("XoaDuAn", "HeThong")", data).done(function (rs) {
                                 KTApp.unblockPage();
                                 if (rs.code == 1) {
                                     ShowToast.success( rs.text,3000);
@@ -255,10 +298,10 @@
                                     Swal.fire("Có lỗi! ", rs.text, "error");
                                     TimKiem();
                                 }
-                                else if (rs.indexOf("kt_login_signin_form") > 0) {
-                                    ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
-                                    setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
-                                }
+                                else {
+                                     ShowToast.info('Hết thời gian thao tác đăng nhập lại', 4000);
+                                     window.location.href = '@Url.Action("Login", "Account")?';
+                                 }
                             }).fail(function () {
                                 KTApp.unblockPage();
                             });

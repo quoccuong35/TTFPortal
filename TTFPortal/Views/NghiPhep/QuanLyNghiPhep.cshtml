@@ -240,8 +240,19 @@
             data.MaLoaiNghiPhep = maloainghiphep;
             data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
             $.post("@Url.Action("GetQuanLyNghiPhep", "NghiPhep")", data).done(function (rs) {
-                $("#danh-sach").dxDataGrid({
-                    dataSource: rs,
+                KTApp.unblockPage();
+                 if (rs.indexOf("kt_login_signin_form") > 0) {
+                    ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
+                    setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
+                }
+                else {
+                     LoadGird(rs);
+                }
+            }).fail(function () { KTApp.unblockPage();});
+        }
+        function LoadGird(data) {
+            $("#danh-sach").dxDataGrid({
+                    dataSource: data,
                     selection: {
                         mode: "multiple"
                     },
@@ -356,8 +367,6 @@
                         window.location.href = '@Url.Action("Edit","NghiPhep")?id=' + e.key+"&op=3";
                     },
                 });
-                KTApp.unblockPage();
-            }).fail(function () { KTApp.unblockPage();});
         }
         function XuatFileExcel() {
             var item = $('#danh-sach').dxDataGrid('instance');
@@ -404,8 +413,12 @@
                         if (rs.code == 1) {
                             ShowToast.success(rs.text, 3000);
                         }
-                        else {
+                        else if(rs.code==0){
                             ShowToast.warning(rs.text, 3000);
+                        }
+                        else  if (rs.indexOf("kt_login_signin_form") > 0) {
+                            ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 4000);
+                            setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
                         }
                        
                     },

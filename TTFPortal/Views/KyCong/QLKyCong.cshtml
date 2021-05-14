@@ -213,15 +213,19 @@
             data.Status = e.data.Status;
             KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang lưu thông tin...' });
             $.post('@Url.Action("Add_KyCong", "KyCong")', data).done(function (rs) {
+                KTApp.unblockPage();
                 if (rs.code == "1") {
-                    KTApp.unblockPage();
+
                     ShowToast.success('Thành công', 3000);
                     TimKiem();
                 }
-                else {
-                    TimKiem();
-                    KTApp.unblockPage();
-                        Swal.fire("Có lỗi!", rs.text, "error");
+                else if (rs.code == 0) {
+                      Swal.fire("Có lỗi! ", rs.text, "error");
+                      TimKiem();
+                }
+                else if (rs.indexOf("kt_login_signin_form") > 0) {
+                      ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
+                      setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
                 }
 
             }).fail(function () {
@@ -243,13 +247,17 @@
                         ShowToast.success("Thành công", 3000);
                         TimKiem();
                     }
-                    else {
-                        TimKiem();
-                        Swal.fire("Có lỗi!", rs.text, "error");
+                    else if (rs.code == 0) {
+                      Swal.fire("Có lỗi! ", rs.text, "error");
+                      TimKiem();
                     }
-                    }).fail(function () {
+                    else if (rs.indexOf("kt_login_signin_form") > 0) {
+                          ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
+                          setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
+                    }
+                }).fail(function () {
                         TimKiem();
-                    });
+                });
         }
     </script>
 }

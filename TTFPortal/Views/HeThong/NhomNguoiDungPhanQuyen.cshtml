@@ -1,0 +1,443 @@
+﻿@using TTFPortal.Models;
+@using TTFPortal.Class;
+@model PhanQuyenModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = Resources.App.PhanQuyenNhomNguoiDung;
+}
+@section ScriptsFile{
+    <style>
+        .color_status {
+            cursor: default;
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            border: 1px solid #c3c3c3;
+            border-radius: 50%;
+            margin-top: 7px;
+        }
+
+        .dx-datagrid .dx-header-filter {
+            position: relative;
+            color: blue;
+            font: 14px/1 DXIcons;
+        }
+
+        .dx-datagrid .dx-header-filter-empty {
+            color: rgba(149,149,149,.5);
+        }
+    </style>
+}
+@section Link{
+    <div class="d-flex align-items-center flex-wrap mr-1">
+        <div class="d-flex align-items-baseline flex-wrap mr-5">
+            <ul class="breadcrumb breadcrumb-transparent breadcrumb-dot font-weight-bold p-0 my-2 ">
+                <li class="breadcrumb-item text-muted">
+                    <a href="" class="text-muted">@Resources.Menu.HeThong</a>
+                </li>
+                <li class="breadcrumb-item text-muted">
+                    <a href="@Url.Action("NhomNguoiDung","HeThong")" class="text-muted">@Resources.Menu.HeThongNhomNguoiDung</a>
+                </li>
+                <li class="breadcrumb-item text-muted">
+                    <a href="" class="text-muted">@Resources.App.PhanQuyenNhomNguoiDung</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+}
+
+@section Header{
+    <input type="hidden" value="@ViewBag.NhomNguoiDung" id="nhomnguoidung" />
+    <div class="d-flex align-items-center flex-wrap mr-1">
+    </div>
+    <div class="d-flex">
+        <a href="@Url.Action("NhomNguoiDung","HeThong")" class="btn btn-default font-weight-bold  px-2 font-size-base  mr-2"> <i class="icon-md fas fa-arrow-left"></i> @Resources.App.QuayLai</a>
+        <button type="submit" class="btn btn-warning" id="btn-capnhat" onclick="Save()">
+            <i class="icon-md far fa-save"></i>
+            @Resources.App.CapNhat
+        </button>
+    </div>
+}
+<div class="card card-custom">
+    <div class="card-toolbar">
+        <ul class="nav nav-light-danger nav-bold nav-pills">
+            <li class="nav-item ">
+                <a class="nav-link active" data-toggle="tab" href="#tab_thongtin">
+                    <span class="nav-icon">
+                        <i class="icon-xl fas fa-user-friends"></i>
+                    </span>
+                    <span class="nav-text">Thông tin nhóm</span>
+                </a>
+            </li>
+            @{
+                int kv1 = 0; int kv2 = 0; int kv3 = 0;
+            }
+            @foreach (HT_NHOMQUYEN nhom in Model.NhomQuyen)
+            {
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#Nhom_@nhom.NHOMQUYEN">
+                        @*<span class="nav-icon">
+            <i class="flaticon2-image-file"></i>
+        </span>*@
+                        <span class="nav-text">
+                            @nhom.TENNHOM
+                        </span> &nbsp;
+                        <span class="badge badge-danger"> 
+                            @{ViewContext.Writer.Write((Model.QuyenSuDung.Count(m => m.Quyen > 0 && m.NhomQuyen == nhom.NHOMQUYEN)).ToString());
+                            }
+                        </span>
+                    </a>
+                </li>
+            }
+
+        </ul>
+    </div>
+    <div class="card-body">
+        <div class="tab-content">
+            <div class="tab-pane fade  active show" id="tab_hoso" role="tabpanel" aria-labelledby="tab_thongtin">
+                <h5 class="text-dark font-weight-bold my-1 mr-5">
+                    <input type="text" value="@ViewBag.TenNhomNguoiDung" class="form-control" />
+                </h5>
+
+            </div>
+            @foreach (HT_NHOMQUYEN nhom in Model.NhomQuyen)
+            {
+                <div class="tab-pane fade" id="Nhom_@nhom.NHOMQUYEN" role="tabpanel" aria-labelledby="@nhom.NHOMQUYEN">
+                    @if (nhom.SOOPTION == 4)
+                    {
+                        string xemStr = ""; string themStr = ""; string suaStr = ""; string xoaStr = "";
+                        <table class="table table-bordered table-hover">
+                            <tr>
+                                <th style="width:60%" aria-label="Domain: activate to sort column ascending" colspan="1" rowspan="1" aria-controls="sample-table-2" tabindex="0" class="sorting"></th>
+                                <th class="center" title="Click to check/uncheck all" onclick="XemCheckAll_@{ViewContext.Writer.Write(nhom.NHOMQUYEN);}(0)">Xem</th>
+                                <th class="center" title="Click to check/uncheck all" onclick="ThemCheckAll_@{ViewContext.Writer.Write(nhom.NHOMQUYEN);}(0)">Thêm</th>
+                                <th class="center" title="Click to check/uncheck all" onclick="SuaCheckAll_@{ViewContext.Writer.Write(nhom.NHOMQUYEN);}(0)">Sửa</th>
+                                <th class="center" title="Click to check/uncheck all" onclick="XoaCheckAll_@{ViewContext.Writer.Write(nhom.NHOMQUYEN);}(0)">Xóa</th>
+
+                            </tr>
+                            <tbody>
+                                @foreach (QuyenSuDungModel quyensudung in Model.QuyenSuDung)
+                                {
+                                    if (quyensudung.NhomQuyen == nhom.NHOMQUYEN)
+                                    {
+                                        xemStr += "|#" + quyensudung.QuyenSuDung.ToString() + "v1";
+                                        themStr += "|#" + quyensudung.QuyenSuDung.ToString() + "v2";
+                                        suaStr += "|#" + quyensudung.QuyenSuDung.ToString() + "v3";
+                                        xoaStr += "|#" + quyensudung.QuyenSuDung.ToString() + "v4";
+
+                                        int q = ViewBag.NhomNguoiDung != null ? ViewBag.NhomNguoiDung : 0;
+                                        var mod = DanhMuc.GetNhomNguoiDungByID(q);
+                                        string quyen = mod != null ? mod.QUYEN : null;
+                                        string[] splQuyen = !String.IsNullOrEmpty(quyen) ? quyen.Split(new string[] { "|" }, StringSplitOptions.None) : null;
+
+                                        <tr>
+                                            <td>@quyensudung.TenQuyenSuDung</td>
+                                            <td class="center">
+                                                <label class="position-relative">
+                                                    <input type="checkbox" class="ace clsNhomQuyen" @{ViewContext.Writer.Write("value='" + quyensudung.QuyenSuDung + "=1' id='" + quyensudung.QuyenSuDung + "v1'"); if (splQuyen != null && splQuyen.Contains(quyensudung.QuyenSuDung + "=1")) { ViewContext.Writer.Write("checked='checked' "); } } />
+                                                    <span class="lbl"></span>
+                                                </label>
+                                            </td>
+                                            <td class="center">
+                                                <input type="checkbox" class="ace clsNhomQuyen" @{ViewContext.Writer.Write("value='" + quyensudung.QuyenSuDung + "=2' id='" + quyensudung.QuyenSuDung + "v2'"); if (splQuyen != null && splQuyen.Contains(quyensudung.QuyenSuDung + "=2")) { ViewContext.Writer.Write("checked='checked' "); } } />
+                                                <span class="lbl"></span>
+                                            </td>
+                                            <td class="center">
+                                                <input type="checkbox" class="ace clsNhomQuyen" @{ViewContext.Writer.Write("value='" + quyensudung.QuyenSuDung + "=3' id='" + quyensudung.QuyenSuDung + "v3'"); if (splQuyen != null && splQuyen.Contains(quyensudung.QuyenSuDung + "=3")) { ViewContext.Writer.Write("checked='checked' "); }} />
+                                                <span class="lbl"></span>
+                                            </td>
+                                            <td class="center">
+                                                <input type="checkbox" class="ace clsNhomQuyen" @{ViewContext.Writer.Write("value='" + quyensudung.QuyenSuDung + "=4'  id='" + quyensudung.QuyenSuDung + "v4'"); if (splQuyen != null && splQuyen.Contains(quyensudung.QuyenSuDung + "=4")) { ViewContext.Writer.Write("checked='checked' "); }} />
+                                                <span class="lbl"></span>
+                                            </td>
+
+                                        </tr>
+                                    }
+                                }
+                                <tr>
+                                    <td colspan="5" style="text-align:right"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <script type="text/javascript">
+                        var xemStr@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} = "@xemStr";
+                        var themStr@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} = "@themStr";
+                        var suaStr@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} = "@suaStr";
+                        var xoaStr@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} = "@xoaStr";
+
+                        var xem@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} = 1; var fxem@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} = 0;
+                        var them@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} = 1; var fthem@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} = 0;
+                        var sua@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} = 1; var fsua@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} = 0;
+                        var xoa@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} = 1; var fxoa@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} = 0;
+                        function XemCheckAll_@{ViewContext.Writer.Write(nhom.NHOMQUYEN);}(d) {
+
+                            if ((them@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} == 1 && fxem@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} == 0) || (them@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} == 0 && fxem@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} == 1) || (them@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} == 1 && fxem@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} == 1)) {
+                                var xemArr = xemStr@{ViewContext.Writer.Write(nhom.NHOMQUYEN);}.split('|');
+                                for (var i = 0; i < xemArr.length; i++) {
+                                    if (xem@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} == 1) $(xemArr[i]).prop("checked", true);
+                                    else $(xemArr[i]).prop("checked", false);
+
+                                    if (d == 1) $(xemArr[i]).prop("disabled", true);
+                                    else $(xemArr[i]).prop("disabled", false);
+                                }
+                                if (xem@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} == 1) xem@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} = 0;
+                                else xem@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} = 1;
+                            }
+                        }
+                        function ThemCheckAll_@{ViewContext.Writer.Write(nhom.NHOMQUYEN);}(d) {
+
+                            if ((sua@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} == 1 && fthem@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} == 0) || (sua@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} == 0 && fthem@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} == 1) || (sua@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} == 1 && fthem@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} == 1)) {
+                                if (them@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} == 0) {
+                                    fxem@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} = 1;
+                                }
+                                else {
+                                    fxem@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} = 0;
+                                }
+                                XemCheckAll_@{ViewContext.Writer.Write(nhom.NHOMQUYEN);}(them@{ViewContext.Writer.Write(nhom.NHOMQUYEN);});
+                                if (xem@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} == 1 && them@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} == 1) XemCheckAll_@{ViewContext.Writer.Write(nhom.NHOMQUYEN);}(them@{ViewContext.Writer.Write(nhom.NHOMQUYEN);});
+                                var xemArr = themStr@{ViewContext.Writer.Write(nhom.NHOMQUYEN);}.split('|');
+                                for (var i = 0; i < xemArr.length; i++) {
+                                    if (them@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} == 1) $(xemArr[i]).prop("checked", true);
+                                    else $(xemArr[i]).prop("checked", false);
+
+                                    if (d == 1) $(xemArr[i]).prop("disabled", true);
+                                    else $(xemArr[i]).prop("disabled", false);
+                                }
+                                if (them@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} == 1) them@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} = 0;
+                                else them@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} = 1;
+                            }
+                        }
+                        function SuaCheckAll_@{ViewContext.Writer.Write(nhom.NHOMQUYEN);}(d) {
+
+                            if ((xoa@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} == 1 && fsua@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} == 0) || (xoa@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} == 0 && fsua@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} == 1) || (xoa@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} == 1 && fsua@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} == 1)) {
+                                if (sua@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} == 0) {
+                                    fxem@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} = 1;
+                                    fthem@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} = 1;
+                                }
+                                else {
+                                    fxem@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} = 0;
+                                    fthem@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} = 0;
+                                }
+                                ThemCheckAll_@{ViewContext.Writer.Write(nhom.NHOMQUYEN);}(sua@{ViewContext.Writer.Write(nhom.NHOMQUYEN);});
+                                if (them@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} == 1 && sua@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} == 1) ThemCheckAll_@{ViewContext.Writer.Write(nhom.NHOMQUYEN);}(sua@{ViewContext.Writer.Write(nhom.NHOMQUYEN);});
+                                var xemArr = suaStr@{ViewContext.Writer.Write(nhom.NHOMQUYEN);}.split('|');
+                                for (var i = 0; i < xemArr.length; i++) {
+                                    if (sua@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} == 1) $(xemArr[i]).prop("checked", true);
+                                    else $(xemArr[i]).prop("checked", false);
+
+                                    if (d == 1) $(xemArr[i]).prop("disabled", true);
+                                    else $(xemArr[i]).prop("disabled", false);
+                                }
+                                if (sua@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} == 1) sua@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} = 0;
+                                else sua@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} = 1;
+                            }
+                        }
+                        function XoaCheckAll_@{ViewContext.Writer.Write(nhom.NHOMQUYEN);}(d) {
+                            if (xoa@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} == 0) {
+                                fxem@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} = 1;
+                                fthem@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} = 1;
+                                fsua@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} = 1;
+                            }
+                            else {
+                                fxem@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} = 0;
+                                fthem@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} = 0;
+                                fsua@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} = 0;
+                            }
+
+                            SuaCheckAll_@{ViewContext.Writer.Write(nhom.NHOMQUYEN);}(xoa@{ViewContext.Writer.Write(nhom.NHOMQUYEN);});
+                            if (sua@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} == 1 && xoa@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} == 1) SuaCheckAll_@{ViewContext.Writer.Write(nhom.NHOMQUYEN);}(xoa@{ViewContext.Writer.Write(nhom.NHOMQUYEN);});
+                            var xemArr = xoaStr@{ViewContext.Writer.Write(nhom.NHOMQUYEN);}.split('|');
+                            for (var i = 0; i < xemArr.length; i++) {
+                                if (xoa@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} == 1) $(xemArr[i]).prop("checked", true);
+                                else $(xemArr[i]).prop("checked", false);
+
+                                if (d == 1) $(xemArr[i]).prop("disabled", true);
+                                else $(xemArr[i]).prop("disabled", false);
+                            }
+                            if (xoa@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} == 1) xoa@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} = 0;
+                            else xoa@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} = 1;
+                        }
+                        </script>
+                    }
+                    else if (nhom.SOOPTION == 1)
+                    {
+                        string hdStr = ""; string tenKhuVuc = "";
+                        <table class="table table-striped table-bordered table-hover">
+                            <tr>
+                                <th style="width:80%"></th>
+                                <th class="center" title="Click to check/uncheck all" onclick="HoatDongCheckAll_@{ViewContext.Writer.Write(nhom.NHOMQUYEN);}()">Action</th>
+                            </tr>
+                            <tbody>
+                                @if (nhom.NHOMQUYEN == 4)
+                                {
+                                    bool bVung = false;
+                                    string gVung = "";
+                                }
+                                else if (nhom.NHOMQUYEN == 3)
+                                {
+                                    foreach (QuyenSuDungModel quyensudung in Model.QuyenSuDung)
+                                    {
+                                        if (quyensudung.NhomQuyen == nhom.NHOMQUYEN)
+                                        {
+                                            hdStr += "|#" + quyensudung.QuyenSuDung.ToString() + "v5";
+                                            int q = ViewBag.NhomNguoiDung != null ? ViewBag.NhomNguoiDung : 0;
+                                            var mod = DanhMuc.GetNhomNguoiDungByID(q);
+                                            string quyen = mod != null ? mod.QUYEN : null;
+                                            string[] splQuyen = !String.IsNullOrEmpty(quyen) ? quyen.Split(new string[] { "|" }, StringSplitOptions.None) : null;
+
+                                            <tr>
+                                                <td>@quyensudung.TenQuyenSuDung</td>
+                                                <td class="center">
+                                                    <input type="checkbox" class="ace clsNhomQuyen" @{ViewContext.Writer.Write("value='" + quyensudung.QuyenSuDung + "=5'  id='" + quyensudung.QuyenSuDung + "v5'"); if (quyensudung.Quyen == 5) { kv2++; ViewContext.Writer.Write("checked='checked' "); } } />
+                                                    <span class="lbl"></span>
+                                                </td>
+
+                                            </tr>
+                                        }
+                                    }
+                                }
+                                else if (nhom.NHOMQUYEN == 5)
+                                {
+
+                                }
+                                else if (nhom.NHOMQUYEN == 8)
+                                {
+                                }
+                            </tbody>
+                        </table>
+
+                        <script type="text/javascript">
+                        var hdStr@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} = "@hdStr";
+
+                        var hd@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} = 1;
+                        function HoatDongCheckAll_@{ViewContext.Writer.Write(nhom.NHOMQUYEN);}() {
+                            var xemArr = hdStr@{ViewContext.Writer.Write(nhom.NHOMQUYEN);}.split('|');
+                            for (var i = 0; i < xemArr.length; i++) {
+                                if (hd@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} == 1) {
+                                    $(xemArr[i]).prop("checked", true);
+                                    if (i == xemArr.length - 1) hd@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} = 0;
+                                }
+                                else {
+                                    $(xemArr[i]).prop("checked", false);
+                                    if (i == xemArr.length - 1) hd@{ViewContext.Writer.Write(nhom.NHOMQUYEN);} = 1;
+                                }
+                            }
+                        }
+                        </script>
+                    }
+
+                </div>
+            }
+        </div>
+    </div>
+</div>
+@section CustomScripts{
+    <script type="text/javascript">
+        $('body').addClass('subheader-fixed');
+        $(function () {
+            $(".clsNhomQuyen").each(function () {
+                try {
+                    if ($(this).prop("checked")) {
+                        var sVal = $(this).val().split('=');
+                        for (var j = 4; j > 1; j--) {
+                            var lID = "#" + sVal[0] + "v" + j;
+                            if ($(lID).prop("checked")) {
+                                for (var i = 1; i < j; i++) {
+                                    var sID = "#" + sVal[0] + "v" + i;
+                                    $(sID).prop("disabled", true);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (ex) {
+                    alert(ex);
+                }
+            });
+            $(".clsNhomQuyen").dblclick(function () {
+                if (this.checked == true) this.checked = false;
+                var sVal = $(this).val().split('=');
+                for (var j = 1; j < Number(sVal[1]); j++) {
+                    var sID = sVal[0] + 'v' + j;
+                    $('#' + sID).prop({ checked: false, disabled: false });
+                }
+            });
+            $(".clsNhomQuyen").click(function () {
+                try {
+                    if (this.checked) {
+                        var sVal = $(this).val().split('=');
+                        for (var j = 1; j < Number(sVal[1]); j++) {
+                            var sID = sVal[0] + 'v' + j;
+                            $('#' + sID).prop({ checked: true, disabled: true });
+                        }
+                    }
+                    else {
+                        var sVal = $(this).val().split('=');
+                        for (var j = 1; j < Number(sVal[1]); j++) {
+                            var sID = sVal[0] + 'v' + j;
+                            $('#' + sID).prop({ checked: false, disabled: false });
+                        }
+                    }
+                }
+                catch (ee) {
+                    alert(ee);
+                }
+            });
+         });
+        function Save() {
+            Swal.fire({
+                        title: "Cảnh báo?",
+                        html: 'Bạn có chắc lưu phân quyền đang chọn!',
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonText: "Có!",
+                        cancelButtonText: "Hủy!",
+                        reverseButtons: true
+                    }).then(function (result) {
+                        if (result.value) {
+                           try {
+                        var sQuyen = "";
+                        $('.clsNhomQuyen').each(function () {
+                           if ($(this).prop("checked")) {
+                                if (sQuyen.length > 0)
+                                    sQuyen = sQuyen + '|' + this.value;
+                                else
+                                    sQuyen = this.value;
+                           }
+                        });
+                        var data = {}
+                        data.NhomNguoiDung = $('#nhomnguoidung').val();
+                        data.sQuyen = sQuyen;
+                        data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+                        KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Lưu phân quyền...' });
+                        $.post('@Url.Action("LuuPhanQuyenNhom", "HeThong")', data).done(function (rs) {
+                            if (rs.code == 1) {
+                                KTApp.unblockPage();
+                                ShowToast.success('Thành công', 3000);
+                            }
+                           else if(rs.code==0) {
+                                KTApp.unblockPage();
+                                Swal.fire("Có lỗi!", rs.text, "error");
+                           }
+                           else {
+                                 ShowToast.info('Hết thời gian thao tác đăng nhập lại', 4000);
+                                 window.location.href = '@Url.Action("Login", "Account")?';
+                            }
+
+                        }).fail(function () {
+                            KTApp.unblockPage();
+                         });
+                    } catch (ex) {
+                        KTApp.unblockPage();
+                        Swal.fire("Có lỗi!", "Liên hệ phòng hệ thống thông tin để biết thêm chi tiết", "error");
+                    }
+                        } else if (result.dismiss === "cancel") {
+                            ShowToast.info('Bạn đã hủy xóa', 3000);
+
+                        }
+                    });
+            
+        }
+    </script>
+}

@@ -127,100 +127,107 @@
             data.denNgay = Globalize.format($("#date-denngay").dxDateBox("instance").option('value'), 'yyyy-MM-dd');
             data.hoVaTen = $("#txt-hoten").val();
             $.get("@Url.Action("getChamCongKhongThanh", "ChamCongKhongThanh")", data).done(function (rs) {
-                $("#danh-sach").dxDataGrid({
-                    dataSource: rs,
-                    remoteOperations: {
-                        paging: true,
-                        filtering: true
-                    },
-                    keyExpr: "IDXacNhanCong",
-                    filterRow: {
-                        visible: true,
-                        applyFilter: "auto"
-                    },
-                    paging: {
-                        pageSize: 20
-                    },
-                    showRowLines: true,
-                    rowAlternationEnabled: true,
-                    showBorders: true,
-                    hoverStateEnabled: true,
-                    allowColumnReordering: true,
-                    allowColumnResizing: true,
-                    columnAutoWidth: true,
-                    pager: {
-                        showPageSizeSelector: true,
-                        allowedPageSizes: [10, 15, 20, 50, 100],
-                        showInfo: true
-                    },
-                    columnFixing: {
-                        enabled: false
-                    },
-
-                    columns: [
-                        {
-                            dataField: "MaNV",
-                            caption: "Mã nhân viên",
-                            width: 100,
-                            allowEditing: false
-                        },
-                        {
-                            dataField: "HoVaTen",
-                            caption: "Họ và tên",
-                            width: 150,
-                            allowEditing: false
-                        },
-                        {
-                            dataField: "TenPhong_PhanXuong",
-                            caption: "Tên phòng/Phân xưởng",
-                            width: 150,
-                            allowEditing: false, 
-                        },
-                        {
-                            dataField: "Ngay",
-                            caption: "Ngày",
-                            width: 100,
-                            allowEditing: false,
-                        },
-                        {
-                            dataField: "ThoiGian",
-                            caption: "Thời gian",
-                            width: 100,
-                            allowEditing: false, 
-                        },
-                        {
-                            dataField: "Loai",
-                            caption: "Loại chấm không thành",
-                            width: 80, allowEditing: false,
-                        },
-                        {
-                            dataField: "Ca",
-                            caption: "Ca",
-                            width: 80, 
-                        },
-                        {
-                            dataField: "TenTrangThaiDuyet",
-                            caption: "Tên trạng thái",
-                            width: 80,
-                        },
-                        {
-                            dataField: "TenNguoiDuyet",
-                            caption: "Người duyệt",
-                            width: 150,
-                        },
-                        {
-                            dataField: "NguyenNhan",
-                            caption: "Lý do",
-                            width: 150,
-                        },
-                        {
-                            dataField: "GhiChu",
-                            caption: "Ghi chú",
-                            width: 150
-                        }
-                    ]
-                });
                 KTApp.unblockPage();
+                if (rs.indexOf("kt_login_signin_form") > 0) {
+                    ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
+                    setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
+                }
+                else {
+                    $("#danh-sach").dxDataGrid({
+                        dataSource: rs,
+                        remoteOperations: {
+                            paging: true,
+                            filtering: true
+                        },
+                        keyExpr: "IDXacNhanCong",
+                        filterRow: {
+                            visible: true,
+                            applyFilter: "auto"
+                        },
+                        paging: {
+                            pageSize: 20
+                        },
+                        showRowLines: true,
+                        rowAlternationEnabled: true,
+                        showBorders: true,
+                        hoverStateEnabled: true,
+                        allowColumnReordering: true,
+                        allowColumnResizing: true,
+                        columnAutoWidth: true,
+                        pager: {
+                            showPageSizeSelector: true,
+                            allowedPageSizes: [10, 15, 20, 50, 100],
+                            showInfo: true
+                        },
+                        columnFixing: {
+                            enabled: false
+                        },
+
+                        columns: [
+                            {
+                                dataField: "MaNV",
+                                caption: "Mã nhân viên",
+                                width: 100,
+                                allowEditing: false
+                            },
+                            {
+                                dataField: "HoVaTen",
+                                caption: "Họ và tên",
+                                width: 150,
+                                allowEditing: false
+                            },
+                            {
+                                dataField: "TenPhong_PhanXuong",
+                                caption: "Tên phòng/Phân xưởng",
+                                width: 150,
+                                allowEditing: false,
+                            },
+                            {
+                                dataField: "Ngay",
+                                caption: "Ngày",
+                                width: 100,
+                                allowEditing: false,
+                            },
+                            {
+                                dataField: "ThoiGian",
+                                caption: "Thời gian",
+                                width: 100,
+                                allowEditing: false,
+                            },
+                            {
+                                dataField: "Loai",
+                                caption: "Loại chấm không thành",
+                                width: 80, allowEditing: false,
+                            },
+                            {
+                                dataField: "Ca",
+                                caption: "Ca",
+                                width: 80,
+                            },
+                            {
+                                dataField: "TenTrangThaiDuyet",
+                                caption: "Tên trạng thái",
+                                width: 80,
+                            },
+                            {
+                                dataField: "TenNguoiDuyet",
+                                caption: "Người duyệt",
+                                width: 150,
+                            },
+                            {
+                                dataField: "NguyenNhan",
+                                caption: "Lý do",
+                                width: 150,
+                            },
+                            {
+                                dataField: "GhiChu",
+                                caption: "Ghi chú",
+                                width: 150
+                            }
+                        ]
+                    });
+                }
+                
             }).fail(function () { KTApp.unblockPage();});
         }
     </script>
@@ -246,8 +253,12 @@
                         if (rs.code == 1) {
                             ShowToast.success(rs.text, 3000);
                         }
-                        else {
+                        else if (rs.code == 0){
                             Swal.fire("Có lỗi! ", rs.text, "error");
+                        }
+                        else  if (rs.indexOf("kt_login_signin_form") > 0) {
+                            ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
+                            setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
                         }
                     },
                     error: function (err) {

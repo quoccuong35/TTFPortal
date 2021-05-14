@@ -784,13 +784,16 @@
                   });
                   $.post("@Url.Action("EditNhanSu", "NhanSu")", data).done(function (rs) {
                        if (rs.code ==1) {
-                        ShowToast.success('Thành công', 3000);
-                           window.location.href = '@Url.Action("Edit", "NhanSu")?id=' + rs.description;
-                        } else {
+                            ShowToast.success('Thành công', 3000);
+                            window.location.href = '@Url.Action("Edit", "NhanSu")?id=' + rs.description;
+                       } else if(rs.code==0) {
                             KTApp.unblockPage();
                             Swal.fire("Có lỗi! ", rs.text, "error");
-
-                        }
+                       }
+                       else if (rs.indexOf("kt_login_signin_form") > 0) {
+                            ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
+                            setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
+                       }
                   }).fail(function () {
                       KTApp.unblockPage();
                       ShowToast.warning('Có lỗi xảy ra', 3000);
