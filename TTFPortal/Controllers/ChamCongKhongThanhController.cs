@@ -15,9 +15,11 @@ using TTFPortal.Models;
 namespace TTFPortal.Controllers
 {
     [RoleAuthorize(Roles = "0=0,55=1,46=1,44=1")]
+    [Authorize]
     public class ChamCongKhongThanhController : Controller
     {
         // GET: ChamCongKhongThanh
+        [RoleAuthorize(Roles = "0=0,55=1")]
         public ActionResult QLChamCongKhongThanh()
         {
             if (User.Identity.Name == null || User.Identity.Name == "")
@@ -27,6 +29,7 @@ namespace TTFPortal.Controllers
             return View();
         }
         [HttpGet]
+        [RoleAuthorize(Roles = "0=0,55=1")]
         public async Task<JsonResult> getChamCongKhongThanh(string tuNgay, string denNgay, string hoVaTen)
         {
             using (TTF_FACEIDEntities db = new TTF_FACEIDEntities()) {
@@ -645,6 +648,7 @@ namespace TTFPortal.Controllers
         public async Task<JsonResult> GetChamCongKhongThanhBaoCao(string TuNgay, string DenNgay, string MaPhongBan, int SoLan)
         {
             JsonStatus js = new JsonStatus();
+            js.code = 0;
             try
             {
                 using (var db = new SaveDB())
@@ -652,7 +656,6 @@ namespace TTFPortal.Controllers
                     var model = db.Proc_BaoCaoXacNhanCong(TuNgay, DenNgay, MaPhongBan, SoLan, true).ToList();
                     js.code = 1;
                     js.data = model;
-                    js.code = 0;
                 }
             }
             catch (Exception ex)

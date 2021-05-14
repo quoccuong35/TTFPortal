@@ -14,17 +14,19 @@ using TTFPortal.Models;
 
 namespace TTFPortal.Controllers
 {
-    [RoleAuthorize]
+    [Authorize]
+    [RoleAuthorize(Roles = "0=0,42=1,44=1,43=1")]
     public class NghiPhepController : Controller
     {
         // GET: NghiPhep
         // Phep cua ban
+        [RoleAuthorize(Roles = "0=0,42=1")]
         public ActionResult NghiPhepCuaBan()
         {
             return View();
         }
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpGet]
+        [RoleAuthorize(Roles = "0=0,42=1")]
         public async Task<JsonResult> gvNghiPhepPartial(string TuNgay, string DenNgay)
         {
             using (var db = new TTF_FACEIDEntities())

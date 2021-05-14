@@ -15,6 +15,7 @@ using System.Web.Libs;
 namespace TTFPortal.Controllers
 {
     [RoleAuthorize(Roles = "0=0,52=1")]
+    [Authorize]
     public class CongCongTrinhController : Controller
     {
         // GET: CongCongTrinh

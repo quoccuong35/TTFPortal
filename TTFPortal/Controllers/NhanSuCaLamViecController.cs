@@ -15,12 +15,15 @@ using System.Globalization;
 namespace TTFPortal.Controllers
 {
     [RoleAuthorize(Roles = "0=0,52=1")]
+    [Authorize]
     public class NhanSuCaLamViecController : Controller
     {
+        [RoleAuthorize(Roles = "0=0,52=1")]
         public ActionResult QuanLyCalamViec()
         {
             return View();
         }
+        [RoleAuthorize(Roles = "0=0,52=1")]
         public async Task<JsonResult> GetQuanLyCalamViec(string tuNgay, string denNgay, string maNV)
         {
             using (var db = new TTF_FACEIDEntities())
@@ -176,6 +179,7 @@ namespace TTFPortal.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [RoleAuthorize(Roles = "0=0,52=1")]
         public async Task<JsonResult> SaveNhanSuCaLamViec(List<NhanSuCaLamViec> list)
         {
             JsonStatus rs = new JsonStatus();
@@ -213,6 +217,7 @@ namespace TTFPortal.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [RoleAuthorize(Roles = "0=0,52=1")]
         public async Task<JsonResult> DelNhanSuCaLamViec(List<NhanSuCaLamViec> list)
         {
             JsonStatus rs = new JsonStatus();

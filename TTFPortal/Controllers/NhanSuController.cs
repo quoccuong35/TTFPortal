@@ -18,6 +18,7 @@ using DevExpress.XtraReports.UI;
 namespace TTFPortal.Controllers
 {
     [RoleAuthorize]
+    [RoleAuthorize(Roles = "0=0,11=1")]
     public class NhanSuController : Controller
     {
         // GET: NhanSu
@@ -196,7 +197,7 @@ namespace TTFPortal.Controllers
             }
             //return View();
         }
-
+        [RoleAuthorize(Roles = "0=0,11=2")]
         public async Task<JsonResult> ImportFileExcel(HttpPostedFileBase importFile)
         {
             JsonStatus rs = new JsonStatus();
@@ -450,7 +451,7 @@ namespace TTFPortal.Controllers
                             {
                                 sLoi += "Chưa nhập số CMND Cột SoCMND dòng " + (startRow - 1).ToString() + ";";
                             }
-                            else if (objNhanSu != null && objNhanSu.SoCMND.ToString().Trim().ToLower() != value.Trim().ToLower())
+                            else if (objNhanSu != null && objNhanSu.SoCMND !=null && objNhanSu.SoCMND.ToString().Trim().ToLower() != value.Trim().ToLower())
                             {
                                 svalue1 = value;
                                 svalue2 = objNhanSu.SoCMND.ToString();

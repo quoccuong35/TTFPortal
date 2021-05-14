@@ -255,6 +255,7 @@ namespace TTFPortal.Controllers
         }
         [ValidateAntiForgeryToken]
         [HttpPost]
+        [RoleAuthorize(Roles = "0=0,45=2")]
         public JsonResult GuiMail(int id)
         {
             JsonStatus rs = new JsonStatus();
@@ -859,7 +860,6 @@ namespace TTFPortal.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RoleAuthorize(Roles = "0=0,46=1")]
-        [RoleAuthorize(Roles = "0=0,46=1")]
         public JsonResult Mass_Cancel_XacNhanCong(List<int> lid, string LyDo)
         {
             if (User.Identity.Name == null || User.Identity.Name == "")
@@ -1032,6 +1032,7 @@ namespace TTFPortal.Controllers
         public async Task<JsonResult> BaoCaoSoLanXacNhanCongPartial(string TuNgay, string DenNgay, string MaPhongBan, int SoLan)
         {
             JsonStatus js = new JsonStatus();
+            js.code = 0;
             try
             {
                 using (var db = new SaveDB())
@@ -1039,7 +1040,6 @@ namespace TTFPortal.Controllers
                     var model = db.Proc_BaoCaoXacNhanCong(TuNgay, DenNgay, MaPhongBan, SoLan, false).ToList();
                     js.code = 1;
                     js.data = model;
-                    js.code = 0;
                 }
             }
             catch (Exception ex)

@@ -15,18 +15,22 @@ using TTFPortal.Class;
 
 namespace TTFPortal.Controllers
 {
-    [RoleAuthorize]
+    [RoleAuthorize(Roles = "0=0,47=1,44=1,48=1")]
+    [Authorize]
     public class TangCaController : Controller
     {
         // GET: TangCa
+        [RoleAuthorize(Roles = "0=0,47=1")]
         public ActionResult TangCaCuaBan()
         {
             return View();
         }
+        [RoleAuthorize(Roles = "0=0,47=1")]
         public ActionResult Create()
         {
             return View();
         }
+        [RoleAuthorize(Roles = "0=0,47=1")]
         public async Task<JsonResult> GVTangCaCuaBan(string tuNgay, string denNgay)
         {
             using (var db = new TTF_FACEIDEntities())
@@ -747,7 +751,9 @@ namespace TTFPortal.Controllers
             }
             return rv;
         }
-
+        [HttpPost]
+        [RoleAuthorize(Roles = "0=0,47=4")]
+        [ValidateAntiForgeryToken]
         public JsonResult Delete_TangCa(int id)
         {
             JsonStatus rs = new JsonStatus();
@@ -823,6 +829,7 @@ namespace TTFPortal.Controllers
         {
             return View();
         }
+        [RoleAuthorize(Roles = "0=0,48=1")]
         public async Task<JsonResult> GetDuyetTangCa(string tuNgay, string denNgay, string maNV, string maPhongBan)
         {
 
@@ -1463,7 +1470,16 @@ namespace TTFPortal.Controllers
             using (var db = new TTF_FACEIDEntities())
             {
                 JsonStatus model = new JsonStatus();
-                model.data = db.Proc_QuanLyTangCa(tuNgay, denNgay, maPhongBan, maNV).ToList();
+                model.code = 0;
+                try
+                {
+                    model.data = db.Proc_QuanLyTangCa(tuNgay, denNgay, maPhongBan, maNV).ToList();
+                    model.code = 1;
+                }
+                catch (Exception ex)
+                {
+                    model.text = ex.Message;
+                }
                 var rs = Json(model, JsonRequestBehavior.AllowGet);
                 rs.MaxJsonLength = int.MaxValue;
                 return rs;
