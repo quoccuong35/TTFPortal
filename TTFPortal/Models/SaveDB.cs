@@ -110,7 +110,7 @@ namespace TTFPortal.Models
 
                         foreach (var prop in change.OriginalValues.PropertyNames)
                         {
-                            var originalValue = change.OriginalValues[prop].ToString();
+                            var originalValue = change.OriginalValues[prop] !=null?change.OriginalValues[prop].ToString():"";
                             // var currentValue = change.CurrentValues[prop].ToString();
                             TTF_ChangeLogs log = new TTF_ChangeLogs()
                             {
@@ -229,7 +229,7 @@ namespace TTFPortal.Models
 
                         foreach (var prop in change.OriginalValues.PropertyNames)
                         {
-                            var originalValue = change.OriginalValues[prop].ToString();
+                            var originalValue = change.OriginalValues[prop] != null ? change.OriginalValues[prop].ToString() : "";
                             // var currentValue = change.CurrentValues[prop].ToString();
                             TTF_ChangeLogs log = new TTF_ChangeLogs()
                             {

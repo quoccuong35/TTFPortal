@@ -73,7 +73,6 @@ namespace TTFPortal.Models
         public virtual DbSet<TTF_LogChangeEmployees> TTF_LogChangeEmployees { get; set; }
         public virtual DbSet<TTF_Mails> TTF_Mails { get; set; }
         public virtual DbSet<TTF_MaTrixDuyetCongTac> TTF_MaTrixDuyetCongTac { get; set; }
-        public virtual DbSet<TTF_MaTrixDuyetNghiPhep> TTF_MaTrixDuyetNghiPhep { get; set; }
         public virtual DbSet<TTF_MaTrixDuyetTangCa> TTF_MaTrixDuyetTangCa { get; set; }
         public virtual DbSet<TTF_MucKienThuc> TTF_MucKienThuc { get; set; }
         public virtual DbSet<TTF_NganHang> TTF_NganHang { get; set; }
@@ -118,6 +117,7 @@ namespace TTFPortal.Models
         public virtual DbSet<TTF_DeKhaoSat_CauHoi> TTF_DeKhaoSat_CauHoi { get; set; }
         public virtual DbSet<TTF_LoaiCauHoi> TTF_LoaiCauHoi { get; set; }
         public virtual DbSet<TTF_NhanSu_DeKhaoSat_TraLoi> TTF_NhanSu_DeKhaoSat_TraLoi { get; set; }
+        public virtual DbSet<TTF_MaTrixDuyetNghiPhep> TTF_MaTrixDuyetNghiPhep { get; set; }
     
         public virtual ObjectResult<TTF_GET_ALL_NhanSu_Result> TTF_GET_ALL_NhanSu(string maChucVu, string maPhongBan, string maNV, string maTinhTrang, string del)
         {
@@ -865,6 +865,45 @@ namespace TTFPortal.Models
                 new ObjectParameter("nam", typeof(int));
     
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Proc_NgayLe_Result>("Proc_NgayLe", namParameter);
+        }
+    
+        public virtual ObjectResult<Proc_MaTrixNghiPhep_Result> Proc_MaTrixNghiPhep(string maPhongBan, Nullable<int> tuNgay, Nullable<int> denNgay)
+        {
+            var maPhongBanParameter = maPhongBan != null ?
+                new ObjectParameter("maPhongBan", maPhongBan) :
+                new ObjectParameter("maPhongBan", typeof(string));
+    
+            var tuNgayParameter = tuNgay.HasValue ?
+                new ObjectParameter("tuNgay", tuNgay) :
+                new ObjectParameter("tuNgay", typeof(int));
+    
+            var denNgayParameter = denNgay.HasValue ?
+                new ObjectParameter("denNgay", denNgay) :
+                new ObjectParameter("denNgay", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Proc_MaTrixNghiPhep_Result>("Proc_MaTrixNghiPhep", maPhongBanParameter, tuNgayParameter, denNgayParameter);
+        }
+    
+        public virtual ObjectResult<Proc_MaTrixTangCa_Result> Proc_MaTrixTangCa(string maLoaiTangCa)
+        {
+            var maLoaiTangCaParameter = maLoaiTangCa != null ?
+                new ObjectParameter("maLoaiTangCa", maLoaiTangCa) :
+                new ObjectParameter("maLoaiTangCa", typeof(string));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Proc_MaTrixTangCa_Result>("Proc_MaTrixTangCa", maLoaiTangCaParameter);
+        }
+    
+        public virtual ObjectResult<Proc_GetDuAn_Result> Proc_GetDuAn(string maDuAn, string maCaLamViec)
+        {
+            var maDuAnParameter = maDuAn != null ?
+                new ObjectParameter("maDuAn", maDuAn) :
+                new ObjectParameter("maDuAn", typeof(string));
+    
+            var maCaLamViecParameter = maCaLamViec != null ?
+                new ObjectParameter("maCaLamViec", maCaLamViec) :
+                new ObjectParameter("maCaLamViec", typeof(string));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Proc_GetDuAn_Result>("Proc_GetDuAn", maDuAnParameter, maCaLamViecParameter);
         }
     }
 }

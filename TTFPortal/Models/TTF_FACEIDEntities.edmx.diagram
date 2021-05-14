@@ -51,7 +51,6 @@
         <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_LogChangeEmployees" Width="1.5" PointX="18.75" PointY="17.75" IsExpanded="true" />
         <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_Mails" Width="1.5" PointX="0.75" PointY="19.75" IsExpanded="true" />
         <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_MaTrixDuyetCongTac" Width="1.5" PointX="14.75" PointY="19.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_MaTrixDuyetNghiPhep" Width="1.5" PointX="20.75" PointY="0.75" IsExpanded="true" />
         <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_MaTrixDuyetTangCa" Width="1.5" PointX="20.75" PointY="5.75" IsExpanded="true" />
         <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_MucKienThuc" Width="1.5" PointX="20.75" PointY="9.75" IsExpanded="true" />
         <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_NganHang" Width="1.5" PointX="20.75" PointY="13.75" IsExpanded="true" />
@@ -96,6 +95,7 @@
         <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_DeKhaoSat_CauHoi" Width="1.5" PointX="7.375" PointY="28.75" />
         <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_LoaiCauHoi" Width="1.5" PointX="17.375" PointY="28.75" />
         <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_NhanSu_DeKhaoSat_TraLoi" Width="1.5" PointX="19.375" PointY="28.75" />
+        <EntityTypeShape EntityType="TTF_FACEIDModel.TTF_MaTrixDuyetNghiPhep" Width="3.375" PointX="25.375" PointY="28.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
