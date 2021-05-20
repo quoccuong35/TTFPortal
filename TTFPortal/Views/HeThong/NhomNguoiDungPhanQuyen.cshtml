@@ -64,7 +64,7 @@
             <li class="nav-item ">
                 <a class="nav-link active" data-toggle="tab" href="#tab_thongtin">
                     <span class="nav-icon">
-                        <i class="icon-xl fas fa-user-friends"></i>
+                        <i class="icon-ml fas fa-user-friends"></i>
                     </span>
                     <span class="nav-text">Thông tin nhóm</span>
                 </a>
@@ -94,7 +94,7 @@
     </div>
     <div class="card-body">
         <div class="tab-content">
-            <div class="tab-pane fade  active show" id="tab_hoso" role="tabpanel" aria-labelledby="tab_thongtin">
+            <div class="tab-pane fade  active show" id="tab_thongtin" role="tabpanel" aria-labelledby="dd">
                 <h5 class="text-dark font-weight-bold my-1 mr-5">
                     <input type="text" value="@ViewBag.TenNhomNguoiDung" class="form-control" />
                 </h5>
@@ -420,7 +420,7 @@
                                 KTApp.unblockPage();
                                 Swal.fire("Có lỗi!", rs.text, "error");
                            }
-                           else {
+                           else if (rs.indexOf("kt_login_signin_form") > 0) {
                                  ShowToast.info('Hết thời gian thao tác đăng nhập lại', 4000);
                                  window.location.href = '@Url.Action("Login", "Account")?';
                             }

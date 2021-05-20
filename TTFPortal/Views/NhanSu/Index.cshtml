@@ -49,37 +49,40 @@
 }
 @section Header{
     <div class="d-flex align-items-center flex-wrap mr-1">
+        <div class="form-group row">
+            <div class="col-12">
+                <input type="text" id="txt-manv" class="form-control" placeholder="Nhập mã/họ tên rồi enter">
+            </div>
+        </div>
     </div>
     <div class="d-flex">
-        <div id="Mobile">
-            @if (User.IsInRole("11=2") || User.IsInRole("0=0"))
-            {
-                <a class="btn btn-primary font-weight-bolder mr-2" title="@Resources.App.ThemMoi" href="@Url.Action("Create","NhanSu")" >
-                    <i class="icon-md fas fa-plus"></i>
-                    @Resources.App.ThemMoi
-                </a>
-            }
-            @if (User.IsInRole("11=2") || User.IsInRole("0=0"))
-            {
-                <button type="button" class="btn btn-info font-weight-bolder mr-2" id="btn-chonfile"  data-toggle="modal" data-target="#ImportModal" >
-                    <i class="icon-md fas fa-long-arrow-alt-up"></i> @Resources.App.DocFileXecel
-                </button>
-            }
-            @if (User.IsInRole("11=2") || User.IsInRole("0=0") || ViewBag.MaPhongBan == "HCNS")
-            {
-                <button type="button" class="btn btn-success font-weight-bolder mr-2" onclick="XuatFileExcel()">
-                    <i class="icon-md fas fa-file-export"></i> @Resources.App.XuatFileExcel
-                </button>
-            }
-            @* <a href="@Url.Action("ExportFileImportNhanSu","NhanSu")" class="btn btn-info font-weight-bolder mr-2" ><i class="icon-lg far fa-file-excel"></i> @Resources.App.ExcelFileMau</a>*@
-            <button type="button" class="btn btn-light-primary font-weight-bolder mr-2" data-toggle="modal" data-target="#ModalFilter" >
-                <i class="icon-md fas fa-filter"></i> @Resources.App.BoLoc
+        @if (User.IsInRole("11=2") || User.IsInRole("0=0"))
+        {
+            <a class="btn btn-primary font-weight-bolder mr-2" title="@Resources.App.ThemMoi" href="@Url.Action("Create","NhanSu")">
+                <i class="icon-md fas fa-plus"></i>
+                @Resources.App.ThemMoi
+            </a>
+        }
+        @if (User.IsInRole("11=2") || User.IsInRole("0=0"))
+        {
+            <button type="button" class="btn btn-info font-weight-bolder mr-2" id="btn-chonfile" data-toggle="modal" data-target="#ImportModal">
+                <i class="icon-md fas fa-long-arrow-alt-up"></i> @Resources.App.DocFileXecel
             </button>
-            <button type="button" class="btn btn-warning" onclick="TimKiem()">
-                <i class="icon-md fas fa-search"></i>
-                @Resources.App.TimKiem
+        }
+        @if (User.IsInRole("11=2") || User.IsInRole("0=0") || ViewBag.MaPhongBan == "HCNS")
+        {
+            <button type="button" class="btn btn-success font-weight-bolder mr-2" onclick="XuatFileExcel()">
+                <i class="icon-md fas fa-file-export"></i> @Resources.App.XuatFileExcel
             </button>
-        </div>
+        }
+        @* <a href="@Url.Action("ExportFileImportNhanSu","NhanSu")" class="btn btn-info font-weight-bolder mr-2" ><i class="icon-lg far fa-file-excel"></i> @Resources.App.ExcelFileMau</a>*@
+        <button type="button" class="btn btn-light-primary font-weight-bolder mr-2" data-toggle="modal" data-target="#ModalFilter">
+            <i class="icon-md fas fa-filter"></i> @Resources.App.BoLoc
+        </button>
+        <button type="button" class="btn btn-warning" onclick="TimKiem()">
+            <i class="icon-md fas fa-search"></i>
+            @Resources.App.TimKiem
+        </button>
     </div>
 }
 <div class="row">
@@ -208,6 +211,7 @@
         }
         function LoadGrid(data) {
             var wh = $(window).height();
+            $('#list_danh_sach').height(wh - 200);
             $("#list_danh_sach").dxDataGrid({
                 dataSource: data,
                 showRowLines: true,
@@ -358,6 +362,17 @@
             LoadData();
             //$("#ModalFilter").hide();
         }
+        $("#txt-manv").on('keyup', function (event) {
+            if (event.keyCode === 13) {
+                if ($("#txt-manv").val() == "" || $("#txt-manv").val().length == 0)
+                    return;
+                MaNV = $('#txt-manv').val();
+                TinhTrang = "";
+                MaChucVu = "";
+                MaPhongBan = "";
+                LoadData();
+            }
+        });
         function LuuImportExcel() {
             var formData = new FormData();
             var files = $("#UploadedFile").get(0).files;

@@ -1,0 +1,188 @@
+﻿@using TTFPortal.Models;
+@model Proc_GetNguoiDung_Result
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = Resources.App.HeThongNguoiDung;
+}
+@section ScriptsFile{
+    <style>
+        .color_status {
+            cursor: default;
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            border: 1px solid #c3c3c3;
+            border-radius: 50%;
+            margin-top: 7px;
+        }
+
+        .dx-datagrid .dx-header-filter {
+            position: relative;
+            color: blue;
+            font: 14px/1 DXIcons;
+        }
+
+        .dx-datagrid .dx-header-filter-empty {
+            color: rgba(149,149,149,.5);
+        }
+    </style>
+}
+@section Link{
+    <div class="d-flex align-items-center flex-wrap mr-1">
+        <div class="d-flex align-items-baseline flex-wrap mr-5">
+            <ul class="breadcrumb breadcrumb-transparent breadcrumb-dot font-weight-bold p-0 my-2 ">
+                <li class="breadcrumb-item text-muted">
+                    <a href="" class="text-muted">@Resources.Menu.HeThong</a>
+                </li>
+                <li class="breadcrumb-item text-muted">
+                    <a href="@Url.Action("NguoiDung","HeThong")" class="text-muted">@Resources.Menu.HeThongNguoiDung</a>
+                </li>
+                <li class="breadcrumb-item text-muted">
+                    <a href="" class="text-muted">@Resources.App.HeThongNguoiDung</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+}
+@section Header{
+    <div class="d-flex align-items-center flex-wrap mr-1">
+    </div>
+    <div class="d-flex align-items-center">
+        <a href="@Url.Action("NguoiDung","HeThong")" class="btn btn-default font-weight-bold  px-2 font-size-base  mr-2"> <i class="icon-md fas fa-arrow-left"></i> @Resources.App.QuayLai</a>
+        @if (User.IsInRole("42=2") || User.IsInRole("0=0"))
+        {
+            <a href="@Url.Action("NguoiDungChiTiet", "HeThong")" class="btn btn-info font-weight-bold  px-2 font-size-base  mr-2"> <i class="icon-md fas fa-sync"></i> @Resources.App.NhapLai</a>
+            <button type="submit" class="btn btn-warning" id="btn-capnhat" onclick="SaveNguoiDung()">
+                <i class="icon-md far fa-save"></i>
+                @Resources.App.CapNhat
+            </button>
+        }
+    </div>
+}
+<div class="container">
+    <!--begin::Card-->
+    <div class="card card-custom">
+        <div class="card-header">
+            <h3 class="card-title">Thông tin người dùng</h3>
+        </div>
+        <!--begin::Form-->
+        <form>
+            <div class="card-body center">
+                <div class="form-group row">
+                    <div class="col-lg-4">
+                        <label class="form-labe">Mã nhân viên</label>
+                        <input type="text" id="txt-manv" name="txt-manv" class="form-control" value="@Model.MaNV" @{ViewContext.Writer.Write(Model.NGUOIDUNG > 0 ? "readonly" : "");}/>
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-labe">Họ và tên</label>
+                        <input type="text" id="txt-hoten" name="txt-hoten" class="form-control" readonly  value="@Model.HoVaTen"/>
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-labe">Phòng ban/Bộ phận </label>
+                        <input type="text" id="txt-phongban" name="txt-phongban" class="form-control" readonly value="@Model.TenPhong_PhanXuong" />
+                    </div>
+                    <input type="hidden" id="txt-nhansu" name="txt-nhansu" value="@Model.NhanSu"/>
+                </div>
+                <div class="form-group row">
+                    <input type="hidden" id="txt-nguoidung" name="txt-nguoidung" value="@Model.NGUOIDUNG" />
+                    <div class="col-lg-4">
+                        <label class="form-labe">Tài khoản</label>
+                        <input type="text" id="txt-taikhoan" name="txt-taikhoan" class="form-control" readonly value="@Model.TAIKHOAN" />
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-labe">Nhóm người dùng</label>
+                        <div id="select-nhomnguoidung">
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <label class="checkbox" style="padding-top:20%">
+                            <input type="checkbox" name="chk-hoatdong" id="chk-hoatdong">
+                            <span></span>&nbsp; Hoạt động
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <!--end::Form-->
+    </div>
+    <!--end::Card-->
+</div>
+@section CustomScripts{
+    <script type="text/javascript">
+        $(function () {
+            setNhomNguoiDung('select-nhomnguoidung',@Html.Raw(TTFPortal.Class.DanhMuc.NhomNguoiDung()), true, 'Nhóm người dùng', Number('@Model.NHOMNGUOIDUNG') > 0 ? Number('@Model.NHOMNGUOIDUNG') : null);
+             if ("@Model.HOATDONG" == "True") {
+                 $("#chk-hoatdong").prop("checked", true);
+            }
+        })
+        $("#txt-manv").on('keyup', function (event) {
+            if (event.keyCode === 13) {
+                MaNV = $("#txt-manv").val();
+                TimNhanVien();
+            }
+        });
+        function TimNhanVien() {
+            $.post("@Url.Action("TimNhanVien","HeThong")", { MaNV: MaNV }).done(function (rs) {
+                if (rs.code == 0) {
+                    Swal.fire("Có lỗi! ", rs.text, "error");
+                    $("#txt-manv").val("");
+                    $("#txt-nhansu").val("");
+                    $("#txt-hoten").val("");
+                    $("#txt-phongban").val("");
+                    $("#txt-taikhoan").val("");
+                }
+                else if (rs.code == 1) {
+                    $("#txt-manv").val(rs.data.MaNV);
+                    $("#txt-nhansu").val(rs.data.NhanSu);
+                    $("#txt-hoten").val(rs.data.HoVaTen);
+                    $("#txt-phongban").val(rs.data.TenPhongBan);
+                    $("#txt-taikhoan").val(rs.data.EMail.replace("@@truongthanh.com",""));
+                }
+                else if (rs.indexOf("kt_login_signin_form") > 0) {
+                     ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
+                     setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
+                }
+            }).fail(function (error) { });
+        }
+        function SaveNguoiDung() {
+            var data = {},validate = true;;
+            data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+            data.NGUOIDUNG = $("#txt-nguoidung").val();
+            data.HoVaTen = $("#txt-hoten").val();;
+            data.TAIKHOAN = $("#txt-taikhoan").val();
+            if (!data.TAIKHOAN) {
+                ShowToast.info('Chưa có thông tin tài khoản', 3000);
+                return;
+            }
+            data.NhanSu = $("#txt-nhansu").val();
+            data.HOATDONG = $("#chk-hoatdong").prop("checked") ? true : false;
+            data.NHOMNGUOIDUNG = $("#select-nhomnguoidung").dxSelectBox("instance").option('value');
+            if (!data.NHOMNGUOIDUNG) {
+                $('#select-nhomnguoidung').dxValidator('instance').validate();
+                validate = false;
+            }
+            if (validate) {
+                KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang lưu thông tin...' });
+                $.post('@Url.Action("LuuNguoiDung", "HeThong")', data).done(function (rs) {
+                    KTApp.unblockPage();
+                    if (rs.code == 1) {
+                        ShowToast.success('Thành công', 3000);
+                        window.location.href = '@Url.Action("NguoiDungChiTiet", "HeThong")?id=' + rs.description;
+                    }
+                    else if(rs.code==0){
+                         Swal.fire("Có lỗi!", rs.text, "error");
+                    }
+                    else if (rs.indexOf("kt_login_signin_form") > 0) {
+                         ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
+                         setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
+                    }
+
+            }).fail(function () {
+                KTApp.unblockPage();
+                TimKiem()
+             });
+            }
+            
+        }
+    </script>
+}

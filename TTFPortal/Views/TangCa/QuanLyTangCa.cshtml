@@ -151,7 +151,7 @@
             $.get("@Url.Action("GetQuanLyTangCa", "TangCa")", data).done(function (rs) {
                 KTApp.unblockPage();
                 if (rs.code == 1) {
-                                   $("#danh-sach").dxDataGrid({
+                $("#danh-sach").dxDataGrid({
                         dataSource: rs.data,
                         selection: {
                             mode: "multiple"

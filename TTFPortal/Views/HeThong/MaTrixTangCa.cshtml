@@ -203,17 +203,20 @@
             data.GhiChu = e.data.GhiChu;
             KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang lưu thông tin...' });
             $.post('@Url.Action("AddMatrixTangCa", "HeThong")', data).done(function (rs) {
-                if (rs.code == "1") {
+                if (rs.code == 1) {
                     KTApp.unblockPage();
                     ShowToast.success('Thành công', 3000);
                     TimKiem();
                 }
-                else {
+                else if (rs.code == 0){
                     TimKiem();
                     KTApp.unblockPage();
                         Swal.fire("Có lỗi!", rs.text, "error");
                 }
-
+                else if (rs.indexOf("kt_login_signin_form") > 0) {
+                     ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
+                     setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
+                }
             }).fail(function () {
                 KTApp.unblockPage();
                 TimKiem()
@@ -233,13 +236,18 @@
                         ShowToast.success("Thành công", 3000);
                         TimKiem();
                     }
-                    else {
+                    else if (rs.code == 0){
                         TimKiem();
-                        Swal.fire("Có lỗi!", rs.text, "error");
+                        KTApp.unblockPage();
+                            Swal.fire("Có lỗi!", rs.text, "error");
                     }
-                    }).fail(function () {
+                    else if (rs.indexOf("kt_login_signin_form") > 0) {
+                         ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
+                         setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
+                    }
+                }).fail(function () {
                         TimKiem();
-                    });
+                });
         }
         function XoaMatrixTangCa(Id) {
                         KTApp.blockPage({
@@ -257,14 +265,15 @@
                                     ShowToast.success( rs.text,3000);
                                     TimKiem();
                                 }
-                                else if (rs.code == 0) {
-                                    Swal.fire("Có lỗi! ", rs.text, "error");
+                                else if (rs.code == 0){
                                     TimKiem();
+                                    KTApp.unblockPage();
+                                        Swal.fire("Có lỗi!", rs.text, "error");
                                 }
-                                else {
-                                     ShowToast.info('Hết thời gian thao tác đăng nhập lại', 4000);
-                                     window.location.href = '@Url.Action("Login", "Account")?';
-                                 }
+                                else if (rs.indexOf("kt_login_signin_form") > 0) {
+                                     ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
+                                     setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
+                                }
                             }).fail(function () {
                                 KTApp.unblockPage();
                             });

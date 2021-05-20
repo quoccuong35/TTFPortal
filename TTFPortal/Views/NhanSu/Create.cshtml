@@ -105,7 +105,7 @@
                                     <!--begin::Top-->
                                     <div class="d-flex">
                                         <!--begin::Pic-->
-                                        <div class="flex-shrink-0 mr-5">
+                                        <div class="flex-shrink-0 mr-5" id="Mobile">
                                             <div class="col-lg-9 col-xl-6">
                                                 <div class="image-input image-input-outline" id="kt_image_4">
                                                     <div class="image-input-wrapper"></div>
@@ -182,9 +182,6 @@
                                                 <label class="form-label">Bộ phận</label>
                                                 <input type="text" id="txt-bophan" class="form-control" placeholder="Bộ phận">
                                             </div>
-
-
-
                                         </div>
                                     </div>
                                     <!--end::Top-->
@@ -462,6 +459,7 @@
     <script type="text/javascript">
         $('body').addClass('subheader-fixed');
         var date = new Date();
+        var isMobile = false;
         var KTImageInputDemo = function () {
 	        // Private functions
 	        var initDemos = function () {
@@ -552,6 +550,10 @@
 	        };
         }();
         $(function () {
+            isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            if (isMobile) {
+                $("#Mobile").css("display", "none");
+            }
             setPhongBan('select-phongban',@Html.Raw(TTFPortal.Class.DanhMuc.DMPhongBan()), true, 'Phòng/Phân xưởng');
             setChucVu('select-chucvu',@Html.Raw(TTFPortal.Class.DanhMuc.DMChuVu()), true, 'Chức vụ');
             setTinhTrang('select-tinhtrang',@Html.Raw(TTFPortal.Class.DanhMuc.DMTinhTrang()), true, 'Tình trạng','1');

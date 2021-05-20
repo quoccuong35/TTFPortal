@@ -55,10 +55,7 @@
         </div>
     </div>
     <div class="d-flex">
-        <button type="submit" class="btn btn-primary mr-2" id="btn-capnhat" onclick="ThemMoi()">
-            <i class="icon-md fas fa-plus"></i>
-            @Resources.App.ThemMoi
-        </button>
+       
         <button type="button" class="btn btn-warning" onclick="TimKiem()" title=" @Resources.App.TimKiem">
             <i class="icon-md fas fa-search"></i>
             @Resources.App.TimKiem
@@ -242,9 +239,9 @@
                     KTApp.unblockPage();
                         Swal.fire("Có lỗi!", rs.text, "error");
                 }
-                else {
-                     ShowToast.info('Hết thời gian thao tác đăng nhập lại', 4000);
-                     window.location.href = '@Url.Action("Login", "Account")?';
+                else if (rs.indexOf("kt_login_signin_form") > 0){
+                     ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
+                     setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
                 }
 
             }).fail(function () {
@@ -270,20 +267,16 @@
                         TimKiem();
                         Swal.fire("Có lỗi!", rs.text, "error");
                     }
-                    else {
-                     ShowToast.info('Hết thời gian thao tác đăng nhập lại', 4000);
-                     window.location.href = '@Url.Action("Login", "Account")?';
+                    else if (rs.indexOf("kt_login_signin_form") > 0){
+                         ShowToast.info('Hết thời gian thao tác đăng nhập lại', 3000);
+                         setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
                     }
                 }).fail(function () {
                         TimKiem();
                     });
         }
         function XoaDuAn(maDuAn) {
-                        KTApp.blockPage({
-                            overlayColor: '#000000',
-                            state: 'primary',
-                            message: 'Đang xóa...'
-                        });
+            KTApp.blockPage({overlayColor: '#000000', state: 'primary',message: 'Đang xóa...'});
                         try {
                             var data = {};
                             data.maDuAn = maDuAn;
@@ -298,9 +291,9 @@
                                     Swal.fire("Có lỗi! ", rs.text, "error");
                                     TimKiem();
                                 }
-                                else {
-                                     ShowToast.info('Hết thời gian thao tác đăng nhập lại', 4000);
-                                     window.location.href = '@Url.Action("Login", "Account")?';
+                                else if (rs.indexOf("kt_login_signin_form") > 0){
+                                     ShowToast.info('Hết thời gian thao tác đăng nhập lại', 3000);
+                                     setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
                                  }
                             }).fail(function () {
                                 KTApp.unblockPage();

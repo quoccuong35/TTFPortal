@@ -245,9 +245,9 @@
                     KTApp.unblockPage();
                         Swal.fire("Có lỗi!", rs.text, "error");
                 }
-                else {
+                else if (rs.indexOf("kt_login_signin_form") > 0){
                      ShowToast.info('Hết thời gian thao tác đăng nhập lại', 4000);
-                     window.location.href = '@Url.Action("Login", "Account")?';
+                     setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
                 }
 
             }).fail(function () {
@@ -273,9 +273,9 @@
                         TimKiem();
                         Swal.fire("Có lỗi!", rs.text, "error");
                     }
-                    else {
+                    else if (rs.indexOf("kt_login_signin_form") > 0){
                      ShowToast.info('Hết thời gian thao tác đăng nhập lại', 4000);
-                     window.location.href = '@Url.Action("Login", "Account")?';
+                     setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
                     }
                 }).fail(function () {
                       TimKiem();
@@ -301,9 +301,9 @@
                                     Swal.fire("Có lỗi! ", rs.text, "error");
                                     TimKiem();
                                 }
-                                else {
+                                else if (rs.indexOf("kt_login_signin_form") > 0){
                                      ShowToast.info('Hết thời gian thao tác đăng nhập lại', 4000);
-                                     window.location.href = '@Url.Action("Login", "Account")?';
+                                     setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
                                  }
                             }).fail(function () {
                                 KTApp.unblockPage();

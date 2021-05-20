@@ -1,0 +1,551 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = Resources.Menu.CongCongThang;
+}
+@section ScriptsFile{
+    <style>
+        .color_status {
+            cursor: default;
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            border: 1px solid #c3c3c3;
+            border-radius: 50%;
+            margin-top: 7px;
+        }
+
+        .dx-datagrid .dx-header-filter {
+            position: relative;
+            color: blue;
+            font: 14px/1 DXIcons;
+        }
+
+        .dx-datagrid .dx-header-filter-empty {
+            color: rgba(149,149,149,.5);
+        }
+
+        .CoYCTC {
+            background-color: #82E0AA !important;
+        }
+
+        .CoXNCVao {
+            background-color: #82E0AA !important;
+        }
+
+        .CoXNCRa {
+            background-color: #82E0AA !important;
+        }
+
+        .Cong {
+            background-color: #FFFF66 !important;
+            align-items: center;
+        }
+
+        .TC {
+            background-color: #FFFF66 !important;
+        }
+
+        .Sau22H {
+            background-color: #FFFF66 !important;
+        }
+
+        .TimeEdit {
+            width: 69px;
+            height: 33px;
+        }
+    </style>
+}
+@section Link{
+    <div class="d-flex align-items-center flex-wrap mr-1">
+
+        <div class="d-flex align-items-baseline flex-wrap mr-5">
+
+            @*<h5 class="text-dark font-weight-bold my-1 mr-5">
+                    Chi tiết yêu cầu #1
+
+                </h5>*@
+            <ul class="breadcrumb breadcrumb-transparent breadcrumb-dot font-weight-bold p-0 my-2 ">
+                <li class="breadcrumb-item text-muted">
+                    <a href="" class="text-muted">@Resources.Menu.Cong</a>
+                </li>
+                <li class="breadcrumb-item text-muted">
+                    <a href="" class="text-muted">@Resources.Menu.CongCongThang</a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+}
+@section Header{
+    <div class="d-flex align-items-center flex-wrap mr-1">
+        <div class="form-group row">
+            <div class="col-lg-2">
+                <label class="form-label">Tháng công</label>
+                <div id="date-thang"></div>
+            </div>
+            <div class="col-lg-3">
+                <label class="form-label">
+                    Phòng/Phân Xưởng
+                </label>
+                <div id="select-phongban">
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <label class="form-label">Mã NV</label>
+                <input type="text" id="txt-manv" class="form-control" placeholder="Nhập mã nhân viên">
+            </div>
+            <div class="col-lg-2">
+                <label class="form-label">Họ tên</label>
+                <input type="text" id="txt-hoten" class="form-control" placeholder="Nhập họ tên">
+            </div>
+        </div>
+    </div>
+    <div class="d-flex">
+
+        @*<button type="button" class="btn btn-success font-weight-bolder mr-2" id="btn-xuatexcel" onclick="LuuCongNgayHieuChinh()" title="@Resources.App.XuatFileExcel">
+                <i class="icon-md fas fa-file-export"></i> @Resources.App.XuatFileExcel
+            </button>*@
+        <div class="dropdown">
+            <button class="btn btn-success font-weight-bolder mr-2" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="icon-ml far fa-edit"></i> Thao tác
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                @if (User.IsInRole("44=1") || User.IsInRole("0=0"))
+                {
+                    @*<a class="dropdown-item" onclick="LuuCongNgayHieuChinh()">Lưu công hiệu chỉnh</a>
+                    <a class="dropdown-item" onclick="XoaCongNgayHieuChinh()">Xóa công hiệu chỉnh</a>
+                    <a class="dropdown-item" href="#">Import công hiệu chỉnh</a>*@
+                    <a class="dropdown-item" href="#" onclick="XuatFileExcel(true)">Xuất file công chọn</a>
+                }
+                <a class="dropdown-item" href="#" onclick="XuatFileExcel(false)">Xuất file công tất cả</a>
+            </div>
+        </div>
+
+        @*<button type="button" class="btn btn-light-primary font-weight-bolder mr-2" data-toggle="modal" data-target="#ModalFilter" title="@Resources.App.BoLoc">
+                <i class="icon-md fas fa-filter"></i> @Resources.App.BoLoc
+            </button>*@
+        <button type="button" class="btn btn-warning" onclick="LoadData()" title=" @Resources.App.TimKiem">
+            <i class="icon-md fas fa-search"></i>
+            @Resources.App.TimKiem
+        </button>
+    </div>
+}
+<div class="row">
+    <div class="col-lg-12" id="mobliesize">
+        <div id="danh-sach"></div>
+    </div>
+</div>
+@section CustomScripts{
+    <script type="text/javascript">
+        var maphongban = "",ngay, manv = "", hovaten = "";
+        var date = new Date();
+        ngay = Globalize.format(date, "yyyy-MM-dd");
+         $(function () {
+           
+            isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            $("#date-thang").dxDateBox({
+                value: ngay,
+                width: '100%',
+                type: "date",
+                displayFormat: 'MM/yyyy',
+                showClearButton: true,
+                onValueChanged: function (data) {
+                    ngay = Globalize.format(data.value, "yyyy-MM-dd");
+                },
+            }).dxDateBox("instance");
+            setPhongBan('select-phongban',@Html.Raw(TTFPortal.Class.DanhMuc.DMPhongBan()), false, 'Phòng/Phân xưởng');
+             //LoadData();
+        });
+        function LoadData() {
+            try {
+                KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang tải dữ liệu...' });
+                var data = {};
+                maphongban = $("#select-phongban").dxSelectBox("instance").option('value');
+                manv = $("#txt-manv").val();
+                hovaten = $("#txt-hoten").val();
+                date = new Date(ngay);
+                //alert(date.getMonth());
+                //return;
+                data.thang = date.getMonth() + 1;
+                data.nam = date.getFullYear();
+                data.maPhongBan = maphongban;
+                data.maNV = manv;
+                data.hoVaTen = hovaten;
+                $.get("@Url.Action("XemCongThang", "Cong")", data).done(function (rs) {
+                    KTApp.unblockPage();
+                    if (rs.code == 1) {
+                        getColumnView(rs.data.ListNgayCong)
+                        LoadGrid(rs.data.ListCongThang);
+                    }
+                    else if (rs.code == 0) {
+                       Swal.fire("Có lỗi! ", rs.text, "error");
+                    }
+                    else if (rs.indexOf("kt_login_signin_form") > 0) {
+                       ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
+                       setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
+                    }
+                    
+                }).fail(function () { KTApp.unblockPage(); });
+            } catch (e) {
+                KTApp.unblockPage();
+            }
+        }
+        var datacolumns = [];
+        function LoadGrid(data) {
+            var wh = $(window).height();
+            $('#danh-sach').height(wh - 200);
+            $("#danh-sach").dxDataGrid({
+                dataSource: data,
+                selection: {
+                    mode: "multiple"
+                },
+                remoteOperations: {
+                    paging: true,
+                    filtering: true
+                },
+                filterRow: {
+                    visible: true,
+                    applyFilter: "auto"
+                },
+                paging: {
+                    pageSize: 50
+                },
+                headerFilter: {
+                    visible: true
+                },
+                export: {
+                    enabled: true,
+                    fileName: "CongNgay",
+                    allowExportSelectedData: true
+                },
+                showRowLines: true,
+                rowAlternationEnabled: false,
+                showBorders: true,
+                hoverStateEnabled: true,
+                allowColumnReordering: true,
+                columnHidingEnabled: isMobile,
+                allowColumnResizing: true,
+                columnAutoWidth: true,
+                columnChooser: {
+                    enabled: true
+                },
+                pager: {
+                    showPageSizeSelector: true,
+                    allowedPageSizes: [10, 15, 20, 50, 100],
+                    showInfo: true
+                },
+                export: {
+                    enabled: true
+                },
+                onExporting: function (e) {
+                    var workbook = new ExcelJS.Workbook();
+                    var worksheet = workbook.addWorksheet('CongThang');
+
+                    DevExpress.excelExporter.exportDataGrid({
+                        component: e.component,
+                        worksheet: worksheet,
+                        keepColumnWidths: true,
+                        customizeCell: function (options) {
+                            var gridCell = options.gridCell;
+                            var excelCell = options.excelCell;
+
+                            //if (gridCell.rowType === "data") {
+
+                            //    if (gridCell.column.dataField === 'InTime' && gridCell.data.CoXNCVao == true) {
+                            //        excelCell.fill = {
+                            //            type: 'pattern',
+                            //            pattern: 'solid',
+                            //            fgColor: { argb: '82E0AA' }
+                            //        }
+                            //    }
+                            //    else if (gridCell.column.dataField === 'OutTime' && gridCell.data.CoXNCRa == true) {
+                            //        excelCell.fill = {
+                            //            type: 'pattern',
+                            //            pattern: 'solid',
+                            //            fgColor: { argb: '82E0AA' }
+                            //        }
+                            //    }
+                            //    else if (gridCell.column.dataField === 'TangCa' && gridCell.data.CoYCTangCa == true) {
+                            //        excelCell.fill = {
+                            //            type: 'pattern',
+                            //            pattern: 'solid',
+                            //            fgColor: { argb: '82E0AA' }
+                            //        }
+                            //    }
+                            //}
+                        }
+                    }).then(function () {
+                        workbook.xlsx.writeBuffer().then(function (buffer) {
+                            saveAs(new Blob([buffer], { type: "application/octet-stream" }), "CongThang.xlsx");
+                        });
+                    });
+                    e.cancel = true;
+                },
+                columnFixing: {
+                    enabled: false
+                },
+                columns: datacolumns,
+                onRowPrepared: function (e) {
+                    e.rowElement.css({ height: 25 });
+                    e.rowElement.css('background-color', '#FFFFFF')
+                    e.rowElement.css
+                    //if (e.rowType == 'data' && e.data.TrangThai == "HC") {
+                    //    e.rowElement.css('background-color', '#a9d08f')
+                    //}
+                    //else {
+                    //    e.rowElement.css('background-color', '#FFFFFF')
+                    //    e.rowElement.css
+                    //}
+                },
+
+            });
+        }
+        // lấy định dạng cột Gridview
+        function getColumnView(data) {
+            datacolumns = [];
+            var add = new Array();
+            add["dataField"] = "STT";
+            add["caption"] = "STT";
+            add["width"] = 50;
+            add["allowEditing"] = false
+            add["fixed"] = true
+            add["alignment"] = 'center';
+            add["allowFiltering"] = false;
+            datacolumns.push(add);
+            // Add thong tin nhan vien
+            var addrrayitem = []
+            var add = new Array();
+
+            add["dataField"] = "TenPhong_PhanXuong";
+            add["caption"] = "Bộ phận";
+            add["allowEditing"] = false
+            add["fixed"] = true
+            addrrayitem.push(add);
+            add = new Array();
+            add["dataField"] = "TenToChuyen";
+            add["caption"] = "Tổ";
+            add["allowEditing"] = false
+            add["fixed"] = true
+            addrrayitem.push(add);
+
+            add = new Array();
+            add["dataField"] = "TenChucVu";
+            add["caption"] = "Chức vụ";
+            add["allowEditing"] = false
+            add["fixed"] = true
+            addrrayitem.push(add);
+
+            add = new Array();
+            add["dataField"] = "MSNV";
+            add["caption"] = "MSNV";
+            add["allowEditing"] = false
+            add["fixed"] = true
+            addrrayitem.push(add);
+
+            add = new Array();
+            add["dataField"] = "MaChamCong";
+            add["caption"] = "MSCC";
+            add["allowEditing"] = false
+            add["fixed"] = true
+            addrrayitem.push(add);
+
+            add = new Array();
+            add["dataField"] = "HoVaTen";
+            add["caption"] = " Họ và tên";
+            add["allowEditing"] = false
+            add["fixed"] = true
+            addrrayitem.push(add);
+
+            add = new Array();
+            add["dataField"] = "SoNgayPhepConLai";
+            add["caption"] = "Phép năm CL";
+            add["allowEditing"] = false
+            add["fixed"] = true
+            add["alignment"] = 'center';
+            add["allowFiltering"] = false;
+            addrrayitem.push(add);
+
+            add = new Array();
+            add["dataField"] = "NgayCongChuan";
+            add["caption"] = "Công chuẩn";
+            add["allowEditing"] = false
+            add["alignment"] = 'center';
+            add["allowFiltering"] = false;
+            add["fixed"] = true
+            addrrayitem.push(add);
+            add = new Array();
+            add["dataField"] = "TenLoaiCong";
+            add["caption"] = "Công";
+            add["allowEditing"] = false
+            add["alignment"] = 'center';
+            add["allowFiltering"] = false;
+            add["fixed"] = true
+            addrrayitem.push(add);
+            add = new Array();
+            add["caption"] = "Thông tin nhân viên";
+            add["columns"] = addrrayitem;
+            datacolumns.push(add);
+            /// Lay thong tin cong
+            addrrayitem = []
+            for (var i = 0; i < data.length; i++) {
+                add = new Array();
+                add["dataField"] = "Cot" + data[i]["STT"].toString();
+                add["caption"] = data[i]["HeaderText"].toString();
+                add["allowEditing"] = false
+                add["alignment"] = 'center';
+                add["allowFiltering"] = false;
+                add["allowFixing"] = false;
+                addrrayitem.push(add);
+            }
+            add = new Array();
+            add["caption"] = "Thông tin ngày công";
+            add["columns"] = addrrayitem;
+            datacolumns.push(add);
+
+            addrrayitem = []
+            add = new Array();
+            add["dataField"] = "DLCong";
+            add["caption"] = "Dữ liệu công";
+            add["allowEditing"] = false
+            add["alignment"] = 'center';
+            add["allowFiltering"] = false;
+            addrrayitem.push(add);
+
+            add = new Array();
+            add["dataField"] = "SoNgayCT_NB";
+            add["caption"] = "Số ngày CT/Nghỉ bù";
+            add["allowEditing"] = false
+            add["alignment"] = 'center';
+            add["allowFiltering"] = false;
+            addrrayitem.push(add);
+
+            add = new Array();
+            add["dataField"] = "TongNC";
+            add["caption"] = "Tổng ngày công";
+            add["allowEditing"] = false
+            add["alignment"] = 'center';
+            add["allowFiltering"] = false;
+            addrrayitem.push(add);
+
+            add = new Array();
+            add["dataField"] = "TongNCHC";
+            add["caption"] = "Tổng ngày công hiệu chỉnh";
+            add["allowEditing"] = false
+            add["alignment"] = 'center';
+            add["allowFiltering"] = false;
+            addrrayitem.push(add);
+
+            add = new Array();
+            add["dataField"] = "TCThuong";
+            add["caption"] = "TC thường";
+            add["allowEditing"] = false
+            add["alignment"] = 'center';
+            add["allowFiltering"] = false;
+            addrrayitem.push(add);
+
+            add = new Array();
+            add["dataField"] = "TCSau22H";
+            add["caption"] = "TC sau 22h";
+            add["allowEditing"] = false
+            add["alignment"] = 'center';
+            add["allowFiltering"] = false;
+            addrrayitem.push(add);
+
+            add = new Array();
+            add["dataField"] = "TCCN";
+            add["caption"] = "TC CN";
+            add["allowEditing"] = false
+            add["alignment"] = 'center';
+            add["allowFiltering"] = false;
+            addrrayitem.push(add);
+
+            add = new Array();
+            add["dataField"] = "TCCNSau22H";
+            add["caption"] = "Tăng ca CN sau 22h";
+            add["allowEditing"] = false
+            add["alignment"] = 'center';
+            add["allowFiltering"] = false;
+            addrrayitem.push(add);
+
+            add = new Array();
+            add["dataField"] = "TCLe";
+            add["caption"] = "TC lễ";
+            add["allowEditing"] = false
+            add["alignment"] = 'center';
+            add["allowFiltering"] = false;
+            addrrayitem.push(add);
+            add = new Array();
+            add["caption"] = "Thông tin công";
+            add["columns"] = addrrayitem;
+            datacolumns.push(add);
+
+            addrrayitem = []
+            add = new Array();
+            add["dataField"] = "PhepNam_Le_TNLD";
+            add["caption"] = "Phép năm+lễ+TNLĐ";
+            add["allowEditing"] = false
+            add["alignment"] = 'center';
+            add["allowFiltering"] = false;
+            addrrayitem.push(add);
+
+            add = new Array();
+            add["dataField"] = "SoNgayLamDem";
+            add["caption"] = "Số ngày làm đêm";
+            add["allowEditing"] = false
+            add["alignment"] = 'center';
+            add["allowFiltering"] = false;
+            addrrayitem.push(add);
+
+            add = new Array();
+            add["dataField"] = "ChuyenCan";
+            add["caption"] = "Chuyên cần";
+            add["allowEditing"] = false
+            add["alignment"] = 'center';
+            add["allowFiltering"] = false;
+            addrrayitem.push(add);
+
+            add = new Array();
+            add["dataField"] = "XNC5LThang";
+            add["caption"] = "XNC 5L/tháng";
+            add["allowEditing"] = false
+            add["alignment"] = 'center';
+            add["allowFiltering"] = false;
+            addrrayitem.push(add);
+
+            add = new Array();
+            add["dataField"] = "SoLanDiTreVeSo";
+            add["caption"] = "Số lần Vào trễ/về sớm";
+            add["allowEditing"] = false
+            add["alignment"] = 'center';
+            add["allowFiltering"] = false;
+            addrrayitem.push(add);
+
+            add = new Array();
+            add["dataField"] = "SoNgayDiCongTac";
+            add["caption"] = "Số ngày đi CT";
+            add["allowEditing"] = false
+            add["alignment"] = 'center';
+            add["allowFiltering"] = false;
+            addrrayitem.push(add);
+
+            add = new Array();
+            add["dataField"] = "NghiKhongPhep";
+            add["caption"] = "Nghỉ Không phép";
+            add["allowEditing"] = false
+            add["alignment"] = 'center';
+            add["allowFiltering"] = false;
+            addrrayitem.push(add);
+
+            add = new Array();
+            add["caption"] = "Thông tin thêm";
+            add["columns"] = addrrayitem;
+            datacolumns.push(add);
+        }
+
+        // Xuat excel
+        function XuatFileExcel(bool) {
+            var item = $('#danh-sach').dxDataGrid('instance');
+            $("#danh-sach").dxDataGrid("instance").exportToExcel(bool);
+        }
+    </script>
+}

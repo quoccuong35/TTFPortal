@@ -79,11 +79,11 @@
 @section Header{
     <div class="d-flex align-items-center flex-wrap mr-1">
         <div class="form-group row">
-            <div class="col-lg-2">
+            <div class="col-2">
                 <label class="form-label">Từ ngày</label>
                 <div id="date-tungay"></div>
             </div>
-            <div class="col-lg-2">
+            <div class="col-2">
                 <label class="form-label">Đến ngày</label>
                 <div id="date-denngay"></div>
             </div>
@@ -98,23 +98,36 @@
                 <label class="form-label">Mã NV</label>
                 <input type="text" id="txt-manv" class="form-control" placeholder="Nhập mã nhân viên">
             </div>
-            <div class="col-lg-3">
+            <div class="col-lg-2">
                 <label class="form-label">Họ tên</label>
-                <input type="text" id="txt-hoten" class="form-control" placeholder="Nhập họ tên nhân viên">
+                <input type="text" id="txt-hoten" class="form-control" placeholder="Nhập họ tên">
             </div>
         </div>
     </div>
     <div class="d-flex">
-        @if (User.IsInRole("44=1") || User.IsInRole("0=0"))
-        {
-            <button type="button" class="btn btn-success font-weight-bolder mr-2" id="btn-xuatexcel" title="@Resources.App.XuatFileExcel">
+       
+            @*<button type="button" class="btn btn-success font-weight-bolder mr-2" id="btn-xuatexcel" onclick="LuuCongNgayHieuChinh()" title="@Resources.App.XuatFileExcel">
                 <i class="icon-md fas fa-file-export"></i> @Resources.App.XuatFileExcel
-            </button>
-        }
+            </button>*@
+            <div class="dropdown">
+                <button class="btn btn-success font-weight-bolder mr-2" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="icon-ml far fa-edit"></i> Thao tác
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    @if (User.IsInRole("52=2") || User.IsInRole("0=0"))
+                    {
+                        <a class="dropdown-item" onclick="LuuCongNgayHieuChinh()">Lưu công hiệu chỉnh</a>
+                        <a class="dropdown-item" onclick="XoaCongNgayHieuChinh()">Xóa công hiệu chỉnh</a>
+                        <a class="dropdown-item" data-toggle="modal" data-target="#ImportModal">Import công hiệu chỉnh</a>
+                        <a class="dropdown-item" href="#" onclick="XuatFileExcel(true)">Xuất file công chọn</a>
+                    }
+                        <a class="dropdown-item" href="#" onclick="XuatFileExcel(false)">Xuất file công tất cả</a>
+                </div>
+            </div>
 
         @*<button type="button" class="btn btn-light-primary font-weight-bolder mr-2" data-toggle="modal" data-target="#ModalFilter" title="@Resources.App.BoLoc">
-                <i class="icon-md fas fa-filter"></i> @Resources.App.BoLoc
-            </button>*@
+            <i class="icon-md fas fa-filter"></i> @Resources.App.BoLoc
+        </button>*@
         <button type="button" class="btn btn-warning" onclick="LoadData()" title=" @Resources.App.TimKiem">
             <i class="icon-md fas fa-search"></i>
             @Resources.App.TimKiem
@@ -126,16 +139,44 @@
         <div id="danh-sach"></div>
     </div>
 </div>
+<div class="modal fade" id="ImportModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title font-weight-bold" id="exampleModalLabel">Nhập dữ liệu từ tập tin excel</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i aria-hidden="true" class="ki ki-close"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="#" class="form-validate is-alter" novalidate="novalidate">
+                    <div class="form-group">
+                        <label class="form-label" for="full-name">Tập tin *</label>
+                        <div class="form-control-wrap">
+                            <input type="file" name="UploadedFile" id="UploadedFile" accept=".xlsx" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-info font-weight-bolder mr-5" id="btn-chonfile" onclick="LuuImportExcel()">
+                            <i class="icon-1x text-dark-40 ki ki-long-arrow-up"></i> Lưu thông tin
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 @section CustomScripts{
+   
     <script type="text/javascript">
         var maphongban = "", tungay, denngay, manv = "", hovaten = "";
         var date = new Date();
         var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
         tungay = Globalize.format(firstDay, "yyyy-MM-dd");
         denngay = Globalize.format(date, "yyyy-MM-dd");
+        var isMobile = false;
         $(function () {
-            var wh = $(window).height();
-            $('#danh-sach').height(wh - 150);
+            isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
             $("#date-tungay").dxDateBox({
                 value: firstDay,
                 width: '100%',
@@ -157,6 +198,7 @@
                 },
             }).dxDateBox("instance");
             setPhongBan('select-phongban',@Html.Raw(TTFPortal.Class.DanhMuc.DMPhongBan()), false, 'Phòng/Phân xưởng');
+            LoadGrid();
         });
         function LoadData() {
             try {
@@ -183,6 +225,8 @@
         }
 
         function LoadGrid(data) {
+            var wh = $(window).height();
+            $('#danh-sach').height(wh - 200);
             $("#danh-sach").dxDataGrid({
                 dataSource: data,
                 selection: {
@@ -202,13 +246,22 @@
                 headerFilter: {
                     visible: true
                 },
+                export: {
+                    enabled: true,
+                    fileName: "CongNgay",
+                     allowExportSelectedData: true
+                },
                 showRowLines: true,
-                rowAlternationEnabled: true,
+                rowAlternationEnabled: false,
                 showBorders: true,
                 hoverStateEnabled: true,
                 allowColumnReordering: true,
+                columnHidingEnabled: isMobile,
                 allowColumnResizing: true,
                 columnAutoWidth: true,
+                columnChooser: {
+                    enabled: true
+                },
                 pager: {
                     showPageSizeSelector: true,
                     allowedPageSizes: [10, 15, 20, 50, 100],
@@ -216,6 +269,57 @@
                 },
                 export: {
                     enabled: true
+                },
+                onExporting: function (e) {
+                    var workbook = new ExcelJS.Workbook();
+                    var worksheet = workbook.addWorksheet('CongNgay');
+                    
+                    DevExpress.excelExporter.exportDataGrid({
+                        component: e.component,
+                        worksheet: worksheet,
+                        keepColumnWidths: true,
+                        customizeCell: function (options) {
+                            var gridCell = options.gridCell;
+                            var excelCell = options.excelCell;
+                          
+                            if (gridCell.rowType === "data") {
+                               
+                                if (gridCell.column.dataField === 'InTime' && gridCell.data.CoXNCVao == true) {
+                                    excelCell.fill = {
+                                        type: 'pattern',
+                                        pattern: 'solid',
+                                        fgColor: { argb: '82E0AA' }
+                                    }
+                                }
+                                else if (gridCell.column.dataField === 'OutTime' && gridCell.data.CoXNCRa == true) {
+                                    excelCell.fill = {
+                                        type: 'pattern',
+                                        pattern: 'solid',
+                                        fgColor: { argb: '82E0AA' }
+                                    }
+                                }
+                                else if (gridCell.column.dataField === 'TangCa' && gridCell.data.CoYCTangCa == true) {
+                                    excelCell.fill = {
+                                        type: 'pattern',
+                                        pattern: 'solid',
+                                        fgColor: { argb: '82E0AA' }
+                                    }
+                                }
+                            }
+                            //if (gridCell.rowType === "header") {
+                            //    excelCell.fill = {
+                            //        type: 'pattern',
+                            //        pattern: 'solid',
+                            //        fgColor: { argb: '004973' }
+                            //    }
+                            //}
+                        }
+                    }).then(function () {
+                        workbook.xlsx.writeBuffer().then(function (buffer) {
+                            saveAs(new Blob([buffer], { type: "application/octet-stream" }), "CongNgay.xlsx");
+                        });
+                    });
+                    e.cancel = true;
                 },
                 columnFixing: {
                     enabled: false
@@ -239,223 +343,299 @@
                     //    }
                     //}
                 },
-                columns: [{
-                    dataField: "STT",
-                    caption: "STT",
-                    width: 50,
-                    allowEditing: false,
-                    fixed: true,
-                    alignment: ''
+                columns: [
+                    {
+                        dataField: "STT",
+                        caption: "STT",
+                        width: 50,
+                        allowEditing: false,
+                        fixed: true,
+                        alignment: 'center',
+                        allowFiltering: false
+                    },
+                    {
+                    caption: "Thông tin nhân viên",
+                    columns :[
+                        {
+                            dataField: "MaChamCong",
+                            caption: "Mã nhân viên",
+                            allowEditing: false,
+                            fixed: true
+                        },
+                        {
+                            dataField: "Name",
+                            caption: "Họ và tên",
+                            allowEditing: false,
+                            fixed: true
+                        },
+                        {
+                            dataField: "TenPhong_PhanXuong",
+                            caption: "Tên phòng/Phân xưởng",
+                            allowEditing: false,
+                            //fixed: true
+                        },
+                        {
+                            dataField: "TenChucVu",
+                            caption: "Chức vụ",
+                            allowEditing: false,
+                            //fixed: true
+                        },
+                    ],
+                    fixed: !isMobile
+                },
+                {
+                    caption: "Thông tin giờ vào",
+                    columns: [
+                        {
+                            dataField: "InDate",
+                            caption: "Ngày vào",
+                            allowEditing: false,
+                            //fixed: true
+                        },
+                        {
+                            dataField: "InTime",
+                            caption: "Giờ vào",
+                            allowFiltering: false,
+                            allowEditing: false,
+                            cellTemplate: function (container, options) {
+                                if (options.data.CoXNCVao == true) {
+                                    container.html("<div class='CoXNCVao'>" + options.data.InTime + "</div>");
+                                }
+                                else {
+                                    container.html("<div>" + options.data.InTime + "</div>");
+                                }
 
-                },
-                {
-                    dataField: "MaChamCong",
-                    caption: "Mã nhân viên",
-                    allowEditing: false,
-                    fixed: true
-                },
-                //{
-                //    dataField: "MaChamCong",
-                //    caption: "Mã chấm công",
-                //    width: 70,
-                //    allowEditing: false,
-                //    fixed: true
-                //},
-                {
-                    dataField: "Name",
-                    caption: "Họ và tên",
-                    allowEditing: false,
-                    fixed: true
-                },
-                {
-                    dataField: "InDate",
-                    caption: "Ngày vào",
-                    allowEditing: false,
-                    fixed: true
-                },
-                {
-                    dataField: "InTime",
-                    caption: "Giờ vào",
-                    allowEditing: false,
-                    cellTemplate: function (container, options) {
-                        if (options.data.CoXNCVao == true) {
-                            container.html("<div class='CoXNCVao'>" + options.data.InTime + "</div>");
+                            }
+                        },
+                        {
+                            dataField: "InTimeHC",
+                            caption: "Giờ vào HC",
+                            dataType: "datetime",
+                            format: "HH:mm",
+                            allowFiltering: false
+                            //allowEditing: false
                         }
-                        else {
-                            container.html("<div>" + options.data.InTime + "</div>");
-                        }
+                    ]
+                },
+                {
+                    caption: "Thông tin giờ ra",
 
+                    columns: [
+                        {
+                            dataField: "OutDate",
+                            caption: "Ngày ra",
+                            allowEditing: false,
+                        },
+                        {
+                            dataField: "OutDateHC",
+                            caption: "Ngày ra HC",
+                            dataType: "date",
+                            allowFiltering: false,
+                            format: "dd/MM/yyyy"
+                            ////allowEditing: false
+                            //cellTemplate: function (container, options) {
+                            //    container.html("<div class='datepicker'>" + options.data.OutDateHC1 + "</div>");
+
+                            //}
+                        },
+                        {
+                            dataField: "OutTime",
+                            caption: "Giờ ra",
+                            allowEditing: false,
+                            allowFiltering: false,
+                            cellTemplate: function (container, options) {
+                                if (options.data.CoXNCRa == true) {
+                                    container.html("<div class='CoXNCRa'>" + options.data.OutTime + "</div>");
+                                }
+                                else {
+                                    container.html("<div>" + options.data.OutTime + "</div>");
+                                }
+                            }
+                        },
+                        {
+                            dataField: "OutTimeHC",
+                            caption: "Giờ ra HC",
+                            dataType: "datetime",
+                            allowFiltering: false,
+                            format: "HH:mm"
+                            //allowEditing: false
+                        },
+                    ]
+                },
+                {
+                    caption: "Giờ chuẩn",
+                    columns: [
+                        {
+                            dataField: "GioVaoChuan",
+                            caption: "Giờ vào",
+                            allowFiltering: false,
+                            allowEditing: false
+                        },
+                        {
+                            dataField: "GioRaChuan",
+                            caption: "Giờ ra",
+                            allowFiltering: false,
+                            allowEditing: false
+                        },
+                    ]
+                },
+                {
+                    caption: "Thông tin công",
+                    columns: [
+                        {
+                            dataField: "LeOrPhep",
+                            caption: "Lễ/Phép",
+                            allowEditing: false
+                        },
+                        {
+                            dataField: "GioQuyDoi",
+                            caption: "Giờ",
+                            allowFiltering: false,
+                            allowEditing: false
+                        },
+                        {
+                            dataField: "PhutQuyDoi",
+                            caption: "Phút",
+                            allowFiltering: false,
+                            allowEditing: false
+                        },
+                        {
+                            dataField: "TongGioCong",
+                            caption: "Tổng giờ công",
+                            allowFiltering: false,
+                            allowEditing: false
+                        },
+                        {
+                            dataField: "Cong",
+                            caption: "Công",
+                            allowFiltering: false,
+                            allowEditing: false,
+                            cellTemplate: function (container, options) {
+                                container.html("<div class='Cong'>" + options.data.Cong + "</div>");
+                            }
+
+                        },
+                        {
+                            dataField: "CongHC",
+                            allowFiltering: false,
+                            caption: "Công HC",
+                            // allowEditing: false
+                        },
+                        {
+                            dataField: "NgoaiGioHC",
+                            caption: "Ngoài giờ HC",
+                            allowFiltering: false,
+                            // allowEditing: false
+                        },
+                        {
+                            dataField: "SoGioTangCa",
+                            caption: "Số giờ TC",
+                            allowFiltering: false,
+                            allowEditing: false
+                        },
+                        {
+                            dataField: "TangCa",
+                            caption: "TC",
+                            allowEditing: false,
+                            allowFiltering: false,
+                            cellTemplate: function (container, options) {
+                                if (options.data.CoYCTangCa == true) {
+                                    container.html("<div class='CoYCTC'>" + options.data.TangCa + "</div>");
+                                }
+                                else {
+                                    container.html("<div class='TC'>" + options.data.TangCa + "</div>");
+                                }
+                            }
+                        },
+                        {
+                            dataField: "TangCaHC",
+                            caption: "TC hiệu chỉnh",
+                            allowFiltering: false,
+                            //allowEditing: false
+                        },
+                        {
+                            dataField: "TangCaSau22H",
+                            caption: "TC sau 22H ",
+                            allowFiltering: false,
+                            allowEditing: false,
+                            cellTemplate: function (container, options) {
+                                container.html("<div class='Sau22H'>" + options.data.TangCaSau22H + "</div>");
+                            }
+                        },
+                        {
+                            dataField: "TangCaSau22HHC",
+                            allowFiltering: false,
+                            caption: "TC HC sau 22H ",
+                            //allowEditing: false
+                        },
+                    ]
+                },
+                {
+                    caption: "Thông tin khác",
+                    columns: [
+                        {
+                            dataField: "Thu",
+                            caption: "Thứ",
+                            allowFiltering: false,
+                            allowEditing: false
+                        },
+                        {
+                            dataField: "Thu7LanMay",
+                            caption: "Thứ 7 lần ",
+                            allowFiltering: false,
+                            allowEditing: false
+                        },
+                        {
+                            dataField: "TrangThai",
+                            caption: "Trạng thái",
+                            allowFiltering: false,
+                            allowEditing: false
+                        }
+                    ]
+               }],
+                onRowPrepared: function (e) {
+                    e.rowElement.css({ height: 25 });
+                    if (e.rowType == 'data' && e.data.TrangThai == "HC") {
+                        e.rowElement.css('background-color', '#a9d08f')
+                    }
+                    else {
+                        e.rowElement.css('background-color', '#FFFFFF')
+                        e.rowElement.css
                     }
                 },
-                {
-                    dataField: "InTimeHC",
-                    caption: "Giờ vào HC",
-                    dataType: "datetime",
-                    format: "HH:mm"
-                    //allowEditing: false
-                },
-                {
-                    dataField: "OutDate",
-                    caption: "Ngày ra",
-                    allowEditing: false,
-                },
-                {
-                    dataField: "OutDateHC",
-                    caption: "Ngày ra HC",
-                    dataType: "datetime",
-                    format: "dd/MM/yyyy"
-                    ////allowEditing: false
-                    //cellTemplate: function (container, options) {
-                    //    container.html("<div class='datepicker'>" + options.data.OutDateHC1 + "</div>");
-
-                    //}
-                },
-                {
-                    //dataField: "OutTime",
-                    caption: "Giờ ra",
-                    allowEditing: false,
-                    cellTemplate: function (container, options) {
-                        if (options.data.CoXNCRa == true) {
-                            container.html("<div class='CoXNCRa'>" + options.data.OutTime + "</div>");
-                        }
-                        else {
-                            container.html("<div>" + options.data.OutTime + "</div>");
-                        }
-                    }
-                },
-                {
-                    dataField: "OutTimeHC",
-                    caption: "Giờ ra HC",
-                    dataType:"datetime",
-                    format: "HH:mm"
-                    //allowEditing: false
-                },
-                {
-                    dataField: "GioVaoChuan",
-                    caption: "Giờ vào chuẩn",
-                    allowEditing: false
-                },
-                {
-                    dataField: "GioRaChuan",
-                    caption: "Giờ ra chuẩn",
-                    allowEditing: false
-                },
-                {
-                        dataField: "LeOrPhep",
-                        caption: "Lễ/Phép",
-                        allowEditing: false
-                },
-                {
-                    dataField: "GioQuyDoi",
-                    caption: "Giờ",
-                    allowEditing: false
-                },
-                {
-                    dataField: "PhutQuyDoi",
-                    caption: "Phút",
-                    allowEditing: false
-                },
-                {
-                    dataField: "TongGioCong",
-                    caption: "Tổng giờ công",
-                    allowEditing: false
-                },
-                {
-                    dataField: "Cong",
-                    caption: "Công",
-                    allowEditing: false,
-                    cellTemplate: function (container, options) {
-                        container.html("<div class='Cong'>" + options.data.Cong + "</div>");
-                    }
-
-                },
-                {
-                    dataField: "CongHC",
-                    caption: "Công HC",
-                   // allowEditing: false
-                },
-                {
-                    dataField: "NgoaiGioHC",
-                    caption: "Ngoài giờ HC",
-                   // allowEditing: false
-                },
-                {
-                    dataField: "SoGioTangCa",
-                    caption: "Số giờ TC",
-                    allowEditing: false
-                },
-                {
-                    dataField: "TangCa",
-                    caption: "TC",
-                    allowEditing: false,
-                    cellTemplate: function (container, options) {
-                        if (options.data.CoYCTangCa == true) {
-                            container.html("<div class='CoYCTC'>" + options.data.TangCa + "</div>");
-                        }
-                        else {
-                            container.html("<div class='TC'>" + options.data.TangCa + "</div>");
-                        }
-                    }
-                },
-                {
-                    dataField: "TangCaHC",
-                    caption: "TC hiệu chỉnh",
-                    //allowEditing: false
-                },
-                {
-                    dataField: "TangCaSau22H",
-                    caption: "TC sau 22H ",
-                    allowEditing: false,
-                    cellTemplate: function (container, options) {
-                        container.html("<div class='Sau22H'>" + options.data.TangCaSau22H + "</div>");
-                    }
-                },
-                {
-                    dataField: "TangCaSau22HHC",
-                    caption: "TC HC sau 22H ",
-                    //allowEditing: false
-                },
-                {
-                    dataField: "Thu",
-                    caption: "Thứ",
-                    allowEditing: false
-                },
-                {
-                    dataField: "Thu7LanMay",
-                    caption: "Thứ 7 lần ",
-                    allowEditing: false
-                },
-                {
-                    dataField: "TrangThai",
-                    caption: "Trạng thái",
-                    allowEditing: false
-                }
-                ]
-
             });
         }
+        function XuatFileExcel(bool) {
+            var item = $('#danh-sach').dxDataGrid('instance');
+            $("#danh-sach").dxDataGrid("instance").exportToExcel(bool);
+        }
     </script>
-    @if (User.IsInRole("0=0") || User.IsInRole("51=1"))
+    @if (User.IsInRole("0=0") || User.IsInRole("52=2"))
     {
         <script type="text/javascript">
-            $("$btn-xuatexcel").click(LuuCongNgayHieuChinh());
+            //$("$btn-xuatexcel").click(LuuCongNgayHieuChinh());
             function LuuCongNgayHieuChinh() {
                 var data = {}, bLoi = false;
                 data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
                 var items = $('#danh-sach').dxDataGrid('instance');
                 items.saveEditData().done(function (e) {
                     bLoi = true;
-                });
+                }).fail(function () { bLoi = true});
 
-                if (bLoi) {
-                    ShowToast.warning("Lỗi không lưu thông được kiểm tra lại thông tin", 3000);
-                    return;
-                }
+                //if (!bLoi) {
+                //    ShowToast.warning("Không có dữ liệu lưu", 3000);
+                //    return;
+                //}
 
                 var selectedRowsData = items.getSelectedRowsData();
                 if (selectedRowsData.length == 0) {
                     ShowToast.info('Chưa chọn công hiệu chỉnh', 4000);
                     return;
+                }
+                for (var i = 0; i < selectedRowsData.length; i++) {
+                    selectedRowsData[i].OutDateHC = Globalize.format(selectedRowsData[i].OutDateHC, 'yyyy-MM-dd');
+                    selectedRowsData[i].OutTimeHC = Globalize.format(selectedRowsData[i].OutTimeHC, 'HH:mm');
+                    selectedRowsData[i].InTimeHC = Globalize.format(selectedRowsData[i].InTimeHC, 'HH:mm');
                 }
                 data.DLCong = selectedRowsData;
                 KTApp.blockPage({
@@ -467,19 +647,98 @@
                     KTApp.unblockPage();
                     if (rs.code == 1) {
                         ShowToast.success(rs.text, 3000);
-
                     }
                     else if (rs.code == 0) {
                         Swal.fire("Có lỗi! ", rs.text, "error");
                     }
-                    else {
-                        ShowToast.info('Hết thời gian thao tác đăng nhập lại', 4000);
-                        window.location.href = '@Url.Action("Login", "Account")?';
+                    else if (rs.indexOf("kt_login_signin_form") > 0) {
+                         ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
+                         setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
                     }
                 }).fail(function () {
                     KTApp.unblockPage();
                 })
             }
+            function XoaCongNgayHieuChinh() {
+                var items = $('#danh-sach').dxDataGrid('instance');
+                var selectedRowsData = items.getSelectedRowsData();
+                if (selectedRowsData.length == 0) {
+                    ShowToast.info('Chưa chọn công hiệu chỉnh', 4000);
+                    return;
+                }
+                Swal.fire({
+                    title: "Thông báo!",
+                    html: 'Bạn có chắc xóa các công hiệu chỉnh đang chọn!',
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Có, xóa ngay!",
+                    cancelButtonText: "Hủy!",
+                    reverseButtons: true
+                }).then(function (result) {
+                    if (result.value) {
+                        var data = {}, bLoi = false;
+                        data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+                        data.DLCong = selectedRowsData;
+                        KTApp.blockPage({
+                            overlayColor: '#000000',
+                            state: 'primary',
+                            message: 'Xóa công hiệu chỉnh ...'
+                        });
+                        $.post("@Url.Action("XoaCongNgayHieuChinh", "Cong")", data).done(function (rs) {
+                            KTApp.unblockPage();
+                            if (rs.code == 1) {
+                                ShowToast.success(rs.text, 3000);
+                            }
+                            else if (rs.code == 0) {
+                                Swal.fire("Có lỗi! ", rs.text, "error");
+                            }
+                            else if (rs.indexOf("kt_login_signin_form") > 0) {
+                                 ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
+                                 setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
+                            }
+                        }).fail(function () {
+                            KTApp.unblockPage();
+                        })
+                    } else if (result.dismiss === "cancel") {
+                        ShowToast.info('Bạn đã hủy', 3000);
+
+                    }
+                });
+                
+            }
+        function LuuImportExcel() {
+            var formData = new FormData();
+            var files = $("#UploadedFile").get(0).files;
+            formData.append('FileInbox', files[0]);
+            formData.append('__RequestVerificationToken', $('input[name="__RequestVerificationToken"]').val());
+            KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang import dữ liệu...' });
+            $.ajax({
+                url: '/Cong/ImportExcelUploadCongNgay',
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (rs) {
+                    KTApp.unblockPage();
+                    if (rs.code == 1) {
+                        ShowToast.success(rs.text, 3000);
+                    }
+                    else if (rs.code == 0) {
+                        Swal.fire("Có lỗi! ", rs.text, "error");
+                    }
+                    else  if (rs.indexOf("kt_login_signin_form") > 0) {
+                          ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
+                           setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
+                    }
+                    //Sho(rs.text)
+                    
+                },
+                error: function (err) {
+                    toastr.error("Lỗi hệ thống liên hệ nhà quản trị để được hỗ trợ" + err);
+                    KTApp.unblockPage();
+                }
+            });
+        }
         </script>
     }
 }

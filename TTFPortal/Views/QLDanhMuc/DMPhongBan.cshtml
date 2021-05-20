@@ -1,0 +1,326 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = Resources.Menu.NhanSuThongTin;
+}
+@{
+    bool bThem = false, bSua = false, bXoa = false;
+    if (User.IsInRole("0=0") || User.IsInRole("13=2"))
+    {
+        bThem = true;
+    }
+    if (User.IsInRole("0=0") || User.IsInRole("13=3"))
+    {
+        bSua = true;
+    }
+    if (User.IsInRole("0=0") || User.IsInRole("13=4"))
+    {
+        bXoa = true;
+    }
+}
+@section ScriptsFile{
+    <style>
+        .color_status {
+            cursor: default;
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            border: 1px solid #c3c3c3;
+            border-radius: 50%;
+            margin-top: 7px;
+        }
+
+        .dx-datagrid .dx-header-filter {
+            position: relative;
+            color: blue;
+            font: 14px/1 DXIcons;
+        }
+
+        .dx-datagrid .dx-header-filter-empty {
+            color: rgba(149,149,149,.5);
+        }
+    </style>
+}
+@section Link{
+    <div class="d-flex align-items-center flex-wrap mr-1">
+
+        <div class="d-flex align-items-baseline flex-wrap mr-5">
+
+            @*<h5 class="text-dark font-weight-bold my-1 mr-5">
+                    Chi tiết yêu cầu #1
+
+                </h5>*@
+            <ul class="breadcrumb breadcrumb-transparent breadcrumb-dot font-weight-bold p-0 my-2 ">
+                <li class="breadcrumb-item text-muted">
+                    <a href="" class="text-muted">@Resources.Menu.DM</a>
+                </li>
+                <li class="breadcrumb-item text-muted">
+                    <a href="" class="text-muted">@Resources.Menu.DMPhongBan</a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+}
+@section Header{
+    <div class="d-flex align-items-center flex-wrap mr-1">
+    </div>
+    <div class="d-flex">
+        @if (bThem)
+        {
+            <button type="submit" class="btn btn-primary mr-2" id="btn-capnhat" onclick="ThemMoi()">
+                <i class="icon-md fas fa-plus"></i>
+                @Resources.App.ThemMoi
+            </button>
+        }
+        <button type="button" class="btn btn-warning" onclick="TimKiem()">
+            <i class="icon-md fas fa-search"></i>
+            @Resources.App.TimKiem
+        </button>
+    </div>
+}
+<div class="row">
+    <div class="col-lg-12" id="mobliesize">
+        <div id="danh-sach"></div>
+    </div>
+</div>
+@section CustomScripts{
+    <script type="text/javascript">
+
+        var dataKhoi = @Html.Raw(TTFPortal.Class.DanhMuc.DMKhoi());
+        $(function () {
+            LoadData();
+        });
+        function LoadData() {
+            KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang tải dữ liệu...' });
+            $.get("@Url.Action("GetDMPhongBan","QLDanhMuc")").done(function (rs) {
+                if (rs.code == "1") {
+                    KTApp.unblockPage();
+                    //ShowToast.success('Thành công', 3000);
+                    LoadGrid(rs.data);
+                }
+                else if(rs.code==0){
+                    TimKiem();
+                    KTApp.unblockPage();
+                        Swal.fire("Có lỗi!", rs.text, "error");
+                }
+                else if (rs.indexOf("kt_login_signin_form") > 0){
+                     ShowToast.info('Hết thời gian thao tác đăng nhập lại', 4000);
+                     window.location.href = '@Url.Action("Login", "Account")?';
+                }
+            }).fail(function () {
+            });
+        }
+        function LoadGrid(data) {
+            $('#danh-sach').height($(window).height() - 200);
+            $("#danh-sach").dxDataGrid({
+                dataSource: data,
+                //selection: {
+                //    mode: "multiple"
+                //},
+                remoteOperations: {
+                    paging: true,
+                    filtering: true
+                },
+                keyExpr: "MaPhong_PhanXuong",
+                filterRow: {
+                    visible: true,
+                    applyFilter: "auto"
+                },
+                editing: {
+                    mode: "popup",// 'batch' | 'cell' | 'row' | 'popup'
+                    allowUpdating: "@bSua"=="True"?true:false,
+                    allowDeleting: "@bXoa"=="True"?true:false,
+                    allowAdding: "@bThem"=="True"?true:false,
+                    useIcons: true,
+                },
+                paging: {
+                    pageSize: 50
+                },
+                //export: {
+                //    enabled: true,
+                //    fileName: "",
+                //    allowExportSelectedData: true
+                //},
+                showRowLines: true,
+                rowAlternationEnabled: true,
+                showBorders: true,
+                hoverStateEnabled: true,
+                allowColumnReordering: true,
+                allowColumnResizing: true,
+                columnAutoWidth: true,
+                pager: {
+                    showPageSizeSelector: true,
+                    allowedPageSizes: [10, 15, 20, 50, 100],
+                    showInfo: true
+                },
+                columnFixing: {
+                    enabled: false
+                },
+                columns: [
+                    {
+                        dataField: "MaPhong_PhanXuong",
+                        caption: "Mã",
+                        width: 150,
+                        validationRules: [{ type: "required", message: "Chưa nhật mã" }]
+                    },
+                    {
+                        dataField: "TenPhong_PhanXuong",
+                        caption: "Tên phòng/Phân xưởng",
+                        width: 200,
+                        validationRules: [{ type: "required", message: "Chưa nhật tên" }]
+                    },
+                    {
+                        dataField: "MaKhoi",
+                        caption: "Mã khói",
+                        width: 200,
+                        lookup: {
+                            dataSource: dataKhoi,
+                            displayExpr: "TenKhoi",
+                            valueExpr: "MaKhoi",
+                        }
+                    },
+                    {
+                        dataField: "CostCenter",
+                        caption: "CostCenter",
+                        width: 200,
+
+                    },
+                    {
+                        dataField: "TenPhongRutGon",
+                        caption: "Tên rút gọn",
+                        width: 200,
+                    },
+                    {
+                        dataField: "Del",
+                        caption: "Đã xóa",
+                        width: 100,
+                    }
+                ],
+                onRowInserting: function (e) {
+                    Add(e);
+                },
+                onRowUpdating: function (e) {
+                    Edit(e.newData, e.oldData);
+                },
+                onRowRemoving: function (e) {
+                    Del(e.key);
+                },
+                onEditorPreparing: function (e) {
+                    if (e.parentType == "dataRow" && e.dataField == "MaCaLamViec") {
+                        e.editorOptions.itemTemplate = function (data, index, container) {
+                            var row = $("<div>").addClass("row-fluid");
+                            $("<div>").addClass("col-xs-2").text(data["TenCaLamViec"]).appendTo(row);
+                            $("<div>").addClass("col-xs-4").text(data["GioBacDau"]).appendTo(row);
+                            $("<div>").addClass("col-xs-4").text(data["GioKetThuc"]).appendTo(row);
+                            container.append(row);
+                        };
+                    }
+                },
+            });
+        }
+
+    </script>
+    @if (bThem)
+    {
+        <script type="text/javascript">
+            function ThemMoi() {
+                $('#danh-sach').dxDataGrid('instance').addRow();
+            }
+            function Add(e) {
+                var data = {};
+                data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+                data.MaPhong_PhanXuong = e.data.MaPhong_PhanXuong.trim();
+                data.TenPhong_PhanXuong = e.data.TenPhong_PhanXuong.trim();
+                data.MaKhoi = e.data.MaKhoi;
+                data.CostCenter = e.data.CostCenter;
+                data.Del = e.data.Del;
+                data.TenPhongRutGon = e.data.TenPhongRutGon;
+                data.loai = 1;
+                KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang lưu thông tin...' });
+                $.post('@Url.Action("SavePhongBan", "QLDanhMuc")', data).done(function (rs) {
+                    if (rs.code == "1") {
+                        KTApp.unblockPage();
+                        ShowToast.success('Thành công', 3000);
+                        LoadData();
+                    }
+                    else if(rs.code==0){
+                        LoadData();
+                        KTApp.unblockPage();
+                            Swal.fire("Có lỗi!", rs.text, "error");
+                    }
+                    else if (rs.indexOf("kt_login_signin_form") > 0){
+                         ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
+                         setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
+                    }
+
+                }).fail(function () {
+                    KTApp.unblockPage();
+                    LoadData()
+                 });
+            }
+        </script>
+    }
+    @if (bSua)
+    {
+        <script type="text/javascript">
+            function Edit(newData, oldData) {
+                var data = {};
+                data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+                var arryPropertyName = Object.getOwnPropertyNames(newData);
+                for (var i = 0; i < arryPropertyName.length; i++) {
+                    //data[arryPropertyName[i]] = item[arryPropertyName[i]].toString()
+                    oldData[arryPropertyName[i]] = newData[arryPropertyName[i]].toString();
+                }
+                data.item = oldData;
+                data.loai = 2;
+                $.post('@Url.Action("SavePhongBan", "QLDanhMuc")', data).done(function (rs) {
+                    if (rs.code == "1") {
+                        ShowToast.success("Thành công", 3000);
+                        LoadData();
+                    }
+                    else if(rs.code==0) {
+                        LoadData();
+                        Swal.fire("Có lỗi!", rs.text, "error");
+                    }
+                    else if (rs.indexOf("kt_login_signin_form") > 0){
+                         ShowToast.info('Hết thời gian thao tác đăng nhập lại', 3000);
+                         setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
+                    }
+                }).fail(function () {
+                    LoadData();
+                    });
+            }
+        </script>
+    }
+    @if (bXoa)
+    {
+        <script type="text/javascript">
+            function Del(key) {
+                KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang xóa...' });
+                try {
+                    var data = {};
+                    data.ma = key;
+                    data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+                    $.post("@Url.Action("DelPhongBan", "QLDanhMuc")", data).done(function (rs) {
+                          KTApp.unblockPage();
+                          if (rs.code == 1) {
+                              ShowToast.success( rs.text,3000);
+                              LoadData();
+                          }
+                          else if (rs.code == 0) {
+                              Swal.fire("Có lỗi! ", rs.text, "error");
+                              LoadData();
+                          }
+                          else if (rs.indexOf("kt_login_signin_form") > 0){
+                               ShowToast.info('Hết thời gian thao tác đăng nhập lại', 3000);
+                               setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
+                           }
+                    }).fail(function () {KTApp.unblockPage();});
+                } catch (e) {
+                    KTApp.unblockPage();
+                }
+            }
+        </script>
+    }
+
+}

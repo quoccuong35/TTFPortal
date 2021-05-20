@@ -1,0 +1,399 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = Resources.Menu.HeThongNhanSuDacBiet;
+}
+@section ScriptsFile{
+    <style>
+        .color_status {
+            cursor: default;
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            border: 1px solid #c3c3c3;
+            border-radius: 50%;
+            margin-top: 7px;
+        }
+
+        .dx-datagrid .dx-header-filter {
+            position: relative;
+            color: blue;
+            font: 14px/1 DXIcons;
+        }
+
+        .dx-datagrid .dx-header-filter-empty {
+            color: rgba(149,149,149,.5);
+        }
+    </style>
+}
+@section Link{
+    <div class="d-flex align-items-center flex-wrap mr-1">
+        <div class="d-flex align-items-baseline flex-wrap mr-5">
+            <ul class="breadcrumb breadcrumb-transparent breadcrumb-dot font-weight-bold p-0 my-2 ">
+                <li class="breadcrumb-item text-muted">
+                    <a href="" class="text-muted">@Resources.Menu.HeThong</a>
+                </li>
+                <li class="breadcrumb-item text-muted">
+                    <a href="" class="text-muted">@Resources.Menu.HeThongNhanSuDacBiet</a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+}
+@section Header{
+    <div class="d-flex align-items-center flex-wrap mr-1">
+        <div class="form-group row">
+            <div class="col-lg-10">
+                <label class="form-labe">Mã NV/Họ tên</label>
+                <input type="text" id="txt-hoten" name="txt-duan" class="form-control" />
+            </div>
+        </div>
+    </div>
+    <div class="d-flex">
+        <button type="button" class="btn btn-primary mr-2" title=" @Resources.App.ThemMoi" data-toggle="modal" data-target="#ModalFilter">
+            <i class="icon-md fas fa-plus"></i>
+            @Resources.App.ThemMoi
+        </button>
+        <button type="button" class="btn btn-warning" onclick="TimKiem()" title=" @Resources.App.TimKiem">
+            <i class="icon-md fas fa-search"></i>
+            @Resources.App.TimKiem
+        </button>
+    </div>
+}
+<div class="row">
+    <div class="col-lg-12" id="mobliesize">
+        <div id="danh-sach"></div>
+    </div>
+</div>
+<div class="modal fade" id="ModalFilter" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="form-group row">
+                    <div class="col-lg-4">
+                        <label class="form-labe">Mã nhân viên</label>
+                        <input type="text" id="txt-manv" name="txt-manv" class="form-control" value="" />
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-labe">Họ và tên</label>
+                        <input type="text" id="txt-hovaten" name="txt-hoten" class="form-control" readonly value="" />
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-labe">Phòng ban/Bộ phận </label>
+                        <input type="text" id="txt-phongban" name="txt-phongban" class="form-control" readonly value="" />
+                    </div>
+                    <input type="hidden" id="txt-nhansu" name="txt-nhansu" value="" />
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-6">
+                        <label class="form-label">
+                            Loại đặc biệt
+                        </label>
+                        <div id="select-loaidacbiet">
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <label class="checkbox" style="padding-top:30%">
+                            <input type="checkbox" name="chk-ditre" id="chk-ditre">
+                            <span></span>&nbsp; Được đi trễ
+                        </label>
+                    </div>
+                    <div class="col-lg-4" style="display:none" id="hideditre">
+                        <label class="form-labe">Số phút đi trễ</label>
+                        <input type="number" id="txt-sophut" name="txt-sophut" class="form-control" />
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-6">
+                        <label class="form-label">
+                            Cận giờ ra
+                        </label>
+                        <div id="time-giora">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <label class="form-label">
+                            Ngày hiệu lực
+                        </label>
+                        <div id="date-ngayhieuluc">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-12">
+                        <label class="form-labe">Ghi chú</label>
+                        <input type="text" id="txt-ghichu" name="txt-ghichu" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light-primary font-weight-bold" data-dismiss="modal">Thoát</button>
+                <button type="submit" class="btn btn-warning" id="btn-capnhat" onclick="LuuNhanSuDacBiet()">
+                    <i class="icon-md far fa-save"></i>
+                    @Resources.App.CapNhat
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+@section CustomScripts{
+    <script type="text/javascript">
+        var  LoaiDacBiet =[
+            { MaLoai: 1, TenLoai: "Không chấm công"},
+            { MaLoai: 2, TenLoai: "Làm nhiêu tính nhiêu" }], ngay;
+        $(function () {
+            $('#danh-sach').height($(window).height() - 200);
+            setLoaiDacBiet('select-loaidacbiet', LoaiDacBiet, false, 'Phòng/Phân xưởng');
+            $("#time-giora").dxDateBox({
+                value: null,
+                width: '100%',
+                type: "time",
+                displayFormat: 'HH:mm',
+                showClearButton: true,
+                onValueChanged: function (data) {
+                    thoigian = Globalize.format(data.value, "HH:mm");
+                },
+                invalidDateMessage: "Thời gian không hợp lệ"
+            }).dxValidator();
+            $("#date-ngayhieuluc").dxDateBox({
+                value: null,
+                width: '100%',
+                type: "date",
+                displayFormat: 'dd/MM/yyyy',
+                showClearButton: true,
+                onValueChanged: function (data) {
+                    ngay = Globalize.format(data.value, "yyyy-MM-dd");
+                }
+            }).dxValidator();
+            TimKiem();
+        });
+        $("#chk-ditre").change(function () {
+            if ($(this).prop("checked")) {
+                $("#hideditre").css("display", "block");
+            }
+            else {
+                $("#hideditre").css("display", "none");
+            }
+        });
+        function TimKiem() {
+            var data = {};
+            data.hoVaTen = $("#txt-hoten").val();
+            KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang tải dữ liệu...' });
+            $.get("@Url.Action("GetNhanSuDacBiet","HeThong")", data).done(function (rs) {
+                KTApp.unblockPage();
+                if (rs.code == 1) {
+                    LoadData(rs.data)
+                }
+                else if (rs.code == 0) {
+                       Swal.fire("Có lỗi! ", rs.text, "error");
+                }
+                else  if (rs.indexOf("kt_login_signin_form") > 0) {
+                      ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
+                      setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
+                 }
+            }).fail(function () {
+                KTApp.unblockPage();
+            })
+        }
+        function LoadData(data) {
+            $('#danh-sach').height($(window).height() - 200);
+            $("#danh-sach").dxDataGrid({
+                dataSource: data,
+                //selection: {
+                //    mode: "multiple"
+                //},
+                remoteOperations: {
+                    paging: true,
+                    filtering: true
+                },
+                keyExpr: "MaNV",
+                filterRow: {
+                    visible: true,
+                    applyFilter: "auto"
+                },
+                editing: {
+                    mode: "popup",// 'batch' | 'cell' | 'row' | 'popup'
+                    //allowUpdating: true,
+                    allowDeleting: true,
+                    //allowAdding: true,
+                    useIcons: true,
+                },
+                paging: {
+                    pageSize: 50
+                },
+                //export: {
+                //    enabled: true,
+                //    fileName: "",
+                //    allowExportSelectedData: true
+                //},
+                showRowLines: true,
+                rowAlternationEnabled: true,
+                showBorders: true,
+                hoverStateEnabled: true,
+                allowColumnReordering: true,
+                allowColumnResizing: true,
+                columnAutoWidth: true,
+                pager: {
+                    showPageSizeSelector: true,
+                    allowedPageSizes: [10, 15, 20, 50, 100],
+                    showInfo: true
+                },
+                columnFixing: {
+                    enabled: false
+                },
+                columns: [
+                    {
+                        dataField: "MaNV",
+                        caption: "Mã nhân viên",
+                        //allowEditing: false,
+                        //dataType: "date",
+                        //format: "dd/MM/yyyy",
+                        //validationRules: [{ type: "required", message: "Chưa nhật mã nhân viên" }]
+                    },
+                    {
+                        dataField: "HoVaTen",
+                        caption: "Họ và tên",
+                        allowEditing: false,
+                    },
+                    {
+                        dataField: "TenPhong_PhanXuong",
+                        caption: "Tên phòng ban",
+                        allowEditing: false,
+                    },
+                    {
+                        dataField: "MaLoaiDacBiet",
+                        caption: "Loại đặc biệt",
+                        //width: 200,
+                        lookup: {
+                            dataSource: LoaiDacBiet,
+                            displayExpr: "TenLoai",
+                            valueExpr: "MaLoai",
+                        },
+                    },
+                    {
+                        dataField: "DuocDiTre",
+                        caption: "Được đi trễ",
+                        allowEditing: false,
+                    },
+                    {
+                        dataField: "SoPhut",
+                        caption: "Số phút",
+                        allowEditing: false,
+                        dataType: "number"
+                    },
+                    {
+                        dataField: "CanGioRa",
+                        caption: "Cận giờ ra",
+                        allowEditing: false,
+                        dataType: "Time"
+                    },
+                    {
+                        dataField: "NgayBatDau",
+                        caption: "Ngày bắt đầu",
+                        allowEditing: false,
+                        dataType: "Date",
+                        format: "dd/MM/yyyy",
+                    },
+                    {
+                        dataField: "GhiChu",
+                        caption: "Ghi chú",
+                        allowEditing: false,
+                        //dataType: "Date"
+                    }
+                ],
+                //onRowInserting: function (e) {
+                //    AddPhamVi(e);
+                //},
+                //onRowUpdating: function (e) {
+                //    EditPhamVi(e.newData, e.oldData);
+                //},
+                onRowRemoving: function (e) {
+                    XoaPhamVi(e.key);
+                },
+
+            });
+        }
+        function XoaPhamVi(key) {
+            var data = {};
+            data.maNV = key;
+            data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+            KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang xóa thông tin...' });
+            $.post('@Url.Action("XoaNhanSuDacBiet", "HeThong")', data).done(function (rs) {
+                KTApp.unblockPage();
+                if (rs.code == 1) {
+                    ShowToast.success('Thành công', 3000);
+                    TimKiem();
+                }
+                else if(rs.code==0){
+                    Swal.fire("Có lỗi!", rs.text, "error");
+                }
+                else if (rs.indexOf("kt_login_signin_form") > 0) {
+                     ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
+                     setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
+                }
+
+            }).fail(function () {
+                KTApp.unblockPage();
+            });
+        }
+        $("#txt-manv").on('keyup', function (event) {
+            if (event.keyCode === 13) {
+                MaNV = $("#txt-manv").val();
+                TimNhanVien();
+            }
+        });
+        function TimNhanVien() {
+            $.post("@Url.Action("TimNhanVien","HeThong")", { MaNV: MaNV }).done(function (rs) {
+                if (rs.code == 0) {
+                    Swal.fire("Có lỗi! ", rs.text, "error");
+                    $("#txt-manv").val("");
+                    $("#txt-nhansu").val("");
+                    $("#txt-hovaten").val("");
+                    $("#txt-phongban").val("");
+                }
+                else if (rs.code == 1) {
+                    $("#txt-manv").val(rs.data.MaNV);
+                    $("#txt-nhansu").val(rs.data.NhanSu);
+                    $("#txt-hovaten").val(rs.data.HoVaTen);
+                    $("#txt-phongban").val(rs.data.TenPhongBan);
+                }
+                else if (rs.indexOf("kt_login_signin_form") > 0) {
+                     ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
+                     setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
+                }
+            }).fail(function (error) { });
+        }
+        function LuuNhanSuDacBiet() {
+            var data = {};
+            data.MaNV = $("#txt-manv").val();
+            data.MaLoaiDacBiet = $("#select-loaidacbiet").dxSelectBox("instance").option("value");
+            data.DuocDiTre = $("#chk-ditre").prop("checked") ? true : false;
+            data.SoPhut = $("#txt-sophut").val();
+            data.CanGioRa = Globalize.format($("#time-giora").dxDateBox("instance").option('value'), 'HH:mm');
+            data.NgayBatDau = Globalize.format($("#date-ngayhieuluc").dxDateBox("instance").option('value'), 'yyyy-MM-dd');
+            data.GhiChu = $("#txt-ghichu").val();
+            data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+            if (!$("#txt-nhansu").val() || !data.MaLoaiDacBiet) {
+                Swal.fire("Thông báo! ", "Chưa chọn nhân sự hoặc loại đặc biệt","error");
+                return;
+            }
+            KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang lưu thông tin...' });
+            $.post('@Url.Action("LuuNhanSuDacBiet", "HeThong")', data).done(function (rs) {
+                KTApp.unblockPage();
+                if (rs.code == 1) {
+                    ShowToast.success('Thành công', 3000);
+                    $("#ModalFilter").modal('hide');
+                    TimKiem();
+                }
+                else if(rs.code==0){
+                    Swal.fire("Có lỗi!", rs.text, "error");
+                }
+                else if (rs.indexOf("kt_login_signin_form") > 0) {
+                     ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
+                     setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
+                }
+            }).fail(function () { KTApp.unblockPage();});
+        }
+    </script>
+}

@@ -1,0 +1,332 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = Resources.Menu.HeThongNhanSuPhamVi;
+}
+@section ScriptsFile{
+    <style>
+        .color_status {
+            cursor: default;
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            border: 1px solid #c3c3c3;
+            border-radius: 50%;
+            margin-top: 7px;
+        }
+
+        .dx-datagrid .dx-header-filter {
+            position: relative;
+            color: blue;
+            font: 14px/1 DXIcons;
+        }
+
+        .dx-datagrid .dx-header-filter-empty {
+            color: rgba(149,149,149,.5);
+        }
+    </style>
+}
+@section Link{
+    <div class="d-flex align-items-center flex-wrap mr-1">
+        <div class="d-flex align-items-baseline flex-wrap mr-5">
+            <ul class="breadcrumb breadcrumb-transparent breadcrumb-dot font-weight-bold p-0 my-2 ">
+                <li class="breadcrumb-item text-muted">
+                    <a href="" class="text-muted">@Resources.Menu.HeThong</a>
+                </li>
+                <li class="breadcrumb-item text-muted">
+                    <a href="" class="text-muted">@Resources.Menu.HeThongNhanSuPhamVi</a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+}
+@section Header{
+    <div class="d-flex align-items-center flex-wrap mr-1">
+        <div class="form-group row">
+            <div class="col-lg-6">
+                <label class="form-labe">Mã NV/Họ tên</label>
+                <input type="text" id="txt-hoten" name="txt-duan" class="form-control" />
+            </div>
+            <div class="col-lg-6">
+                <label class="form-label">
+                    Phòng/Phân xưởng phạm vi
+                </label>
+                <div id="select-phongban">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="d-flex">
+        <button type="button" class="btn btn-primary mr-2" title=" @Resources.App.ThemMoi"  data-toggle="modal" data-target="#ModalFilter" >
+            <i class="icon-md fas fa-plus"></i>
+            @Resources.App.ThemMoi
+        </button>
+        <button type="button" class="btn btn-warning" onclick="TimKiem()" title=" @Resources.App.TimKiem">
+            <i class="icon-md fas fa-search"></i>
+            @Resources.App.TimKiem
+        </button>
+    </div>
+}
+<div class="row">
+    <div class="col-lg-12" id="mobliesize">
+        <div id="danh-sach"></div>
+    </div>
+</div>
+<div class="modal fade" id="ModalFilter" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="form-group row">
+                    <div class="col-lg-4">
+                        <label class="form-labe">Mã nhân viên</label>
+                        <input type="text" id="txt-manv" name="txt-manv" class="form-control" value="" />
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-labe">Họ và tên</label>
+                        <input type="text" id="txt-hovaten" name="txt-hoten" class="form-control" readonly value="" />
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-labe">Phòng ban/Bộ phận </label>
+                        <input type="text" id="txt-phongban" name="txt-phongban" class="form-control" readonly value="" />
+                    </div>
+                    <input type="hidden" id="txt-nhansu" name="txt-nhansu" value="" />
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-6">
+                        <label class="form-label">
+                            Phòng/Phân xưởng
+                        </label>
+                        <div id="select-phongban1">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <label class="form-labe">Ghi chú</label>
+                        <input type="text" id="txt-ghichu" name="txt-ghichu" class="form-control" value="" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light-primary font-weight-bold" data-dismiss="modal">Thoát</button>
+                <button type="submit" class="btn btn-warning" id="btn-capnhat" onclick="SaveNhanSuPhamVi()">
+                    <i class="icon-md far fa-save"></i>
+                    @Resources.App.CapNhat
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+@section CustomScripts{
+    <script type="text/javascript">
+        var dtPhongBan = @Html.Raw(TTFPortal.Class.DanhMuc.DMPhongBan());
+        $(function () {
+            $('#danh-sach').height($(window).height() - 200);
+            setPhongBan('select-phongban', dtPhongBan, false, 'Phòng/Phân xưởng');
+            setPhongBan('select-phongban1', dtPhongBan, false, 'Phòng/Phân xưởng');
+            TimKiem();
+        });
+        function TimKiem() {
+            var data = {};
+            data.hoVaTen = $("#txt-hoten").val();
+            data.maPhongBan = $("#select-phongban").dxSelectBox("instance").option("value");
+            KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang tải dữ liệu...' });
+            $.get("@Url.Action("GetNhanSuPhamVi","HeThong")", data).done(function (rs) {
+                KTApp.unblockPage();
+                if (rs.code == 1) {
+                    LoadData(rs.data)
+                }
+                else if (rs.code == 0) {
+                       Swal.fire("Có lỗi! ", rs.text, "error");
+                }
+                else  if (rs.indexOf("kt_login_signin_form") > 0) {
+                      ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
+                      setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
+                 }
+            }).fail(function () {
+                KTApp.unblockPage();
+            })
+        }
+        function LoadData(data) {
+            $('#danh-sach').height($(window).height() - 200);
+            $("#danh-sach").dxDataGrid({
+                dataSource: data,
+                //selection: {
+                //    mode: "multiple"
+                //},
+                remoteOperations: {
+                    paging: true,
+                    filtering: true
+                },
+                keyExpr: ["NhanSu","PhongBanPhamVi"],
+                filterRow: {
+                    visible: true,
+                    applyFilter: "auto"
+                },
+                editing: {
+                    mode: "popup",// 'batch' | 'cell' | 'row' | 'popup'
+                    //allowUpdating: true,
+                    allowDeleting: true,
+                    allowAdding: true,
+                    useIcons: true,
+                },
+                paging: {
+                    pageSize: 50
+                },
+                //export: {
+                //    enabled: true,
+                //    fileName: "",
+                //    allowExportSelectedData: true
+                //},
+                showRowLines: true,
+                rowAlternationEnabled: true,
+                showBorders: true,
+                hoverStateEnabled: true,
+                allowColumnReordering: true,
+                allowColumnResizing: true,
+                columnAutoWidth: true,
+                pager: {
+                    showPageSizeSelector: true,
+                    allowedPageSizes: [10, 15, 20, 50, 100],
+                    showInfo: true
+                },
+                columnFixing: {
+                    enabled: false
+                },
+                columns: [
+                    {
+                        dataField: "MaNV",
+                        caption: "Mã nhân viên",
+                        width: 150,
+                        //allowEditing: false,
+                        //dataType: "date",
+                        //format: "dd/MM/yyyy",
+                        validationRules: [{ type: "required", message: "Chưa nhật mã nhân viên" }]
+                    },
+                    {
+                        dataField: "HoVaTen",
+                        caption: "Họ và tên",
+                        width: 200,
+                        allowEditing: false,
+                    },
+                    {
+                        dataField: "TenPhong_PhanXuong",
+                        caption: "Tên phòng ban",
+                        width: 200,
+                        allowEditing: false,
+                    },
+                    {
+                        dataField: "MaPhong_PhanXuong",
+                        caption: "MaPhong_PhanXuong",
+                        width: 200,
+                        allowEditing: false,
+                        visible:false
+                    },
+                    {
+                        dataField: "PhongBanPhamVi",
+                        caption: "Phòng ban phạm vi",
+                        width: 200,
+                        lookup: {
+                            dataSource: dtPhongBan,
+                            displayExpr: "TenPhong_PhanXuong",
+                            valueExpr: "MaPhong_PhanXuong",
+                        },
+                        validationRules: [{ type: "required", message: "Chưa chọn phòng ban" }]
+                    },
+                    {
+                        dataField: "GhiChu",
+                        caption: "Ghi chú",
+                        width: 200,
+                        allowEditing: false,
+                    }
+                ],
+                //onRowInserting: function (e) {
+                //    AddPhamVi(e);
+                //},
+                //onRowUpdating: function (e) {
+                //    EditPhamVi(e.newData, e.oldData);
+                //},
+                onRowRemoving: function (e) {
+                    XoaPhamVi(e.key);
+                },
+               
+            });
+        }
+        function XoaPhamVi(key) {
+            var data = {};
+            data.nhanSu = key.NhanSu;
+            data.maPhongBan = key.PhongBanPhamVi;
+            data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+            KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang xóa thông tin...' });
+            $.post('@Url.Action("XoaPhamViNhanSu", "HeThong")', data).done(function (rs) {
+                KTApp.unblockPage();
+                if (rs.code == 1) {
+                    ShowToast.success('Thành công', 3000);
+                    TimKiem();
+                }
+                else if(rs.code==0){
+                    Swal.fire("Có lỗi!", rs.text, "error");
+                }
+                else if (rs.indexOf("kt_login_signin_form") > 0) {
+                     ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
+                     setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
+                }
+
+            }).fail(function () {
+                KTApp.unblockPage();
+            });
+        }
+        $("#txt-manv").on('keyup', function (event) {
+            if (event.keyCode === 13) {
+                MaNV = $("#txt-manv").val();
+                TimNhanVien();
+            }
+        });
+        function TimNhanVien() {
+            $.post("@Url.Action("TimNhanVien","HeThong")", { MaNV: MaNV }).done(function (rs) {
+                if (rs.code == 0) {
+                    Swal.fire("Có lỗi! ", rs.text, "error");
+                    $("#txt-manv").val("");
+                    $("#txt-nhansu").val("");
+                    $("#txt-hovaten").val("");
+                    $("#txt-phongban").val("");
+                }
+                else if (rs.code == 1) {
+                    $("#txt-manv").val(rs.data.MaNV);
+                    $("#txt-nhansu").val(rs.data.NhanSu);
+                    $("#txt-hovaten").val(rs.data.HoVaTen);
+                    $("#txt-phongban").val(rs.data.TenPhongBan);
+                }
+                else if (rs.indexOf("kt_login_signin_form") > 0) {
+                     ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
+                     setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
+                }
+            }).fail(function (error) { });
+        }
+        function SaveNhanSuPhamVi() {
+            var data = {};
+            data.NhanSu = $("#txt-nhansu").val();
+            data.MaPhong_PhanXuong = $("#select-phongban1").dxSelectBox("instance").option("value");
+            data.GhiChu = $("#txt-ghichu").val();
+            data.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+            if (!data.NhanSu || !data.MaPhong_PhanXuong) {
+                Swal.fire("Thông báo! ", "Chưa chọn nhân sự hoặc phòng ban","error");
+                return;
+            }
+            KTApp.blockPage({ overlayColor: '#000000', state: 'primary', message: 'Đang lưu thông tin...' });
+            $.post('@Url.Action("SaveNhanSuPhamVi", "HeThong")', data).done(function (rs) {
+                KTApp.unblockPage();
+                if (rs.code == 1) {
+                    ShowToast.success('Thành công', 3000);
+                    $("#ModalFilter").modal('hide');
+                    TimKiem();
+                }
+                else if(rs.code==0){
+                    Swal.fire("Có lỗi!", rs.text, "error");
+                }
+                else if (rs.indexOf("kt_login_signin_form") > 0) {
+                     ShowToast.info('Hết thời gian thao tác xin đăng nhập lại', 3000);
+                     setTimeout(function () { window.location.href = '@Url.Action("Login", "Account")'; }, 3000);
+                }
+            }).fail(function () { KTApp.unblockPage();});
+        }
+    </script>
+}

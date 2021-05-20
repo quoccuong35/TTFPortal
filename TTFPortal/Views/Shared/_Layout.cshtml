@@ -1,6 +1,11 @@
 ﻿@using TTFPortal.Class;
 @{
+                /**/
     TTFPortal.Models.NguoiDungModel ng = TTFPortal.Class.Users.GetNguoiDung(User.Identity.Name);
+    DateTime dt = DateTime.Now;
+    string denngay = dt.ToString("yyyy-MM-dd");
+    string tungay = dt.Year.ToString() + "-" + dt.Month.ToString().PadLeft(2, '0') + "-01";
+                List<TTFPortal.Models.TTF_ThongBao_Result> thongBao = DanhMuc.ThongBao(ng.NhanSu, tungay, denngay).ToList();
 }
 <!DOCTYPE html>
 <html>
@@ -22,21 +27,20 @@
             /*background-color: #7c2f2e;*/
         }
 
-        /*#Thongbao {
+        #Thongbao {
             color: white;
             text-decoration: none;
             padding: 1px 26px;
             position: relative;
             display: inline-block;
         }
-
-            #Thongbao #badge {
+        #Thongbao #badge {
                 position: absolute;
                 top: 10px;
-                right: 20px;
+                right: 2px;
                 background: #fffff;
                 color: white;
-            }*/
+            }
     </style>
 </head>
 
@@ -49,8 +53,7 @@
     </div>
     <div id="kt_header_mobile" class="header-mobile header-mobile-fixed">
         <!--begin::Logo-->
-
-      @*  <img alt="Logo" src="~/Content/images/logo.png" class="max-h-30px" id="kt_header_mobile_toggle"/>*@
+        @*  <img alt="Logo" src="~/Content/images/logo.png" class="max-h-30px" id="kt_header_mobile_toggle"/>*@
 
         <!--end::Logo-->
         <!--begin::Toolbar-->
@@ -97,7 +100,7 @@
                     <!--begin::Container-->
                     <div class="container-fluid">
                         <!--begin::Header Menu Wrapper-->
-                        <div class="header-menu-wrapper header-menu-wrapper-left" >
+                        <div class="header-menu-wrapper header-menu-wrapper-left">
                             <!--begin::Logo-->
                             <div class="header-logo mr-10 d-none d-lg-flex" id="kt_aside_toggle">
                                 <img alt="Logo" src="~/Content/images/logo.png" class="h-40px" />
@@ -105,7 +108,7 @@
                             @RenderSection("Link", required: false)
                             <!--end::Logo-->
                             <div class="aside aside-left d-flex flex-column flex-row-auto" id="kt_aside">
-                                
+
                                 <!--begin::Aside Menu-->
                                 <div class="aside-menu-wrapper flex-column-fluid" id="kt_aside_menu_wrapper">
                                     <!--begin::Menu Container-->
@@ -451,16 +454,16 @@
                                                             </li>
                                                         }
                                                         @*@if (User.IsInRole("0=0") || User.IsInRole("54=1"))
-                                                        {
-                                                            <li class="menu-item" aria-haspopup="true">
-                                                                <a href="@Url.Action("QuanLyTangCa", "TangCa")" class="menu-link">
-                                                                    <i class="menu-bullet menu-bullet-dot">
-                                                                        <span></span>
-                                                                    </i>
-                                                                    <span class="menu-text">@Resources.Menu.TangCaBaoCao</span>
-                                                                </a>
-                                                            </li>
-                                                        }*@
+                                                            {
+                                                                <li class="menu-item" aria-haspopup="true">
+                                                                    <a href="@Url.Action("QuanLyTangCa", "TangCa")" class="menu-link">
+                                                                        <i class="menu-bullet menu-bullet-dot">
+                                                                            <span></span>
+                                                                        </i>
+                                                                        <span class="menu-text">@Resources.Menu.TangCaBaoCao</span>
+                                                                    </a>
+                                                                </li>
+                                                            }*@
                                                     </ul>
                                                 </div>
                                             </li>
@@ -496,6 +499,22 @@
                                                             <span class="menu-link">
                                                                 <span class="menu-text">@Resources.Menu.Cong</span>
                                                             </span>
+                                                        </li>
+                                                        <li class="menu-item" aria-haspopup="true">
+                                                            <a href="@Url.Action("CongNgay", "Cong")" class="menu-link">
+                                                                <i class="menu-bullet menu-bullet-dot">
+                                                                    <span></span>
+                                                                </i>
+                                                                <span class="menu-text">@Resources.Menu.CongNgay</span>
+                                                            </a>
+                                                        </li>
+                                                        <li class="menu-item" aria-haspopup="true">
+                                                            <a href="@Url.Action("CongThang", "Cong")" class="menu-link">
+                                                                <i class="menu-bullet menu-bullet-dot">
+                                                                    <span></span>
+                                                                </i>
+                                                                <span class="menu-text">@Resources.Menu.CongCongThang</span>
+                                                            </a>
                                                         </li>
                                                         @if (User.IsInRole("52=1") || User.IsInRole("0=0"))
                                                         {
@@ -617,6 +636,68 @@
                                                                     <span class="menu-text">@Resources.Menu.HeThongNhomNguoiDung</span>
                                                                 </a>
                                                             </li>
+                                                            <li class="menu-item" aria-haspopup="true">
+                                                                <a href="@Url.Action("NguoiDung", "HeThong")" class="menu-link">
+                                                                    <i class="menu-bullet menu-bullet-dot">
+                                                                        <span></span>
+                                                                    </i>
+                                                                    <span class="menu-text">@Resources.Menu.HeThongNguoiDung</span>
+                                                                </a>
+                                                            </li>
+                                                            <li class="menu-item" aria-haspopup="true">
+                                                                <a href="@Url.Action("NhanSuPhamVi", "HeThong")" class="menu-link">
+                                                                    <i class="menu-bullet menu-bullet-dot">
+                                                                        <span></span>
+                                                                    </i>
+                                                                    <span class="menu-text">@Resources.Menu.HeThongNhanSuPhamVi</span>
+                                                                </a>
+                                                            </li>
+                                                            <li class="menu-item" aria-haspopup="true">
+                                                                <a href="@Url.Action("NhanSuDacBiet", "HeThong")" class="menu-link">
+                                                                    <i class="menu-bullet menu-bullet-dot">
+                                                                        <span></span>
+                                                                    </i>
+                                                                    <span class="menu-text">@Resources.Menu.HeThongNhanSuDacBiet</span>
+                                                                </a>
+                                                            </li>
+                                                            <li class="menu-item menu-item-submenu" aria-haspopup="true" data-menu-toggle="hover">
+                                                                <a href="javascript:;" class="menu-link menu-toggle">
+                                                                    <i class="menu-bullet menu-bullet-line">
+                                                                        <span></span>
+                                                                    </i>
+                                                                    <span class="menu-text">@Resources.Menu.DM</span>
+                                                                    <i class="menu-arrow"></i>
+                                                                </a>
+                                                                <div class="menu-submenu" kt-hidden-height="160" style="display: none; overflow: hidden;">
+                                                                    <i class="menu-arrow"></i>
+                                                                    <ul class="menu-subnav">
+                                                                        <li class="menu-item" aria-haspopup="true">
+                                                                            <a href="@Url.Action("DMPhongBan","QLDanhMuc")" class="menu-link">
+                                                                                <i class="menu-bullet menu-bullet-dot">
+                                                                                    <span></span>
+                                                                                </i>
+                                                                                <span class="menu-text">@Resources.Menu.DMPhongBan</span>
+                                                                            </a>
+                                                                        </li>
+                                                                        <li class="menu-item" aria-haspopup="true">
+                                                                            <a href="@Url.Action("NhanSuPhamVi", "HeThong")" class="menu-link">
+                                                                                <i class="menu-bullet menu-bullet-dot">
+                                                                                    <span></span>
+                                                                                </i>
+                                                                                <span class="menu-text">Chức vụ</span>
+                                                                            </a>
+                                                                        </li>
+                                                                        <li class="menu-item" aria-haspopup="true">
+                                                                            <a href="@Url.Action("NhanSuPhamVi", "HeThong")" class="menu-link">
+                                                                                <i class="menu-bullet menu-bullet-dot">
+                                                                                    <span></span>
+                                                                                </i>
+                                                                                <span class="menu-text">Ca làm việc</span>
+                                                                            </a>
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
+                                                            </li>
                                                         </ul>
                                                     </div>
                                                 }
@@ -638,35 +719,35 @@
                         <!--end::Header Menu Wrapper-->
                         <!--begin::Topbar-->
                         <div class="topbar">
-
                             <!--begin::notifications-->
-                            <div class="topbar-item mr-3" id="Thongbao">
-                                @*@{
-                                        int cont = thongBao.Where(it => it.DaXem != true).Count();
-                                        if (cont > 0)
-                                        {
-                                            <span id="badge">@cont</span>
-                                        }
-                                    }*@
-                                <div class="btn btn-icon btn-hover-transparent-white w-auto d-flex align-items-center btn-lg px-2" id="kt_quick_panel_toggle">
-                                    <div class="symbol symbol-circle symbol-30 bg-white overflow-hidden">
-                                        <div class="symbol-label">
-                                            @*<img alt="@Resources.App.TenUngDung" src="~/Content/upload/images/Notifications1.svg" class="h-75 align-self-center" />*@
+                            @if (thongBao.Count > 0)
+                            {
+                                <div class="topbar-item mr-3" id="Thongbao">
+                                    @{
 
-                                            <span class="svg-icon svg-icon-primary svg-icon-2x">
-                                                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
-                                                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                                        <path d="M17,12 L18.5,12 C19.3284271,12 20,12.6715729 20,13.5 C20,14.3284271 19.3284271,15 18.5,15 L5.5,15 C4.67157288,15 4,14.3284271 4,13.5 C4,12.6715729 4.67157288,12 5.5,12 L7,12 L7.5582739,6.97553494 C7.80974924,4.71225688 9.72279394,3 12,3 C14.2772061,3 16.1902508,4.71225688 16.4417261,6.97553494 L17,12 Z" fill="#000000" />
-                                                        <rect fill="#000000" opacity="0.3" x="10" y="16" width="4" height="4" rx="2" />
-                                                    </g>
-                                                </svg>
-                                            </span>
+                                        <span class="label label-danger label-inline" id="badge">@thongBao.Count()</span>
+                                    }
+                                    <div class="btn btn-icon btn-hover-transparent-white w-auto d-flex align-items-center btn-lg px-2" id="kt_quick_panel_toggle">
+                                        <div class="symbol symbol-circle symbol-30 bg-white overflow-hidden">
+                                            <div class="symbol-label">
+                                                @*<img alt="@Resources.App.TenUngDung" src="~/Content/upload/images/Notifications1.svg" class="h-75 align-self-center" />*@
 
+                                                <span class="svg-icon svg-icon-primary svg-icon-2x">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
+                                                        <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                                            <path d="M17,12 L18.5,12 C19.3284271,12 20,12.6715729 20,13.5 C20,14.3284271 19.3284271,15 18.5,15 L5.5,15 C4.67157288,15 4,14.3284271 4,13.5 C4,12.6715729 4.67157288,12 5.5,12 L7,12 L7.5582739,6.97553494 C7.80974924,4.71225688 9.72279394,3 12,3 C14.2772061,3 16.1902508,4.71225688 16.4417261,6.97553494 L17,12 Z" fill="#000000" />
+                                                            <rect fill="#000000" opacity="0.3" x="10" y="16" width="4" height="4" rx="2" />
+                                                        </g>
+                                                    </svg>
+                                                </span>
+
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
 
-                            </div>
+                                </div>
+                            }
+
                             <!--end::notifications-->
                             <!--begin::User-->
                             <div class="topbar-item mr-3">
@@ -755,6 +836,7 @@
             <h3 class="font-weight-bold m-0">
                 Thông báo
             </h3>
+            <span class="label label-danger label-inline">new</span>
             <a href="#" class="btn btn-xs btn-icon btn-light btn-hover-primary" id="kt_quick_panel_close">
                 <i class="ki ki-close icon-xs text-muted"></i>
             </a>
@@ -762,20 +844,16 @@
         <div class="separator separator-dashed mt-8 mb-5"></div>
         <div class="offcanvas-content pr-5 mr-n5" style="height: 555px; overflow: auto;">
             <div class="navi navi-spacer-x-0 p-0">
-                @*@if (thongBao.Count > 0)
+                @if (thongBao.Count > 0)
+                {
+                    foreach (var item in thongBao)
                     {
-                        foreach (var item in thongBao)
-                        {
-                            <a href="@item.Link" class="navi-item" target="_blank">
-                                <span>@MvcHtmlString.Create(item.Noidung)</span>    <span style="font-weight:bold;color:forestgreen">@item.Ngay.Value.ToString("dd/MM/yyyy HH:mm")</span>
-                                @if (item.DaXem != true)
-                                {
-                                    <span class="label label-danger label-inline">new</span>
-                                }
-                            </a>
-                            <hr />
-                        }
-                    }*@
+                        <a href="@Url.Action(item.Actions,item.Controler)" class="navi-item" target="_blank">
+                            <span>@MvcHtmlString.Create(item.ThongBao)</span>    <span style="font-weight:bold;color:forestgreen"></span>
+                        </a>
+                        <hr />
+                    }
+                }
             </div>
         </div>
     </div>
@@ -881,17 +959,17 @@
     @RenderSection("ScriptsFile", required: false)
     @RenderSection("CustomScripts", required: false)
     <script type="text/javascript">
-        //var showMobile = false;
-        //var element = document.getElementById("kt_aside");
-        //$("#kt_header_mobile_toggle").click(function () {
-        //    showMobile = !showMobile;
-        //    if (showMobile) {
-        //        element.classList.add("aside-on");
-        //    }
-        //    else {
-        //        element.classList.remove("aside-on");
-        //    }
-        //});
+                //var showMobile = false;
+                //var element = document.getElementById("kt_aside");
+                //$("#kt_header_mobile_toggle").click(function () {
+                //    showMobile = !showMobile;
+                //    if (showMobile) {
+                //        element.classList.add("aside-on");
+                //    }
+                //    else {
+                //        element.classList.remove("aside-on");
+                //    }
+                //});
     </script>
 </body>
 </html>
