@@ -10,12 +10,17 @@
 namespace TTFPortal.Models
 {
     using System;
-    using System.Collections.Generic;
     
-    public partial class TTF_PhamVi
+    public partial class Proc_NhanSuDacBiet_Result
     {
-        public long NhanSu { get; set; }
-        public string MaPhong_PhanXuong { get; set; }
+        public string MaNV { get; set; }
+        public Nullable<int> MaLoaiDacBiet { get; set; }
+        public bool DuocDiTre { get; set; }
+        public Nullable<int> SoPhut { get; set; }
         public string GhiChu { get; set; }
+        public string CanGioRa { get; set; }
+        public string NgayBatDau { get; set; }
+        public string HoVaTen { get; set; }
+        public string TenPhong_PhanXuong { get; set; }
     }
 }

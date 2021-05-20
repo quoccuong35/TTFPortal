@@ -19,5 +19,6 @@ namespace TTFPortal.Models
         public string Image { get; set; }
         public string MaNV { get; set; }
         public string TenPhongBan { get; set; }
+        public string PhamVi { get; set; }
     }
 }

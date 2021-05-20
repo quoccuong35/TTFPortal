@@ -74,34 +74,37 @@ namespace TTFPortal.Models
                             }
                         }
                     }
-                    //else if (change.State == System.Data.Entity.EntityState.Added)
-                    //{
-                    //    tablename = change.Entity.GetType().Name;
-                    //    type = "Thêm";
-                    //   // var primaryKey = GetPrimaryKeyValue(change);
-
-                    //    foreach (var prop in change.CurrentValues.PropertyNames)
-                    //    {
-                    //        // var originalValue = change.OriginalValues[prop].ToString();
-                    //        var currentValue = change.CurrentValues[prop];
-                    //        if (currentValue == null)
-                    //            continue;
-                    //        TTF_ChangeLogs log = new TTF_ChangeLogs()
-                    //        {
-                    //            TableName = tablename,
-                    //            PrimaryKeyValue = "",
-                    //            ColumName = prop,
-                    //            OldValue = "",
-                    //            NewValue = currentValue.ToString(),
-                    //            DateChanged = now,
-                    //            GhiChu = this.GhiChu,
-                    //            Type = "Added",
-                    //            NguoiDung = (int)NguoiDung.NguoiDung
-                    //        };
-                    //        LichSu.Add(log);
-                    //        //ChangeLogs.Add(log);
-                    //    }
-                    //}
+                    else if (change.State == System.Data.Entity.EntityState.Added)
+                    {
+                        tablename = change.Entity.GetType().Name;
+                        type = "Thêm";
+                        // var primaryKey = GetPrimaryKeyValue(change);
+                        if (TableInsert(tablename))
+                        {
+                            foreach (var prop in change.CurrentValues.PropertyNames)
+                            {
+                                // var originalValue = change.OriginalValues[prop].ToString();
+                                var currentValue = change.CurrentValues[prop];
+                                if (currentValue == null)
+                                    continue;
+                                TTF_ChangeLogs log = new TTF_ChangeLogs()
+                                {
+                                    TableName = tablename,
+                                    PrimaryKeyValue = "",
+                                    ColumName = prop,
+                                    OldValue = "",
+                                    NewValue = currentValue.ToString(),
+                                    DateChanged = now,
+                                    GhiChu = this.GhiChu,
+                                    Type = "Added",
+                                    NguoiDung = (int)NguoiDung.NguoiDung
+                                };
+                                LichSu.Add(log);
+                                //ChangeLogs.Add(log);
+                            }
+                        }
+                        
+                    }
                     else if (change.State == System.Data.Entity.EntityState.Deleted)
                     {
                         tablename = change.Entity.GetType().Name;
@@ -194,33 +197,36 @@ namespace TTFPortal.Models
                             }
                         }
                     }
-                    //else if (change.State == System.Data.Entity.EntityState.Added)
-                    //{
-                    //    tablename = change.Entity.GetType().Name;
-                    //    type = "Thêm";
-                    //    //   var primaryKey = GetPrimaryKeyValue(change);
-
-                    //    foreach (var prop in change.CurrentValues.PropertyNames)
-                    //    {
-                    //        // var originalValue = change.OriginalValues[prop].ToString();
-                    //        var currentValue = change.CurrentValues[prop];
-                    //        if (currentValue == null)
-                    //            continue;
-                    //        TTF_ChangeLogs log = new TTF_ChangeLogs()
-                    //        {
-                    //            TableName = tablename,
-                    //            PrimaryKeyValue = "",
-                    //            ColumName = prop,
-                    //            OldValue = "",
-                    //            NewValue = currentValue.ToString(),
-                    //            DateChanged = now,
-                    //            GhiChu = this.GhiChu,
-                    //            Type = "Added",
-                    //            NguoiDung = (int)NguoiDung.NguoiDung
-                    //        };
-                    //        ChangeLogs.Add(log);
-                    //    }
-                    //}
+                    else if (change.State == System.Data.Entity.EntityState.Added)
+                    {
+                        tablename = change.Entity.GetType().Name;
+                        type = "Thêm";
+                        //   var primaryKey = GetPrimaryKeyValue(change);
+                        if (TableInsert(tablename))
+                        {
+                            foreach (var prop in change.CurrentValues.PropertyNames)
+                            {
+                                // var originalValue = change.OriginalValues[prop].ToString();
+                                var currentValue = change.CurrentValues[prop];
+                                if (currentValue == null)
+                                    continue;
+                                TTF_ChangeLogs log = new TTF_ChangeLogs()
+                                {
+                                    TableName = tablename,
+                                    PrimaryKeyValue = "",
+                                    ColumName = prop,
+                                    OldValue = "",
+                                    NewValue = currentValue.ToString(),
+                                    DateChanged = now,
+                                    GhiChu = this.GhiChu,
+                                    Type = "Added",
+                                    NguoiDung = (int)NguoiDung.NguoiDung
+                                };
+                                ChangeLogs.Add(log);
+                            }
+                        }
+                        
+                    }
                     else if (change.State == System.Data.Entity.EntityState.Deleted)
                     {
                         tablename = change.Entity.GetType().Name;
@@ -269,5 +275,22 @@ namespace TTFPortal.Models
                 return Task.FromResult(0);
             }
         }
+        private bool TableInsert(string tablename)
+        {
+            bool b = false;
+            switch (tablename.Trim().ToLower())
+            {
+                case "ttf_phamvi":
+                    b = true;
+                    break;
+                case "ttf_nhansudacbiet":
+                    b = true;
+                    break;
+                default:
+                    break;
+            }
+            return b;
+        }
     }
+    
 }

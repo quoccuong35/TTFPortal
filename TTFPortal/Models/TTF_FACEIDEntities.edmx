@@ -691,7 +691,7 @@ warning 6002: The table/view 'TTF_FACEID.dbo.HT_NHATKY' does not have a primary 
           <Key>
             <PropertyRef Name="MaKhoi" />
           </Key>
-          <Property Name="MaKhoi" Type="nchar" MaxLength="5" Nullable="false" />
+          <Property Name="MaKhoi" Type="nvarchar" MaxLength="50" Nullable="false" />
           <Property Name="TenKhoi" Type="nvarchar" MaxLength="100" />
           <Property Name="Del" Type="bit" />
         </EntityType>
@@ -1095,6 +1095,7 @@ warning 6002: The table/view 'TTF_FACEID.dbo.HT_NHATKY' does not have a primary 
           </Key>
           <Property Name="NhanSu" Type="bigint" Nullable="false" />
           <Property Name="MaPhong_PhanXuong" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="GhiChu" Type="nvarchar" MaxLength="1000" />
         </EntityType>
         <EntityType Name="TTF_PhongBan_PhanXuong">
           <Key>
@@ -1103,9 +1104,9 @@ warning 6002: The table/view 'TTF_FACEID.dbo.HT_NHATKY' does not have a primary 
           <Property Name="MaPhong_PhanXuong" Type="nvarchar" MaxLength="50" Nullable="false" />
           <Property Name="TenPhong_PhanXuong" Type="nvarchar" MaxLength="500" />
           <Property Name="Del" Type="bit" />
-          <Property Name="Loai" Type="nchar" MaxLength="10" />
-          <Property Name="MaKhoi" Type="nchar" MaxLength="10" />
-          <Property Name="CostCenter" Type="nchar" MaxLength="7" />
+          <Property Name="Loai" Type="nvarchar" MaxLength="50" />
+          <Property Name="MaKhoi" Type="nvarchar" MaxLength="50" />
+          <Property Name="CostCenter" Type="nvarchar" MaxLength="50" />
           <Property Name="TenPhongRutGon" Type="nvarchar" MaxLength="200" />
         </EntityType>
         <EntityType Name="TTF_QuocTich">
@@ -1319,11 +1320,12 @@ warning 6002: The table/view 'TTF_FACEID.dbo.V_Users' does not have a primary ke
           <Key>
             <PropertyRef Name="NGUOIDUNG" />
             <PropertyRef Name="TAIKHOAN" />
+            
           </Key>
           <Property Name="NGUOIDUNG" Type="int" Nullable="false" />
           <Property Name="TAIKHOAN" Type="nvarchar" MaxLength="50" Nullable="false" />
           <Property Name="MailCongTy" Type="nvarchar" MaxLength="100" />
-          <Property Name="MaPhong_PhanXuong" Type="char" MaxLength="50" />
+          <Property Name="MaPhong_PhanXuong" Type="nvarchar" MaxLength="50" Nullable="false" />
           <Property Name="NHOMNGUOIDUNG" Type="int" />
           <Property Name="NhanSu" Type="int" />
           <Property Name="HoVaTen" Type="nvarchar" MaxLength="300" />
@@ -1429,6 +1431,11 @@ warning 6002: The table/view 'TTF_FACEID.dbo.V_Users' does not have a primary ke
         <Function Name="Proc_GetKyCongNhanSu" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="nam" Type="int" Mode="In" />
         </Function>
+        <Function Name="Proc_GetNguoiDung" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="maNV" Type="nvarchar" Mode="In" />
+          <Parameter Name="taiKhoan" Type="nvarchar" Mode="In" />
+          <Parameter Name="nguoiDung" Type="int" Mode="In" />
+        </Function>
         <Function Name="Proc_GetNhanSuCaLamViec" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="tuNgay" Type="nvarchar" Mode="In" />
           <Parameter Name="denNgay" Type="nvarchar" Mode="In" />
@@ -1452,12 +1459,19 @@ warning 6002: The table/view 'TTF_FACEID.dbo.V_Users' does not have a primary ke
           <Parameter Name="HoVaTen" Type="nvarchar" Mode="In" />
           <Parameter Name="MaPhongBan" Type="nvarchar" Mode="In" />
         </Function>
+        <Function Name="Proc_NhanSuDacBiet" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="hoVaTen" Type="nvarchar" Mode="In" />
+        </Function>
         <Function Name="Proc_NhanSuForCong" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="TuNgay" Type="date" Mode="In" />
           <Parameter Name="DenNgay" Type="date" Mode="In" />
           <Parameter Name="MaNV" Type="nvarchar" Mode="In" />
           <Parameter Name="HoVaTen" Type="nvarchar" Mode="In" />
           <Parameter Name="MaPhongBan" Type="nvarchar" Mode="In" />
+        </Function>
+        <Function Name="Proc_PhamVi" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="hoTen" Type="nvarchar" Mode="In" />
+          <Parameter Name="maPhongBan" Type="nvarchar" Mode="In" />
         </Function>
         <Function Name="Proc_QuanLyNghiPhep" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="TuNgay" Type="varchar" Mode="In" />
@@ -1556,6 +1570,11 @@ warning 6002: The table/view 'TTF_FACEID.dbo.V_Users' does not have a primary ke
           <Parameter Name="NguoiTao" Type="int" Mode="In" />
           <Parameter Name="TuNgay" Type="nvarchar" Mode="In" />
           <Parameter Name="DenNgay" Type="nvarchar" Mode="In" />
+        </Function>
+        <Function Name="TTF_ThongBao" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="tuNgay" Type="nvarchar" Mode="In" />
+          <Parameter Name="denNgay" Type="nvarchar" Mode="In" />
+          <Parameter Name="nhanSu" Type="int" Mode="In" />
         </Function>
         <EntityContainer Name="TTF_FACEIDModelStoreContainer">
           <EntitySet Name="HT_BAOCAO" EntityType="Self.HT_BAOCAO" Schema="dbo" store:Type="Tables" />
@@ -2280,7 +2299,7 @@ warning 6002: The table/view 'TTF_FACEID.dbo.V_Users' does not have a primary ke
           <Key>
             <PropertyRef Name="MaKhoi" />
           </Key>
-          <Property Name="MaKhoi" Type="String" MaxLength="5" FixedLength="true" Unicode="true" Nullable="false" />
+          <Property Name="MaKhoi" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="TenKhoi" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
           <Property Name="Del" Type="Boolean" />
         </EntityType>
@@ -2649,6 +2668,7 @@ warning 6002: The table/view 'TTF_FACEID.dbo.V_Users' does not have a primary ke
           </Key>
           <Property Name="NhanSu" Type="Int64" Nullable="false" />
           <Property Name="MaPhong_PhanXuong" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="GhiChu" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="TTF_PhongBan_PhanXuong">
           <Key>
@@ -2657,9 +2677,9 @@ warning 6002: The table/view 'TTF_FACEID.dbo.V_Users' does not have a primary ke
           <Property Name="MaPhong_PhanXuong" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="TenPhong_PhanXuong" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
           <Property Name="Del" Type="Boolean" />
-          <Property Name="Loai" Type="String" MaxLength="10" FixedLength="true" Unicode="true" />
-          <Property Name="MaKhoi" Type="String" MaxLength="10" FixedLength="true" Unicode="true" />
-          <Property Name="CostCenter" Type="String" MaxLength="7" FixedLength="true" Unicode="true" />
+          <Property Name="Loai" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="MaKhoi" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="CostCenter" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="TenPhongRutGon" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="TTF_QuocTich">
@@ -2866,7 +2886,7 @@ warning 6002: The table/view 'TTF_FACEID.dbo.V_Users' does not have a primary ke
           <Property Name="NGUOIDUNG" Type="Int32" Nullable="false" />
           <Property Name="TAIKHOAN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="MailCongTy" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="MaPhong_PhanXuong" Type="String" MaxLength="50" FixedLength="true" Unicode="false" />
+          <Property Name="MaPhong_PhanXuong" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="NHOMNGUOIDUNG" Type="Int32" />
           <Property Name="NhanSu" Type="Int32" />
           <Property Name="HoVaTen" Type="String" MaxLength="300" FixedLength="false" Unicode="true" />
@@ -3190,8 +3210,25 @@ warning 6002: The table/view 'TTF_FACEID.dbo.V_Users' does not have a primary ke
           <Parameter Name="maLoaiTangCa" Mode="In" Type="String" />
           </FunctionImport>
           <FunctionImport Name="Proc_GetDuAn" ReturnType="Collection(TTF_FACEIDModel.Proc_GetDuAn_Result)">
-          <Parameter Name="maDuAn" Mode="In" Type="String" />
+            <Parameter Name="maDuAn" Mode="In" Type="String" />
             <Parameter Name="maCaLamViec" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="Proc_GetNguoiDung" ReturnType="Collection(TTF_FACEIDModel.Proc_GetNguoiDung_Result)">
+            <Parameter Name="maNV" Mode="In" Type="String" />
+            <Parameter Name="taiKhoan" Mode="In" Type="String" />
+            <Parameter Name="nguoiDung" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="Proc_PhamVi" ReturnType="Collection(TTF_FACEIDModel.Proc_PhamVi_Result)">
+            <Parameter Name="hoTen" Mode="In" Type="String" />
+            <Parameter Name="maPhongBan" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="Proc_NhanSuDacBiet" ReturnType="Collection(TTF_FACEIDModel.Proc_NhanSuDacBiet_Result)">
+          <Parameter Name="hoVaTen" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="TTF_ThongBao" ReturnType="Collection(TTF_FACEIDModel.TTF_ThongBao_Result)">
+            <Parameter Name="tuNgay" Mode="In" Type="String" />
+            <Parameter Name="denNgay" Mode="In" Type="String" />
+            <Parameter Name="nhanSu" Mode="In" Type="Int32" />
           </FunctionImport>
         </EntityContainer>
         <ComplexType Name="TTF_GET_ALL_NhanSu_Result">
@@ -3893,6 +3930,44 @@ warning 6002: The table/view 'TTF_FACEID.dbo.V_Users' does not have a primary ke
           <Property Type="String" Name="GhiChu" Nullable="true" MaxLength="500" />
           <Property Type="Boolean" Name="Del" Nullable="true" />
           <Property Type="String" Name="MaCaLamViec" Nullable="true" MaxLength="50" />
+        </ComplexType>
+        <ComplexType Name="Proc_GetNguoiDung_Result">
+          <Property Type="String" Name="TAIKHOAN" Nullable="false" MaxLength="50" />
+          <Property Type="Int32" Name="NGUOIDUNG" Nullable="false" />
+          <Property Type="Int32" Name="NhanSu" Nullable="true" />
+          <Property Type="String" Name="HoVaTen" Nullable="true" MaxLength="300" />
+          <Property Type="String" Name="TENNHOMNGUOIDUNG" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="TenPhong_PhanXuong" Nullable="true" MaxLength="500" />
+          <Property Type="String" Name="MaNV" Nullable="true" MaxLength="10" />
+          <Property Type="String" Name="MailCongTy" Nullable="true" MaxLength="100" />
+          <Property Type="Boolean" Name="HOATDONG" Nullable="true" />
+          <Property Type="Int32" Name="NHOMNGUOIDUNG" Nullable="true" />
+        </ComplexType>
+        <ComplexType Name="Proc_PhamVi_Result">
+          <Property Type="Int32" Name="NhanSu" Nullable="false" />
+          <Property Type="String" Name="MaNV" Nullable="true" MaxLength="10" />
+          <Property Type="String" Name="HoVaTen" Nullable="true" MaxLength="300" />
+          <Property Type="String" Name="TenPhong_PhanXuong" Nullable="true" MaxLength="500" />
+          <Property Type="String" Name="MaPhong_PhanXuong" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="PhongBanPhamVi" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="GhiChu" Nullable="true" MaxLength="1000" />
+        </ComplexType>
+        <ComplexType Name="Proc_NhanSuDacBiet_Result">
+          <Property Type="String" Name="MaNV" Nullable="false" MaxLength="10" />
+          <Property Type="Int32" Name="MaLoaiDacBiet" Nullable="true" />
+          <Property Type="Boolean" Name="DuocDiTre" Nullable="false" />
+          <Property Type="Int32" Name="SoPhut" Nullable="true" />
+          <Property Type="String" Name="GhiChu" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="CanGioRa" Nullable="true" MaxLength="8" />
+          <Property Type="String" Name="NgayBatDau" Nullable="true" MaxLength="10" />
+          <Property Type="String" Name="HoVaTen" Nullable="true" MaxLength="300" />
+          <Property Type="String" Name="TenPhong_PhanXuong" Nullable="true" MaxLength="500" />
+        </ComplexType>
+        <ComplexType Name="TTF_ThongBao_Result">
+          <Property Type="String" Name="ThongBao" Nullable="true" MaxLength="45" />
+          <Property Type="String" Name="Controler" Nullable="false" MaxLength="18" />
+          <Property Type="String" Name="Actions" Nullable="false" MaxLength="23" />
+          <Property Type="String" Name="Loai" Nullable="false" MaxLength="4" />
         </ComplexType>
       </Schema>
     </edmx:ConceptualModels>
@@ -4883,6 +4958,7 @@ warning 6002: The table/view 'TTF_FACEID.dbo.V_Users' does not have a primary ke
           <EntitySetMapping Name="TTF_PhamVi">
             <EntityTypeMapping TypeName="TTF_FACEIDModel.TTF_PhamVi">
               <MappingFragment StoreEntitySet="TTF_PhamVi">
+                <ScalarProperty Name="GhiChu" ColumnName="GhiChu" />
                 <ScalarProperty Name="NhanSu" ColumnName="NhanSu" />
                 <ScalarProperty Name="MaPhong_PhanXuong" ColumnName="MaPhong_PhanXuong" />
               </MappingFragment>
@@ -5974,6 +6050,60 @@ warning 6002: The table/view 'TTF_FACEID.dbo.V_Users' does not have a primary ke
                 <ScalarProperty Name="GhiChu" ColumnName="GhiChu" />
                 <ScalarProperty Name="Del" ColumnName="Del" />
                 <ScalarProperty Name="MaCaLamViec" ColumnName="MaCaLamViec" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="Proc_GetNguoiDung" FunctionName="TTF_FACEIDModel.Store.Proc_GetNguoiDung">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="TTF_FACEIDModel.Proc_GetNguoiDung_Result">
+                <ScalarProperty Name="TAIKHOAN" ColumnName="TAIKHOAN" />
+                <ScalarProperty Name="NGUOIDUNG" ColumnName="NGUOIDUNG" />
+                <ScalarProperty Name="NhanSu" ColumnName="NhanSu" />
+                <ScalarProperty Name="HoVaTen" ColumnName="HoVaTen" />
+                <ScalarProperty Name="TENNHOMNGUOIDUNG" ColumnName="TENNHOMNGUOIDUNG" />
+                <ScalarProperty Name="TenPhong_PhanXuong" ColumnName="TenPhong_PhanXuong" />
+                <ScalarProperty Name="MaNV" ColumnName="MaNV" />
+                <ScalarProperty Name="MailCongTy" ColumnName="MailCongTy" />
+                <ScalarProperty Name="HOATDONG" ColumnName="HOATDONG" />
+                <ScalarProperty Name="NHOMNGUOIDUNG" ColumnName="NHOMNGUOIDUNG" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="Proc_PhamVi" FunctionName="TTF_FACEIDModel.Store.Proc_PhamVi">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="TTF_FACEIDModel.Proc_PhamVi_Result">
+                <ScalarProperty Name="NhanSu" ColumnName="NhanSu" />
+                <ScalarProperty Name="MaNV" ColumnName="MaNV" />
+                <ScalarProperty Name="HoVaTen" ColumnName="HoVaTen" />
+                <ScalarProperty Name="TenPhong_PhanXuong" ColumnName="TenPhong_PhanXuong" />
+                <ScalarProperty Name="MaPhong_PhanXuong" ColumnName="MaPhong_PhanXuong" />
+                <ScalarProperty Name="PhongBanPhamVi" ColumnName="PhongBanPhamVi" />
+                <ScalarProperty Name="GhiChu" ColumnName="GhiChu" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="Proc_NhanSuDacBiet" FunctionName="TTF_FACEIDModel.Store.Proc_NhanSuDacBiet">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="TTF_FACEIDModel.Proc_NhanSuDacBiet_Result">
+                <ScalarProperty Name="MaNV" ColumnName="MaNV" />
+                <ScalarProperty Name="MaLoaiDacBiet" ColumnName="MaLoaiDacBiet" />
+                <ScalarProperty Name="DuocDiTre" ColumnName="DuocDiTre" />
+                <ScalarProperty Name="SoPhut" ColumnName="SoPhut" />
+                <ScalarProperty Name="GhiChu" ColumnName="GhiChu" />
+                <ScalarProperty Name="CanGioRa" ColumnName="CanGioRa" />
+                <ScalarProperty Name="NgayBatDau" ColumnName="NgayBatDau" />
+                <ScalarProperty Name="HoVaTen" ColumnName="HoVaTen" />
+                <ScalarProperty Name="TenPhong_PhanXuong" ColumnName="TenPhong_PhanXuong" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="TTF_ThongBao" FunctionName="TTF_FACEIDModel.Store.TTF_ThongBao">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="TTF_FACEIDModel.TTF_ThongBao_Result">
+                <ScalarProperty Name="ThongBao" ColumnName="ThongBao" />
+                <ScalarProperty Name="Controler" ColumnName="Controler" />
+                <ScalarProperty Name="Actions" ColumnName="Actions" />
+                <ScalarProperty Name="Loai" ColumnName="Loai" />
               </ComplexTypeMapping>
             </ResultMapping>
           </FunctionImportMapping>

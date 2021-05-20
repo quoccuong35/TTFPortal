@@ -905,5 +905,61 @@ namespace TTFPortal.Models
     
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Proc_GetDuAn_Result>("Proc_GetDuAn", maDuAnParameter, maCaLamViecParameter);
         }
+    
+        public virtual ObjectResult<Proc_GetNguoiDung_Result> Proc_GetNguoiDung(string maNV, string taiKhoan, Nullable<int> nguoiDung)
+        {
+            var maNVParameter = maNV != null ?
+                new ObjectParameter("maNV", maNV) :
+                new ObjectParameter("maNV", typeof(string));
+    
+            var taiKhoanParameter = taiKhoan != null ?
+                new ObjectParameter("taiKhoan", taiKhoan) :
+                new ObjectParameter("taiKhoan", typeof(string));
+    
+            var nguoiDungParameter = nguoiDung.HasValue ?
+                new ObjectParameter("nguoiDung", nguoiDung) :
+                new ObjectParameter("nguoiDung", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Proc_GetNguoiDung_Result>("Proc_GetNguoiDung", maNVParameter, taiKhoanParameter, nguoiDungParameter);
+        }
+    
+        public virtual ObjectResult<Proc_PhamVi_Result> Proc_PhamVi(string hoTen, string maPhongBan)
+        {
+            var hoTenParameter = hoTen != null ?
+                new ObjectParameter("hoTen", hoTen) :
+                new ObjectParameter("hoTen", typeof(string));
+    
+            var maPhongBanParameter = maPhongBan != null ?
+                new ObjectParameter("maPhongBan", maPhongBan) :
+                new ObjectParameter("maPhongBan", typeof(string));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Proc_PhamVi_Result>("Proc_PhamVi", hoTenParameter, maPhongBanParameter);
+        }
+    
+        public virtual ObjectResult<Proc_NhanSuDacBiet_Result> Proc_NhanSuDacBiet(string hoVaTen)
+        {
+            var hoVaTenParameter = hoVaTen != null ?
+                new ObjectParameter("hoVaTen", hoVaTen) :
+                new ObjectParameter("hoVaTen", typeof(string));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Proc_NhanSuDacBiet_Result>("Proc_NhanSuDacBiet", hoVaTenParameter);
+        }
+    
+        public virtual ObjectResult<TTF_ThongBao_Result> TTF_ThongBao(string tuNgay, string denNgay, Nullable<int> nhanSu)
+        {
+            var tuNgayParameter = tuNgay != null ?
+                new ObjectParameter("tuNgay", tuNgay) :
+                new ObjectParameter("tuNgay", typeof(string));
+    
+            var denNgayParameter = denNgay != null ?
+                new ObjectParameter("denNgay", denNgay) :
+                new ObjectParameter("denNgay", typeof(string));
+    
+            var nhanSuParameter = nhanSu.HasValue ?
+                new ObjectParameter("nhanSu", nhanSu) :
+                new ObjectParameter("nhanSu", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<TTF_ThongBao_Result>("TTF_ThongBao", tuNgayParameter, denNgayParameter, nhanSuParameter);
+        }
     }
 }
