@@ -122,7 +122,7 @@ namespace TTFPortal.Controllers
                     FileInbox.SaveAs(resultFilePath);
                     DataTable dt = GetDataTabletFromCSVFile(resultFilePath);
                     DateTime dttime = new DateTime();
-                    string d, m, y, t, time = "";
+                    string time = "";
                     if (dt != null && dt.Rows.Count > 0)
                     {
                         using (TTF_FACEIDEntities db = new TTF_FACEIDEntities())

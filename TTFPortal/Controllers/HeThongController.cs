@@ -22,22 +22,22 @@ namespace TTFPortal.Controllers
         {
             using (TTF_FACEIDEntities db = new TTF_FACEIDEntities())
             {
-               
+
                 JsonStatus js = new JsonStatus();
                 js.code = 0;
-              
+
                 try
                 {
                     var ng = Users.GetNguoiDung(User.Identity.Name);
-                    if (User.IsInRole("44=1"))
+                    if (User.IsInRole("44=1") || User.IsInRole("0=0"))
                     {
                         js.data = (from nhansu in db.TTF_NhanSu
                                    join pb in db.TTF_PhongBan_PhanXuong on nhansu.MaPhong_PhanXuong.Trim() equals pb.MaPhong_PhanXuong.Trim()
                                    join calamviec in db.TTF_CaLamViec on nhansu.MaCaLamViec equals calamviec.MaCaLamViec
                                    where nhansu.MaNV == MaNV
                                          && nhansu.MaTinhTrang == "1"
-                                   select new NhanVien { MaNV = nhansu.MaNV, HoVaTen = nhansu.HoVaTen, TenPhongBan = pb.TenPhong_PhanXuong, NhanSu = nhansu.NhanSu, SoNgayPhepConlai = nhansu.SoNgayPhepConLai, GioVao = calamviec.GioBacDau, GioRa = calamviec.GioKetThuc }).First();
-                        js.code =   1;
+                                   select new NhanVien { MaNV = nhansu.MaNV, HoVaTen = nhansu.HoVaTen, TenPhongBan = pb.TenPhong_PhanXuong, NhanSu = nhansu.NhanSu, SoNgayPhepConlai = nhansu.SoNgayPhepConLai, GioVao = calamviec.GioBacDau, GioRa = calamviec.GioKetThuc, EMail = nhansu.MailCongTy }).First();
+                        js.code = 1;
                     }
                     else
                     {
@@ -49,7 +49,7 @@ namespace TTFPortal.Controllers
                                    join calamviec in db.TTF_CaLamViec on nhansu.MaCaLamViec equals calamviec.MaCaLamViec
                                    where nhansu.MaNV == MaNV
                                         && PhamVi.Contains(nhansu.MaPhong_PhanXuong.Trim()) && nhansu.MaTinhTrang == "1"
-                                   select new NhanVien { MaNV = nhansu.MaNV, HoVaTen = nhansu.HoVaTen, TenPhongBan = pb.TenPhong_PhanXuong, NhanSu = nhansu.NhanSu, SoNgayPhepConlai = nhansu.SoNgayPhepConLai, GioVao = calamviec.GioBacDau , GioRa = calamviec.GioKetThuc }).First();
+                                   select new NhanVien { MaNV = nhansu.MaNV, HoVaTen = nhansu.HoVaTen, TenPhongBan = pb.TenPhong_PhanXuong, NhanSu = nhansu.NhanSu, SoNgayPhepConlai = nhansu.SoNgayPhepConLai, GioVao = calamviec.GioBacDau, GioRa = calamviec.GioKetThuc, EMail = nhansu.MailCongTy }).First();
                         js.code = 1;
                     }
                 }
@@ -67,7 +67,7 @@ namespace TTFPortal.Controllers
             return View();
         }
         [RoleAuthorize(Roles = "8=1,0=0")]
-        public async Task<JsonResult> GetMatrixNghiPhep(string maPhongBan,int? tuNgay,int? denNgay)
+        public async Task<JsonResult> GetMatrixNghiPhep(string maPhongBan, int? tuNgay, int? denNgay)
         {
             using (var db = new TTF_FACEIDEntities())
             {
@@ -87,7 +87,7 @@ namespace TTFPortal.Controllers
                 if (User.Identity.Name == null || User.Identity.Name == "")
                 {
                     rs.text = "Đã hết thời gian thao tác phần mềm. Xin hãy đăng nhập lại";
-                    return Json(rs,JsonRequestBehavior.AllowGet);
+                    return Json(rs, JsonRequestBehavior.AllowGet);
                 }
                 var nguoidung = Users.GetNguoiDung(User.Identity.Name);
                 int NguoiDung1 = (int)nguoidung.NguoiDung;
@@ -103,7 +103,7 @@ namespace TTFPortal.Controllers
                     var check = checkMaTrix.Where(it => it.CapDuyet == item.CapDuyet).ToList();
                     if (check != null && check.Count > 0)
                     {
-                        rs.text= "Đã tồn tại cấp duyệt số " + item.CapDuyet.ToString();
+                        rs.text = "Đã tồn tại cấp duyệt số " + item.CapDuyet.ToString();
                         return Json(rs, JsonRequestBehavior.AllowGet);
                     }
 
@@ -215,7 +215,7 @@ namespace TTFPortal.Controllers
                         model.NgayThayDoiLanCuoi = DateTime.Now;
                         model.NguoiThayDoiLanCuoi = NguoiDung1;
                         db.SaveChanges();
-                        rs.text =("Thành công");
+                        rs.text = ("Thành công");
                         rs.code = 1;
                         return Json(rs, JsonRequestBehavior.AllowGet);
                     }
@@ -339,7 +339,7 @@ namespace TTFPortal.Controllers
                     TTF_MaTrixDuyetTangCa add = new TTF_MaTrixDuyetTangCa();
 
                     add.LoaiQuyTrinh = "TC";
-                    add.LoaiTangCa = item.LoaiTangCa ;
+                    add.LoaiTangCa = item.LoaiTangCa;
                     add.CapDuyet = item.CapDuyet;
                     add.NguoiDuyet = item.NguoiDuyet;
                     add.GhiChu = item.GhiChu;
@@ -364,7 +364,8 @@ namespace TTFPortal.Controllers
         [RoleAuthorize(Roles = "8=1,0=0")]
         [ValidateAntiForgeryToken]
         [HttpPost]
-        public async Task<JsonResult> SaveMatrixTangCa(Proc_MaTrixTangCa_Result item) {
+        public async Task<JsonResult> SaveMatrixTangCa(Proc_MaTrixTangCa_Result item)
+        {
             JsonStatus rs = new JsonStatus();
             rs.code = 0;
             if (User.Identity.Name == null || User.Identity.Name == "")
@@ -372,7 +373,7 @@ namespace TTFPortal.Controllers
                 rs.text = "Đã hết thời gian thao tác phần mềm. Xin hãy đăng nhập lại";
                 return Json(rs, JsonRequestBehavior.AllowGet);
             }
-            using (var db  = new SaveDB())
+            using (var db = new SaveDB())
             {
                 db.GhiChu = "Sửa matrix tăng ca";
                 try
@@ -480,10 +481,11 @@ namespace TTFPortal.Controllers
         }
 
         [RoleAuthorize(Roles = "8=1,0=0")]
-        public ActionResult DuAn() {
+        public ActionResult DuAn()
+        {
             return View();
         }
-        public async Task<JsonResult> GetDuAn(string maDuAn,string maCaLamViec)
+        public async Task<JsonResult> GetDuAn(string maDuAn, string maCaLamViec)
         {
             using (var db = new TTF_FACEIDEntities())
             {
@@ -545,7 +547,7 @@ namespace TTFPortal.Controllers
         [RoleAuthorize(Roles = "8=1,0=0")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<JsonResult> XoaDuAn(string maDuAn )
+        public async Task<JsonResult> XoaDuAn(string maDuAn)
         {
             JsonStatus rs = new JsonStatus();
             rs.code = 0;
@@ -788,7 +790,7 @@ namespace TTFPortal.Controllers
                     }
                     Nhom.QUYEN = sQuyen;
                     Nhom.NGAY2 = DateTime.Now;
-                   // Nhom.MAY2 = QuanLyChamCong.Class.clsUserActivesInternal.clsUserActive.GetIP(User.Identity.Name);
+                    // Nhom.MAY2 = QuanLyChamCong.Class.clsUserActivesInternal.clsUserActive.GetIP(User.Identity.Name);
                     db.SaveChanges();
                     rs.code = 1;
                     rs.text = "Thành công";
@@ -801,6 +803,283 @@ namespace TTFPortal.Controllers
                 }
                 return Json(rs, JsonRequestBehavior.AllowGet);
             }
+        }
+
+        [RoleAuthorize(Roles = "8=1,0=0")]
+        public ActionResult NguoiDung()
+        {
+            return View();
+        }
+        [RoleAuthorize(Roles = "8=1,0=0")]
+        public async Task<JsonResult> GetNguoiDung(string hoVaTen, string taiKhoan)
+        {
+
+            using (var db = new TTF_FACEIDEntities())
+            {
+                JsonStatus rs = new JsonStatus();
+                rs.code = 0;
+                try
+                {
+                    var model = db.Proc_GetNguoiDung(hoVaTen, taiKhoan, null).ToList();
+                    rs.data = model;
+                    rs.code = 1;
+                }
+                catch (Exception ex)
+                {
+                    rs.text = ex.Message;
+                }
+                return Json(rs, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+        [RoleAuthorize(Roles = "8=1,0=0")]
+        public ActionResult NguoiDungChiTiet(int? id)
+        {
+            var model = new Proc_GetNguoiDung_Result();
+            if (id != null)
+            {
+                using (var db = new TTF_FACEIDEntities())
+                {
+                    model = db.Proc_GetNguoiDung(null, null, id).FirstOrDefault();
+                }
+            }
+            return View(model);
+        }
+        [RoleAuthorize(Roles = "8=1,0=0")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<JsonResult> LuuNguoiDung(Proc_GetNguoiDung_Result item)
+        {
+            JsonStatus rs = new JsonStatus();
+            rs.code = 0;
+            using (var db = new SaveDB())
+            {
+                db.GhiChu = "Sửa phân quyền";
+                var ng = Users.GetNguoiDung(User.Identity.Name);
+                if (item.NGUOIDUNG > 0)
+                {
+                    var edit = db.HT_NGUOIDUNG.FirstOrDefault(it => it.NGUOIDUNG == item.NGUOIDUNG);
+                    if (edit != null)
+                    {
+                        edit.NHOMNGUOIDUNG = item.NHOMNGUOIDUNG;
+                        edit.HOATDONG = item.HOATDONG;
+                        edit.NGAY2 = DateTime.Now;
+                        edit.NguoiDung2 = (short)ng.NguoiDung;
+                        db.SaveChanges();
+                        rs.code = 1;
+                        rs.text = "Thành công";
+                    }
+                }
+                else
+                {
+                    var check = db.HT_NGUOIDUNG.FirstOrDefault(it => it.TAIKHOAN == item.TAIKHOAN.Trim());
+                    if (check != null)
+                    {
+                        rs.code = 0;
+                        rs.text = "Tài khoản <b>" + item.TAIKHOAN + "</b> đã tồn tại không thể lưu";
+                        return Json(rs, JsonRequestBehavior.AllowGet);
+                    }
+                    var checkNhanSu = db.TTF_NhanSu.Where(it => it.MailCongTy == item.TAIKHOAN + "@truongthanh.com").ToList();
+                    if (checkNhanSu == null || checkNhanSu.Count > 1)
+                    {
+                        rs.code = 0;
+                        rs.text = "Tài khoản <b>" + item.TAIKHOAN + "</b> không hợp lệ bên thông tin nhân sự";
+                        return Json(rs, JsonRequestBehavior.AllowGet);
+                    }
+                    HT_NGUOIDUNG add = new HT_NGUOIDUNG();
+                    add.NHOMNGUOIDUNG = item.NHOMNGUOIDUNG;
+                    add.TAIKHOAN = item.TAIKHOAN;
+                    add.HOATDONG = true;
+                    add.HoTen = item.HoVaTen;
+                    add.NhanSu = item.NhanSu;
+                    add.NGAY1 = DateTime.Now;
+                    add.NguoiDung1 = (short)ng.NguoiDung;
+                    add.Del = false;
+                    db.HT_NGUOIDUNG.Add(add);
+                    db.SaveChanges();
+                    rs.code = 1;
+                    rs.text = "Thành công";
+                    rs.description = add.NGUOIDUNG.ToString();
+                }
+            }
+            return Json(rs, JsonRequestBehavior.AllowGet);
+        }
+        [RoleAuthorize(Roles = "8=1,0=0")]
+        public ActionResult NhanSuPhamVi()
+        {
+            return View();
+        }
+        [RoleAuthorize(Roles = "8=1,0=0")]
+        public async Task<JsonResult> GetNhanSuPhamVi(string hoVaTen, string maPhongBan)
+        {
+            JsonStatus rs = new JsonStatus();
+            rs.code = 0;
+            using (var db = new TTF_FACEIDEntities())
+            {
+                try
+                {
+                    rs.data = db.Proc_PhamVi(hoVaTen, maPhongBan).ToList();
+                    rs.code = 1;
+                }
+                catch (Exception ex)
+                {
+                    rs.code = 0;
+                    rs.text = ex.Message;
+                }
+            }
+            return Json(rs, JsonRequestBehavior.AllowGet);
+        }
+        [RoleAuthorize(Roles = "8=1,0=0")]
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        public async Task<JsonResult> XoaPhamViNhanSu(int nhanSu, string maPhongBan)
+        {
+            JsonStatus rs = new JsonStatus();
+            rs.code = 0;
+            try
+            {
+                using (var db = new SaveDB())
+                {
+                    db.GhiChu = "Xóa phạm vi nhân sự";
+                    var del = db.TTF_PhamVi.FirstOrDefault(it => it.NhanSu == nhanSu && it.MaPhong_PhanXuong == maPhongBan);
+                    if (del != null)
+                    {
+                        db.TTF_PhamVi.Remove(del);
+                        db.SaveChanges();
+                        rs.code = 1;
+                        rs.text = "Thành công";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                rs.text = ex.Message;
+            }
+            return Json(rs, JsonRequestBehavior.AllowGet);
+        }
+        [RoleAuthorize(Roles = "8=1,0=0")]
+        [ValidateAntiForgeryToken]
+        [HttpPost]
+        public async Task<JsonResult> SaveNhanSuPhamVi(TTF_PhamVi item)
+        {
+            JsonStatus rs = new JsonStatus();
+            rs.code = 0;
+            try
+            {
+                using (var db = new SaveDB())
+                {
+                    db.GhiChu = "Add phạm vi";
+                    var checkNhanSu = db.TTF_NhanSu.FirstOrDefault(it => it.NhanSu == item.NhanSu);
+                    if (checkNhanSu != null && checkNhanSu.MaPhong_PhanXuong.Trim() == item.MaPhong_PhanXuong.Trim())
+                    {
+                        rs.text = "Lỗi phòng/phân xưởng phạm vi và phòng/phân xưởng thông tin nhân sự trùng";
+                        rs.code = 0;
+                        return Json(rs, JsonRequestBehavior.AllowGet);
+                    }
+                    var checkPhamVi = db.TTF_PhamVi.Where(it => it.NhanSu == item.NhanSu && it.MaPhong_PhanXuong.Trim() == item.MaPhong_PhanXuong.Trim()).ToList();
+                    if (checkPhamVi.Count > 0)
+                    {
+                        rs.text = "Phạm vi nhân sự đã tồn tại không thể lưu";
+                        rs.code = 0;
+                        return Json(rs, JsonRequestBehavior.AllowGet);
+                    }
+                    db.TTF_PhamVi.Add(item);
+                    db.SaveChanges();
+                    rs.code = 1;
+                    rs.text = "Thành công";
+                }
+            }
+            catch (Exception ex)
+            {
+                rs.text = ex.Message;
+            }
+            return Json(rs, JsonRequestBehavior.AllowGet);
+        }
+
+        [RoleAuthorize(Roles = "8=1,0=0")]
+        public ActionResult NhanSuDacBiet()
+        {
+            return View();
+        }
+        [RoleAuthorize(Roles = "8=1,0=0")]
+        public async Task<JsonResult> GetNhanSuDacBiet(string hoVaTen)
+        {
+            JsonStatus rs = new JsonStatus();
+            rs.code = 0;
+            using (var db = new TTF_FACEIDEntities())
+            {
+                try
+                {
+                    rs.data = db.Proc_NhanSuDacBiet(hoVaTen).ToList();
+                    rs.code = 1;
+                }
+                catch (Exception ex)
+                {
+                    rs.code = 0;
+                    rs.text = ex.Message;
+                }
+            }
+            return Json(rs, JsonRequestBehavior.AllowGet);
+        }
+        [RoleAuthorize(Roles = "8=1,0=0")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<JsonResult> XoaNhanSuDacBiet(string maNV)
+        {
+            JsonStatus rs = new JsonStatus();
+            rs.code = 0;
+            try
+            {
+                using (var db = new SaveDB())
+                {
+                    db.GhiChu = "Xóa nhâ sự đặc biệt";
+                    var del = db.TTF_NhanSuDacBiet.FirstOrDefault(it => it.MaNV == maNV);
+                    if (del != null)
+                    {
+                        db.TTF_NhanSuDacBiet.Remove(del);
+                        db.SaveChanges();
+                        rs.code = 1;
+                        rs.text = "Thành công";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                rs.text = ex.Message;
+            }
+            return Json(rs, JsonRequestBehavior.AllowGet);
+        }
+
+        [RoleAuthorize(Roles = "8=1,0=0")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<JsonResult> LuuNhanSuDacBiet(TTF_NhanSuDacBiet item)
+        {
+            JsonStatus rs = new JsonStatus();
+            rs.code = 0;
+            try
+            {
+                using (var db = new SaveDB())
+                {
+                    db.GhiChu = "Add nhân sự đặc biệt";
+                    var check = db.TTF_NhanSuDacBiet.Where(it => it.MaNV == item.MaNV).ToList();
+                    if (check.Count > 0)
+                    {
+                        rs.text = "Nhân sự đã tồn tại không thể lưu";
+                        rs.code = 0;
+                        return Json(rs, JsonRequestBehavior.AllowGet);
+                    }
+                    db.TTF_NhanSuDacBiet.Add(item);
+                    db.SaveChanges();
+                    rs.code = 1;
+                    rs.text = "Thành công";
+                }
+            }
+            catch (Exception ex)
+            {
+                rs.text = ex.Message;
+            }
+            return Json(rs, JsonRequestBehavior.AllowGet);
         }
     }
    

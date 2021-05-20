@@ -55,7 +55,7 @@ namespace TTFPortal.Controllers
                 else
                 {
                     string dataname = clsFunction.GetDBName().ToLower();
-                    if (dataname == "ttf_faceid_uat") // bo qua mat khau
+                    if (dataname == "ttf_faceid") // bo qua mat khau
                     {
                         var item = db.V_Users.FirstOrDefault(it => it.TAIKHOAN == sTenDangNhap);
                         if (item != null)
@@ -71,6 +71,7 @@ namespace TTFPortal.Controllers
                             ng.Image = item.Images;
                             ng.MaNV = item.MaNV;
                             ng.TenPhongBan = item.TenPhong;
+                            ng.PhamVi = item.MaPhong_PhanXuong.Trim() + "," + string.Join(",", (db.TTF_PhamVi.Where(it => it.NhanSu == ng.NhanSu).Select(it => it.MaPhong_PhanXuong.Trim())).ToArray());
                             Users.SetNguoiDung(ng);
                         }
                         else
@@ -103,6 +104,7 @@ namespace TTFPortal.Controllers
                                 ng.MaPhongPhanXuong = item.MaPhong_PhanXuong; ;
                                 ng.MaNV = item.MaNV;
                                 ng.TenPhongBan = item.TenPhong;
+                                ng.PhamVi = item.MaPhong_PhanXuong.Trim() + ","+string.Join(",", (db.TTF_PhamVi.Where(it => it.NhanSu == ng.NhanSu).Select(it => it.MaPhong_PhanXuong.Trim())).ToArray());
                                 ng.Image = item.Images;
                                 Users.SetNguoiDung(ng);
                             }
