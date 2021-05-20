@@ -63,6 +63,7 @@ namespace TTFPortal.Class
                     ng.MaNV = nguoidung.MaNV;
                     ng.TenPhongBan = nguoidung.TenPhong;
                     ng.Image = nguoidung.Images;
+                    ng.PhamVi = nguoidung.MaPhong_PhanXuong.Trim() +"," +string.Join(",", (db.TTF_PhamVi.Where(it => it.NhanSu == ng.NhanSu).Select(it => it.MaPhong_PhanXuong.Trim())).ToArray());
                     //ng.TenNhomNguoiDung = nguoidung.TenNhomNguoiDung;
                     SetNguoiDung(ng);
                 }

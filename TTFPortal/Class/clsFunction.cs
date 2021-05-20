@@ -816,16 +816,17 @@ namespace TTFPortal.Class
                     if (OutDateHC != "")
                     {
                         objCongNgay.OutDate = OutDateHC;
+                        //objCongNgay.OutDateHC = OutDateHC;
                         try
                         {
-                            
-                            objCongNgay.OutDateHC = (DateTime.ParseExact(OutDateHC, "dd/MM/yyyy", new CultureInfo("en-US"))).ToString("yyyy/MM/dd");
+
+                            objCongNgay.OutDateHC = (DateTime.ParseExact(OutDateHC, "dd/MM/yyyy", new CultureInfo("en-US"))).ToString("yyyy-MM-dd");
                         }
                         catch
                         {
 
                         }
-                        
+
                     }
                     else
                     {
@@ -1983,12 +1984,32 @@ namespace TTFPortal.Class
                 return tbl;
             }
         }
+        public static void GetKyCong(int Year, int Month, ref DateTime FromDate, ref DateTime ToDate)
+        {
+            TTF_FACEIDEntities db = new TTF_FACEIDEntities();
+            try
+            {
+
+                var check = db.TTF_TimekeepingPeriod.Where(o => o.Year == Year
+                    && o.Month == Month).FirstOrDefault();
+                if (check != null)
+                {
+                    FromDate = Convert.ToDateTime(check.FromDate);
+                    ToDate = Convert.ToDateTime(check.ToDate);
+                }
+            }
+            catch
+            {
+
+            }
+        }
     }
     public class NhanVien {
         public int? NhanSu { get; set; }
         public string MaNV { get; set; }
         public string HoVaTen { get; set; }
         public string TenPhongBan { get; set; }
+        public string EMail { get; set; }
         public double? SoNgayPhepConlai { get; set; }
         public TimeSpan? GioVao { get; set; }
         public TimeSpan? GioRa { get; set; }

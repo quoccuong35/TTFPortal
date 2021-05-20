@@ -182,6 +182,15 @@ namespace TTFPortal.Class
                 return JsonConvert.SerializeObject(model);
             }
         }
+        public static string NhomNguoiDung()
+        {
+            using (TTF_FACEIDEntities db = new TTF_FACEIDEntities())
+            {
+                var model = db.HT_NHOMNGUOIDUNG.Where(it => it.ISDEL != true).ToList();
+
+                return JsonConvert.SerializeObject(model);
+            }
+        }
         public static HT_NHOMNGUOIDUNG GetNhomNguoiDungByID(int id)
         {
             try
@@ -190,6 +199,15 @@ namespace TTFPortal.Class
                 return Task.Run(() => db.HT_NHOMNGUOIDUNG.FirstOrDefault(it => it.NHOMNGUOIDUNG == id)).Result;
             }
             catch { return null; }
+        }
+
+        public static List<TTF_ThongBao_Result> ThongBao(int nhanSu, string tuNgay, string denNgay)
+        {
+            using (var db = new TTF_FACEIDEntities())
+            {
+                var model = db.TTF_ThongBao(tuNgay, denNgay, nhanSu).ToList();
+                return model;
+            }
         }
     }
     public class NhanSu
